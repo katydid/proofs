@@ -1,10 +1,12 @@
 (* DubStep
    "Beware of the drop!"
+
    Essentially the dubstep tactic evaluates a targeted function.
    Before this tactic used to unfold and fold a targeted function.
    It sounds like this would not really do much,
    but if used correctly it makes the targeted function take a step forward.
    Unlike the cbn in general and simpl tactics, which would make all functions calculate as much as they can.
+
    If you are unfamiliar with dubstep, here is a tutorial:
    [UKF Dubstep Tutorial - Dubba Jonny](https://www.youtube.com/watch?v=CJzfTZlEl40)
 *)

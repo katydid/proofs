@@ -1,3 +1,13 @@
 -R src ""
 
+src/CoqStock/Comparable_nat.v
+src/CoqStock/Comparable.v
 src/CoqStock/DubStep.v
+src/CoqStock/Invs.v
+src/CoqStock/Lem.v
+src/CoqStock/List.v
+src/CoqStock/Listerine.v
+src/CoqStock/TacticState.v
+src/CoqStock/Truthy.v
+src/CoqStock/Untie.v
+src/CoqStock/WreckIt.v

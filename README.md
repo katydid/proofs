@@ -5,13 +5,21 @@ Proofs written in Coq for the core katydid validation algorithm
 
 ## Setup
 
-1. Install Coq 8.13.0
-2. Remember to set coq in your PATH. For example, in your `~/.bash_profile` add `PATH="/Applications/CoqIDE_8.13.0.app/Contents/Resources/bin/:${PATH}"` and run `$ source ~/.bash_profile`.
-3. Run make in this folder.
+1. Install [Coq 8.13.1](https://github.com/coq/coq/releases/tag/V8.13.1)
+2. Remember to set coq in your PATH. For example, in your `~/.bash_profile` add `PATH="/Applications/CoqIDE_8.13.1.app/Contents/Resources/bin/:${PATH}"` and run `$ source ~/.bash_profile`.
+3. Open CoqIDE by right clicking (since it is not properly signed for mac).
+4. Run make in this folder.
 
 Note:
 
  - `make cleanall` cleans all files even `.aux` files.
+
+### VS Code
+
+1. Install VS Code
+2. Install the VSCoq extension
+3. Go to settings and set your `CoqTop: Bin Path` to `/Applications/CoqIDE_8.13.1.app/Contents/Resources/bin`
+4. Use Cmd+Option+Down and Cmd+Option+Left to walk through the proof
 
 ## Contributing
 
