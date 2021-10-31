@@ -1,5 +1,6 @@
 -R src ""
 
+src/CoqStock/Comparable_list.v
 src/CoqStock/Comparable_nat.v
 src/CoqStock/Comparable.v
 src/CoqStock/DubStep.v

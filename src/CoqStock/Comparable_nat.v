@@ -90,11 +90,3 @@ Instance comparable_nat : comparable nat :=
   ; proof_compare_lt_trans := nat_proof_compare_lt_trans
   ; proof_compare_gt_trans := nat_proof_compare_gt_trans
   }.
-
-(* test_compare_list simply tests whether nat can be used
-   with a function that expects a comparable instance.
-   compare_list is defined in comparable,
-   specifically for this use case.
-*)
-Definition test_compare_list : Prop :=
-  comparable_list (1 :: 2 :: nil) (1 :: 3 :: nil) = Lt.

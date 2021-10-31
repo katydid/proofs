@@ -1,8 +1,6 @@
 Set Implicit Arguments.
 Set Asymmetric Patterns.
 
-Require Import Coq.Lists.List.
-
 Class comparable (A : Type) :=
   { compare : A -> A -> comparison (* Eq | Lt | Gt *)
 
@@ -210,23 +208,6 @@ Proof.
     rewrite proof_compare_eq_reflex in a.
     discriminate.
 Qed.
-
-Fixpoint comparable_list {A: Type} {cmp: comparable A} (xs: list A) (ys: list A) : comparison :=
-  match xs with
-  | nil => match ys with
-      | nil => Eq
-      | _ => Lt
-      end
-  | x :: xs => match ys with
-      | nil => Gt
-      | y :: ys => match compare x y with
-          | Eq => comparable_list xs ys
-          | Lt => Lt
-          | Gt => Gt
-          end
-      end
-  end.
-
 
 Definition compare_leq {A: Type} {cmp: comparable A} (x y: A) : Prop :=
   (compare x y = Eq) \/ (compare x y = Lt).
