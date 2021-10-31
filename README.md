@@ -1,7 +1,7 @@
 # proofs
 Proofs written in Coq for the core katydid validation algorithm
 
-![Check Proofs](https://github.com/awalterschulze/regex-reexamined-coq/workflows/Check%20Proofs/badge.svg)
+![Check Proofs](https://github.com/katydid/proofs/workflows/Check%20Proofs/badge.svg)
 
 ## Setup
 
