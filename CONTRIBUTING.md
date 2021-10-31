@@ -27,7 +27,7 @@ The more the merrier. We welcome alternative proofs.  Please submit your proof w
 ### When to use a separate file
 
 Now.  When you are starting to ask this question, it is time to start using a separate file.
-Please make sure to add new files to the `_CoqProject` file and run `./gen_Makefile.sh` so that the proofs are checked in the pull request.
+Please make sure to add new files to the `_CoqProject` file so that the proofs are checked in the pull request.
 
 ### TODO, Admitted and Abort
 
