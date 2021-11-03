@@ -26,6 +26,18 @@ Proof.
   debug auto with list. (* To see steps taken, see: debug auto with list *)
 Qed.
 
+Theorem list_cons_eq (A: Type) (x y: A) (xs ys: list A):
+  x :: xs = y :: ys <-> x = y /\ xs = ys.
+Proof.
+split; intros.
+- inversion H.
+  constructor; reflexivity.
+- inversion H.
+  rewrite H0.
+  rewrite H1.
+  reflexivity.
+Qed.
+
 #[export]
 Hint Resolve
   Coq.Lists.List.nil_cons (* [] <> x :: l *)
@@ -47,6 +59,7 @@ Hint Rewrite
   Coq.Lists.List.app_nil_r (* l ++ [] = l *)
   Coq.Lists.List.app_length (* length (l++l') = length l + length l' *)
   Coq.Lists.List.last_length (* length (l ++ a :: nil) = S (length l) *)
+  list_cons_eq (* x :: xs = y :: ys <-> x = y /\ xs = ys*)
   : list.
 
 #[export]
@@ -60,6 +73,13 @@ Hint Constructors
   Coq.Init.Logic.and
   Coq.Init.Logic.or
   : list.
+
+Theorem example_list_cons_eq (A: Type) (x y: A) (xs ys: list A):
+  x :: xs = y :: ys <-> x = y /\ xs = ys.
+Proof.
+autorewrite with list.
+reflexivity.
+Qed.
 
 Theorem lessthan_zero_is_zero:
   forall (n: nat),
