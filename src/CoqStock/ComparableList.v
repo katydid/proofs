@@ -4,7 +4,7 @@ Set Asymmetric Patterns.
 Require Import Coq.Lists.List.
 
 Require Import CoqStock.Comparable.
-Require Import CoqStock.Comparable_nat.
+Require Import CoqStock.ComparableNat.
 Require Import CoqStock.Listerine.
 Require Import CoqStock.List.
 

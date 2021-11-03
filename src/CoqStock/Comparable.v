@@ -13,18 +13,18 @@ Class comparable (A : Type) :=
     , compare x x = Eq
   ; proof_compare_eq_trans
     : forall (x y z: A)
-             (p: compare x y = Eq)
-             (q: compare y z = Eq)
+             (xy: compare x y = Eq)
+             (yz: compare y z = Eq)
     , compare x z = Eq
   ; proof_compare_lt_trans
     : forall (x y z: A)
-             (p: compare x y = Lt)
-             (q: compare y z = Lt)
+             (xy: compare x y = Lt)
+             (yz: compare y z = Lt)
     , compare x z = Lt
   ; proof_compare_gt_trans
     : forall (x y z: A)
-             (p: compare x y = Gt)
-             (q: compare y z = Gt)
+             (xy: compare x y = Gt)
+             (yz: compare y z = Gt)
     , compare x z = Gt
   }.
 
