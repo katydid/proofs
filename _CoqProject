@@ -1,8 +1,8 @@
 -R src ""
 
-src/CoqStock/Comparable_list.v
-src/CoqStock/Comparable_nat.v
 src/CoqStock/Comparable.v
+src/CoqStock/ComparableList.v
+src/CoqStock/ComparableNat.v
 src/CoqStock/DubStep.v
 src/CoqStock/Invs.v
 src/CoqStock/Lem.v
