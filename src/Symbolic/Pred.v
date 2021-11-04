@@ -11,8 +11,11 @@ We also need greater than and less than, to simplify large expressions, such as 
 For example, sorting the ors in alphabetical order allows us to simplify to (A | B) & (A | B) , which can be simplified to A | B
 *)
 
-Require Import CoqStock.Cmp.
 Require Import Coq.Arith.Compare.
+
+Require Import CoqStock.Cmp.
+
+Require Import Symbolic.Eval.
 
 (*
   Pred is a data structure that contains a predicate.
@@ -21,44 +24,44 @@ Require Import Coq.Arith.Compare.
   Pred is intended to be opaque, such that we only rely on it's properties.
 *)
 
-Record Pred (A: Type): Type := mkPred
+Record RPred (A: Type): Type := mkRPred
   {
     fn : A -> bool
   ; name: nat (* TODO: name should be string *)
   }.
 
 (* TODO: There will be more fields to compare in future *)
-Definition compare_pred {A: Type} (p1 p2: Pred A) :=
+Definition compare_pred {A: Type} (p1 p2: RPred A) :=
   Nat.compare (name A p1) (name A p2).
 
-Theorem proof_compare_eq_is_equal: forall {A: Type} (p1 p2: Pred A)
+Theorem proof_compare_eq_is_equal: forall {A: Type} (p1 p2: RPred A)
   (c: compare_pred p1 p2 = Eq)
   , p1 = p2.
 Admitted.
 
-Theorem proof_compare_eq_reflex: forall {A: Type} (p: Pred A)
+Theorem proof_compare_eq_reflex: forall {A: Type} (p: RPred A)
   , compare_pred p p = Eq.
 Admitted.
 
-Theorem proof_compare_eq_trans: forall {A: Type} (p1 p2 p3: Pred A)
+Theorem proof_compare_eq_trans: forall {A: Type} (p1 p2 p3: RPred A)
   (c12: compare_pred p1 p2 = Eq)
   (c23: compare_pred p2 p3 = Eq)
   , compare_pred p1 p3 = Eq.
 Admitted.
 
-Theorem proof_compare_lt_trans: forall {A: Type} (p1 p2 p3: Pred A)
+Theorem proof_compare_lt_trans: forall {A: Type} (p1 p2 p3: RPred A)
   (c12: compare_pred p1 p2 = Lt)
   (c23: compare_pred p2 p3 = Lt)
   , compare_pred p1 p3 = Lt.
 Admitted.
 
-Theorem proof_compare_gt_trans: forall {A: Type} (p1 p2 p3: Pred A)
+Theorem proof_compare_gt_trans: forall {A: Type} (p1 p2 p3: RPred A)
   (c12: compare_pred p1 p2 = Gt)
   (c23: compare_pred p2 p3 = Gt)
   , compare_pred p1 p3 = Gt.
 Admitted.
 
-Instance CmpPred {A: Type}: Cmp (Pred A) :=
+Instance CmpPred {A: Type}: Cmp (RPred A) :=
   {
     compare := compare_pred
   ; proof_compare_eq_is_equal := proof_compare_eq_is_equal
@@ -68,29 +71,21 @@ Instance CmpPred {A: Type}: Cmp (Pred A) :=
   ; proof_compare_gt_trans := proof_compare_gt_trans
   }.
 
-Class evaluable (P: Type) :=
+Definition eval_pred {A: Type} (p: RPred A) := (fn A p).
+
+Instance EvalPred {A: Type}: Eval (RPred A) bool :=
   {
-    domain : Type
-  ; eval : P -> domain -> bool
+    eval :=  eval_pred
   }.
 
-Definition eval_pred {A: Type} (p: Pred A) := (fn A p).
-
-Instance evaluable_pred {A: Type}: evaluable (Pred A) :=
-  { eval :=  eval_pred }.
-
-(*
-  predicate is the constraint we intend to use outside of this library
-*)
-
-Class predicate (P: Type) :=
+Class Pred (P: Type) :=
   {
-    is_evaluable: evaluable P
-  ; is_comparable: Cmp P
+    is_eval: Eval P bool
+  ; is_cmp: Cmp P
   }.
 
-Instance predicate_pred {A: Type}: predicate (Pred A) :=
+Instance PredRPred {A: Type}: Pred (RPred A) :=
   {
-    is_evaluable := evaluable_pred
-  ; is_comparable := CmpPred
+    is_eval := EvalPred
+  ; is_cmp := CmpPred
   }.
