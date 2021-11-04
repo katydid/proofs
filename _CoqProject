@@ -17,5 +17,5 @@ src/CoqStock/Truthy.v
 src/CoqStock/Untie.v
 src/CoqStock/WreckIt.v
 
-src/Symbolic/Eval.v
-src/Symbolic/Pred.v
+src/Symbolic/Expr/Eval.v
+src/Symbolic/Expr/Pred.v

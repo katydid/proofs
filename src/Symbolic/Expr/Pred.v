@@ -15,7 +15,7 @@ Require Import Coq.Arith.Compare.
 
 Require Import CoqStock.Cmp.
 
-Require Import Symbolic.Eval.
+Require Import Symbolic.Expr.Eval.
 
 (*
   Pred is a data structure that contains a predicate.
