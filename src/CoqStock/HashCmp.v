@@ -4,11 +4,11 @@ It compares the hashes of two elements and only does a deep compare
 if the hashes are equal.
 *)
 
-Require Import CoqStock.Comparable.
-Require Import CoqStock.ComparableNat.
-Require Import CoqStock.Hashable.
+Require Import CoqStock.Cmp.
+Require Import CoqStock.CmpNat.
+Require Import CoqStock.Hash.
 
-Definition hash_compare {A: Type} {c: comparable A} {h: hashable A} (x y: A) : comparison :=
+Definition hash_compare {A: Type} {c: Cmp A} {h: Hash A} (x y: A) : comparison :=
   match compare (hash x) (hash y) with
   | Eq => compare x y
   | Lt => Lt
@@ -18,8 +18,8 @@ Definition hash_compare {A: Type} {c: comparable A} {h: hashable A} (x y: A) : c
 Theorem hash_compare_proof_compare_eq_is_equal
   : forall
     {A: Type}
-    {c: comparable A}
-    {h: hashable A}
+    {c: Cmp A}
+    {h: Hash A}
     (x y: A)
     (p: hash_compare x y = Eq)
   , x = y.
@@ -37,15 +37,15 @@ Qed.
 Theorem hash_compare_proof_compare_eq_reflex
   : forall
     {A: Type}
-    {c: comparable A}
-    {h: hashable A}
+    {c: Cmp A}
+    {h: Hash A}
     (x: A)
   , hash_compare x x = Eq.
 Proof.
 intros.
 unfold hash_compare.
 remember (@hash A _ x) as hash_x.
-specialize (@proof_compare_eq_reflex nat comparable_nat) with (x := hash_x).
+specialize (@proof_compare_eq_reflex nat CmpNat) with (x := hash_x).
 intros.
 rewrite H.
 apply proof_compare_eq_reflex.
@@ -54,8 +54,8 @@ Qed.
 Theorem hash_compare_proof_compare_eq_trans
   : forall
     {A: Type}
-    {c: comparable A}
-    {h: hashable A}
+    {c: Cmp A}
+    {h: Hash A}
     (x y z: A)
     (xy: hash_compare x y = Eq)
     (yz: hash_compare y z = Eq)
@@ -71,8 +71,8 @@ Qed.
 Theorem hash_compare_proof_compare_lt_trans
   : forall
     {A: Type}
-    {c: comparable A}
-    {h: hashable A}
+    {c: Cmp A}
+    {h: Hash A}
     (x y z: A)
     (xy: hash_compare x y = Lt)
     (yz: hash_compare y z = Lt)
@@ -91,7 +91,7 @@ induction_on_compare; induction_on_compare; try discriminate.
 - remember (@hash A _ x) as hash_x.
   remember (@hash A _ y) as hash_y.
   remember (@hash A _ z) as hash_z.
-  specialize (@proof_compare_lt_trans nat comparable_nat) with (x := hash_x) (y := hash_y) (z := hash_z) as HT.
+  specialize (@proof_compare_lt_trans nat CmpNat) with (x := hash_x) (y := hash_y) (z := hash_z) as HT.
   intros.
   symmetry in Heqc0.
   symmetry in Heqc1.
@@ -103,8 +103,8 @@ Qed.
 Theorem hash_compare_proof_compare_gt_trans
   : forall
     {A: Type}
-    {c: comparable A}
-    {h: hashable A}
+    {c: Cmp A}
+    {h: Hash A}
     (x y z: A)
     (xy: hash_compare x y = Gt)
     (yz: hash_compare y z = Gt)
@@ -123,7 +123,7 @@ induction_on_compare; induction_on_compare; try discriminate.
 - remember (@hash A _ x) as hash_x.
   remember (@hash A _ y) as hash_y.
   remember (@hash A _ z) as hash_z.
-  specialize (@proof_compare_gt_trans nat comparable_nat) with (x := hash_x) (y := hash_y) (z := hash_z) as HT.
+  specialize (@proof_compare_gt_trans nat CmpNat) with (x := hash_x) (y := hash_y) (z := hash_z) as HT.
   intros.
   symmetry in Heqc0.
   symmetry in Heqc1.
@@ -132,7 +132,7 @@ induction_on_compare; induction_on_compare; try discriminate.
   reflexivity.
 Qed.
 
-Instance comparable_hash_compare {A: Type} {c: comparable A} {h: hashable A}: comparable A :=
+Instance CmpHash {A: Type} {c: Cmp A} {h: Hash A}: Cmp A :=
   { compare := hash_compare
   ; proof_compare_eq_is_equal := hash_compare_proof_compare_eq_is_equal
   ; proof_compare_eq_reflex := hash_compare_proof_compare_eq_reflex

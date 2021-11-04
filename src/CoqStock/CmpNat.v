@@ -8,7 +8,7 @@ Set Asymmetric Patterns.
 
 Require Import Coq.Lists.List.
 
-Require Import CoqStock.Comparable.
+Require Import CoqStock.Cmp.
 
 Definition nat_compare := Nat.compare.
 
@@ -82,7 +82,7 @@ Proof.
 (* TODO *)
 Admitted.
 
-Instance comparable_nat : comparable nat :=
+Instance CmpNat : Cmp nat :=
   { compare := nat_compare
   ; proof_compare_eq_is_equal := nat_proof_compare_eq_is_equal
   ; proof_compare_eq_reflex := nat_proof_compare_eq_reflex

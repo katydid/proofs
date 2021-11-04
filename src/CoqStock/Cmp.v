@@ -1,7 +1,7 @@
 Set Implicit Arguments.
 Set Asymmetric Patterns.
 
-Class comparable (A : Type) :=
+Class Cmp (A : Type) :=
   { compare : A -> A -> comparison (* Eq | Lt | Gt *)
 
   ; proof_compare_eq_is_equal
@@ -49,7 +49,7 @@ Ltac compare_to_eq :=
 
 Lemma test_tactic_compare_to_eq
   : forall {A: Type}
-           {cmp: comparable A}
+           {cmp: Cmp A}
            (x y: A)
            (p: Eq = compare x y),
   x = y.
@@ -87,7 +87,7 @@ Ltac induction_on_compare :=
 
 Theorem proof_compare_eq_symm
   : forall {A: Type}
-           {cmp: comparable A}
+           {cmp: Cmp A}
            (x y: A)
            (p: compare x y = Eq)
   , compare y x = Eq.
@@ -102,7 +102,7 @@ Qed.
 
 Theorem compare_eq_is_only_equal
   : forall {A: Type}
-           {cmp: comparable A}
+           {cmp: Cmp A}
            (x1 x2: A)
            (p: compare x1 x2 = compare x2 x1)
   , compare x1 x2 = Eq.
@@ -124,7 +124,7 @@ Qed.
 
 Theorem compare_lt_not_symm_1
   : forall {A: Type}
-           {cmp: comparable A}
+           {cmp: Cmp A}
            (x1 x2: A)
            (c12: compare x1 x2 = Lt)
            (c21: compare x2 x1 = Lt)
@@ -139,7 +139,7 @@ Qed.
 
 Theorem compare_lt_not_symm_2
   : forall {A: Type}
-           {cmp: comparable A}
+           {cmp: Cmp A}
            (x1 x2: A)
            (c12: compare x1 x2 = Lt)
            (c21: compare x2 x1 = Lt)
@@ -155,7 +155,7 @@ Qed.
 
 Theorem compare_gt_not_symm
   : forall {A: Type}
-           {cmp: comparable A}
+           {cmp: Cmp A}
            (x1 x2: A)
            (c12: compare x1 x2 = Gt)
            (c21: compare x2 x1 = Gt)
@@ -171,7 +171,7 @@ Qed.
 
 Theorem compare_lt_gt_symm
   : forall {A: Type}
-           {cmp: comparable A}
+           {cmp: Cmp A}
            (x1 x2: A)
            (p: compare x1 x2 = Lt)
   , compare x2 x1 = Gt.
@@ -192,7 +192,7 @@ Qed.
 
 Theorem compare_gt_lt_symm
   : forall {A: Type}
-           {cmp: comparable A}
+           {cmp: Cmp A}
            (x1 x2: A)
            (p: compare x1 x2 = Gt)
   , compare x2 x1 = Lt.
@@ -209,10 +209,10 @@ Proof.
     discriminate.
 Qed.
 
-Definition compare_leq {A: Type} {cmp: comparable A} (x y: A) : Prop :=
+Definition compare_leq {A: Type} {cmp: Cmp A} (x y: A) : Prop :=
   (compare x y = Eq) \/ (compare x y = Lt).
 
-Lemma compare_leq_trans {A: Type} {cmp: comparable A} (x y z: A) :
+Lemma compare_leq_trans {A: Type} {cmp: Cmp A} (x y z: A) :
   (compare_leq x y) -> (compare_leq y z) -> (compare_leq x z).
 Proof.
   intros.
@@ -226,7 +226,7 @@ Proof.
     try (right; assumption).
 Qed.
 
-Lemma compare_lt_leq_trans {A: Type} {cmp: comparable A} (x y z: A) :
+Lemma compare_lt_leq_trans {A: Type} {cmp: Cmp A} (x y z: A) :
   (compare x y = Lt)
     -> (compare_leq y z)
     -> (compare x z = Lt).
@@ -238,7 +238,7 @@ Proof.
   - apply proof_compare_lt_trans with (y0 := y); assumption.
 Qed.
 
-Lemma compare_leq_reflex {A: Type} {cmp: comparable A} (x : A) :
+Lemma compare_leq_reflex {A: Type} {cmp: Cmp A} (x : A) :
   (compare_leq x x).
 Proof.
   intros.
@@ -247,7 +247,7 @@ Proof.
   apply proof_compare_eq_reflex.
 Qed.
 
-Lemma compare_eq_dec {A: Type} {cmp: comparable A} (x y : A):
+Lemma compare_eq_dec {A: Type} {cmp: Cmp A} (x y : A):
   {x = y} + {x <> y}.
 Proof.
   destruct (compare x y) eqn:Heqc;

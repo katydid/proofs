@@ -3,12 +3,12 @@ Set Asymmetric Patterns.
 
 Require Import Coq.Lists.List.
 
-Require Import CoqStock.Comparable.
-Require Import CoqStock.ComparableNat.
+Require Import CoqStock.Cmp.
+Require Import CoqStock.CmpNat.
 Require Import CoqStock.Listerine.
 Require Import CoqStock.List.
 
-Fixpoint list_compare {A: Type} {cmp: comparable A} (xs: list A) (ys: list A) : comparison :=
+Fixpoint list_compare {A: Type} {c: Cmp A} (xs: list A) (ys: list A) : comparison :=
   match xs with
   | nil => match ys with
       | nil => Eq
@@ -33,7 +33,7 @@ Definition test_compare_list_nat : Prop :=
 Theorem list_proof_compare_eq_is_equal
   : forall
     {A: Type}
-    {c: comparable A}
+    {c: Cmp A}
     (xs ys: list A)
     (p: list_compare xs ys = Eq)
   , xs = ys.
@@ -55,7 +55,7 @@ Qed.
 Theorem list_proof_compare_eq_reflex
   : forall
     {A: Type}
-    {c: comparable A}
+    {c: Cmp A}
     (xs: list A)
   , list_compare xs xs = Eq.
 Proof.
@@ -74,7 +74,7 @@ Qed.
 Theorem list_proof_compare_eq_trans
   : forall
     {A: Type}
-    {c: comparable A}
+    {c: Cmp A}
     (xs ys zs: list A)
     (xy: list_compare xs ys = Eq)
     (yz: list_compare ys zs = Eq)
@@ -97,7 +97,7 @@ Qed.
 Theorem list_proof_compare_lt_trans
   : forall
     {A: Type}
-    {c: comparable A}
+    {c: Cmp A}
     (xs ys zs: list A)
     (xy: list_compare xs ys = Lt)
     (yz: list_compare ys zs = Lt)
@@ -127,7 +127,7 @@ Qed.
 Theorem list_proof_compare_gt_trans
   : forall
     {A: Type}
-    {c: comparable A}
+    {c: Cmp A}
     (xs ys zs: list A)
     (xy: list_compare xs ys = Gt)
     (yz: list_compare ys zs = Gt)
@@ -154,7 +154,7 @@ induction xs, ys, zs; intros; try assumption.
     reflexivity.
 Qed.
 
-Instance comparable_list {A: Type} {c: comparable A}: comparable (list A) :=
+Instance CmpList {A: Type} {c: Cmp A}: Cmp (list A) :=
   { compare := list_compare
   ; proof_compare_eq_is_equal := list_proof_compare_eq_is_equal
   ; proof_compare_eq_reflex := list_proof_compare_eq_reflex

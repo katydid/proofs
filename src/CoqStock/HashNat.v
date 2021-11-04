@@ -1,9 +1,9 @@
-Require Import CoqStock.Hashable.
+Require Import CoqStock.Hash.
 
 Definition nat_hash (n: nat): nat :=
     n.
 
-Instance hashable_nat : hashable nat :=
+Instance HashNat : Hash nat :=
   {
     hash := nat_hash
   }.

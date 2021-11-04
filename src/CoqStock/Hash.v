@@ -1,6 +1,6 @@
 Require Import CoqStock.Untie.
 
-Class hashable (A : Type) :=
+Class Hash (A : Type) :=
   {
     hash : A -> nat (* TODO: upgrade to Sint63 with Coq 8.14 *)
   }.
@@ -18,7 +18,7 @@ Qed.
 
 Theorem hash_neq_to_neq
   : forall {A: Type}
-           {h: hashable A}
+           {h: Hash A}
            (x y: A)
            (p: hash x <> hash y),
   x <> y.

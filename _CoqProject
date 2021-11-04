@@ -1,13 +1,13 @@
 -R src ""
 
-src/CoqStock/Comparable.v
-src/CoqStock/ComparableList.v
-src/CoqStock/ComparableNat.v
+src/CoqStock/Cmp.v
+src/CoqStock/CmpNat.v
+src/CoqStock/CmpList.v
 src/CoqStock/DubStep.v
-src/CoqStock/Hashable.v
-src/CoqStock/HashableNat.v
-src/CoqStock/HashableList.v
-src/CoqStock/HashCompare.v
+src/CoqStock/Hash.v
+src/CoqStock/HashNat.v
+src/CoqStock/HashList.v
+src/CoqStock/HashCmp.v
 src/CoqStock/Invs.v
 src/CoqStock/Lem.v
 src/CoqStock/List.v

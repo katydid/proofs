@@ -11,7 +11,7 @@ We also need greater than and less than, to simplify large expressions, such as 
 For example, sorting the ors in alphabetical order allows us to simplify to (A | B) & (A | B) , which can be simplified to A | B
 *)
 
-Require Import CoqStock.Comparable.
+Require Import CoqStock.Cmp.
 Require Import Coq.Arith.Compare.
 
 (*
@@ -58,7 +58,7 @@ Theorem proof_compare_gt_trans: forall {A: Type} (p1 p2 p3: Pred A)
   , compare_pred p1 p3 = Gt.
 Admitted.
 
-Instance comparable_pred {A: Type}: comparable (Pred A) :=
+Instance CmpPred {A: Type}: Cmp (Pred A) :=
   {
     compare := compare_pred
   ; proof_compare_eq_is_equal := proof_compare_eq_is_equal
@@ -86,11 +86,11 @@ Instance evaluable_pred {A: Type}: evaluable (Pred A) :=
 Class predicate (P: Type) :=
   {
     is_evaluable: evaluable P
-  ; is_comparable: comparable P
+  ; is_comparable: Cmp P
   }.
 
 Instance predicate_pred {A: Type}: predicate (Pred A) :=
   {
     is_evaluable := evaluable_pred
-  ; is_comparable := comparable_pred
+  ; is_comparable := CmpPred
   }.
