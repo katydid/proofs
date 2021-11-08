@@ -84,8 +84,8 @@ Please read the [contributing guidelines](https://github.com/awalterschulze/rege
 
 ### Setup
 
-1. Install [Coq 8.13.2](https://github.com/coq/platform/releases/tag/2021.02.2)
-2. Remember to set coq in your PATH. For example, in your `~/.bash_profile` add `export PATH="/Applications/Coq_Platform_2021.02.2.app/Contents/Resources/bin/:${PATH}"` and run `$ source ~/.bash_profile`.
+1. Install [Coq 8.14.0](https://github.com/coq/platform/releases/tag/2021.02.2)
+2. Remember to set coq in your PATH. For example, in your `~/.bash_profile` add `export PATH="/Applications/Coq_Platform_2021.09.0.app/Contents/Resources/bin/:${PATH}"` and run `$ source ~/.bash_profile`.
 3. Open CoqIDE by right clicking (since it is not properly signed for mac).
 4. Run make in this folder.
 
@@ -105,7 +105,7 @@ $ coq_makefile -f _CoqProject -o Makefile
 
 1. Install VS Code
 2. Install the VSCoq extension
-3. Go to settings and set your `CoqTop: Bin Path` to `/Applications/Coq_Platform_2021.02.2.app/Contents/Resources/bin/`
+3. Go to settings and set your `CoqTop: Bin Path` to `/Applications/Coq_Platform_2021.09.0.app/Contents/Resources/bin/`
 4. Use Cmd+Option+Down and Cmd+Option+Left to walk through the proof
 
 ### Pair Programming

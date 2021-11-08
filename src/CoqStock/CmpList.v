@@ -35,7 +35,7 @@ Theorem list_proof_compare_eq_is_equal
     {A: Type}
     {c: Cmp A}
     (xs ys: list A)
-    (p: list_compare xs ys = Eq)
+    (xy: list_compare xs ys = Eq)
   , xs = ys.
 Proof.
 induction xs, ys.
@@ -49,7 +49,7 @@ induction xs, ys.
   constructor.
   + reflexivity.
   + apply IHxs.
-    exact H.
+    exact xy.
 Qed.
 
 Theorem list_proof_compare_eq_reflex
