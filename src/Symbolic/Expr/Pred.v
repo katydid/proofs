@@ -34,7 +34,7 @@ Record RPred (A: Type): Type := mkRPred
 Definition compare_pred {A: Type} (p1 p2: RPred A) :=
   Nat.compare (name A p1) (name A p2).
 
-Theorem proof_compare_eq_is_equal: forall {A: Type} (p1 p2: RPred A)
+Theorem proof_compare_eq_implies_equal: forall {A: Type} (p1 p2: RPred A)
   (c: compare_pred p1 p2 = Eq)
   , p1 = p2.
 Admitted.
@@ -64,7 +64,7 @@ Admitted.
 Instance CmpPred {A: Type}: Cmp (RPred A) :=
   {
     compare := compare_pred
-  ; proof_compare_eq_is_equal := proof_compare_eq_is_equal
+  ; proof_compare_eq_implies_equal := proof_compare_eq_implies_equal
   ; proof_compare_eq_reflex := proof_compare_eq_reflex
   ; proof_compare_eq_trans := proof_compare_eq_trans
   ; proof_compare_lt_trans := proof_compare_lt_trans

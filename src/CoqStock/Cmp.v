@@ -1,10 +1,9 @@
-Set Implicit Arguments.
-Set Asymmetric Patterns.
+Require Import Coq.Setoids.Setoid.
 
 Class Cmp (A : Type) :=
   { compare : A -> A -> comparison (* Eq | Lt | Gt *)
 
-  ; proof_compare_eq_is_equal
+  ; proof_compare_eq_implies_equal
     : forall (x y: A)
              (p: compare x y = Eq)
     , x = y
@@ -28,23 +27,106 @@ Class Cmp (A : Type) :=
     , compare x z = Gt
   }.
 
-(* compare_to_eq turns an hypothesis:
+Definition compare_leq {A: Type} {cmp: Cmp A} (x y: A) : Prop :=
+  (compare x y = Eq) \/ (compare x y = Lt).
+
+Theorem compare_eq_is_equal
+  : forall {A: Type} {c: Cmp A} (x y: A)
+  , compare x y = Eq <-> x = y.
+Proof.
+intros; split.
+- apply proof_compare_eq_implies_equal.
+- intros. rewrite H.
+  remember (compare y y) as iH.
+  symmetry in HeqiH.
+  induction iH.
+  + reflexivity.
+  + set (proof_compare_eq_reflex y).
+    rewrite e in HeqiH.
+    discriminate.
+  + set (proof_compare_eq_reflex y).
+    rewrite e in HeqiH.
+    discriminate.
+Qed.
+
+Theorem compare_eq_is_equal_r
+  : forall {A: Type} {c: Cmp A} (x y: A)
+  , Eq = compare x y <-> x = y.
+Proof.
+intros; split; intros.
+- symmetry in H. apply compare_eq_is_equal in H. assumption.
+- symmetry. apply compare_eq_is_equal. assumption.
+Qed.
+
+Ltac compare_symmetry :=
+  match goal with
+  | [ H_Eq_Compare : Eq = Eq |- _ ] =>
+    clear H_Eq_Compare
+  | [ H_Eq_Compare : Eq = Lt |- _ ] =>
+    discriminate
+  | [ H_Eq_Compare : Eq = Gt |- _ ] =>
+    discriminate
+  | [ H_Eq_Compare : Lt = Eq |- _ ] =>
+    discriminate
+  | [ H_Eq_Compare : Lt = Lt |- _ ] =>
+    clear H_Eq_Compare
+  | [ H_Eq_Compare : Lt = Gt |- _ ] =>
+    discriminate
+  | [ H_Eq_Compare : Gt = Eq |- _ ] =>
+    discriminate
+  | [ H_Eq_Compare : Gt = Lt |- _ ] =>
+    discriminate
+  | [ H_Eq_Compare : Gt = Gt |- _ ] =>
+    clear H_Eq_Compare
+  | [ H_Eq_Compare : Eq = ?Compare |- _ ] =>
+    symmetry in H_Eq_Compare
+  | [ H_Eq_Compare : Lt = ?Compare |- _ ] =>
+    symmetry in H_Eq_Compare
+  | [ H_Eq_Compare : Gt = ?Compare |- _ ] =>
+    symmetry in H_Eq_Compare
+  | [ |- Eq = Eq ] =>
+    reflexivity
+  | [ |- Lt = Lt ] =>
+    reflexivity
+  | [ |- Gt = Gt ] =>
+    reflexivity
+  | [ |- context [compare ?X ?X] ] =>
+    rewrite proof_compare_eq_reflex
+  end.
+
+(* If there is a pair of hypotheses
+          compare ?x0 ?x1 = Gt   and   compare ?x0 ?x1 = Lt (or = Eq)
+       then this tactic derives a contradiction.
+ *)
+Ltac compare_contradiction :=
+  repeat compare_symmetry;
+  match goal with
+  | [ H1: compare ?x0 ?x1 = Gt , H2: compare ?x0 ?x1 = Lt |- _ ]
+    => exfalso; assert (Gt = Lt); try (rewrite <- H1; rewrite <- H2; reflexivity); discriminate
+  | [ H1: compare ?x0 ?x1 = Gt , H2: compare ?x0 ?x1 = Eq |- _ ]
+    => exfalso; assert (Gt = Eq); try (rewrite <- H1; rewrite <- H2; reflexivity); discriminate
+  | [ H1: compare ?x0 ?x1 = Eq , H2: compare ?x0 ?x1 = Lt |- _ ]
+    => exfalso; assert (Eq = Lt); try (rewrite <- H1; rewrite <- H2; reflexivity); discriminate
+  | [ H1: compare_leq ?x0 ?x1, H2: compare ?x0 ?x1 = Gt |- _ ]
+    => destruct H1; compare_contradiction
+  end.
+
+(* compare_to_eq turns an hypothesis or goal:
   `Eq = compare x y` or `compare x y = Eq` into:
 into:
   `x = y`
-  and then tries to rewrite with it.
+  and in the case of the hypothesis tries to rewrite with it.
 *)
 Ltac compare_to_eq :=
+  repeat compare_symmetry;
   match goal with
-  | [ H_Eq_Compare : Eq = ?Compare |- _ ] =>
-    symmetry in H_Eq_Compare;
-    let Heq := fresh "Heq"
-    in apply proof_compare_eq_is_equal in H_Eq_Compare as Heq;
-       try (rewrite Heq)
-  | [ H_Eq_Compare : ?Compare = Eq |- _ ] =>
-    let Heq := fresh "Heq"
-    in apply proof_compare_eq_is_equal in H_Eq_Compare as Heq;
-       try (rewrite Heq)
+  | [ H_Eq_Compare : compare ?X ?Y = Eq |- _ ] =>
+    rewrite compare_eq_is_equal in H_Eq_Compare;
+    try (rewrite H_Eq_Compare)
+  | [ |- context [compare ?X ?Y = Eq] ] =>
+    rewrite compare_eq_is_equal
+  | [ |- context [Eq = compare ?X ?Y] ] =>
+    rewrite compare_eq_is_equal_r
   end.
 
 Lemma test_tactic_compare_to_eq
@@ -55,7 +137,6 @@ Lemma test_tactic_compare_to_eq
   x = y.
 Proof.
 intros.
-set (Heq := cmp).
 compare_to_eq.
 reflexivity.
 Qed.
@@ -81,7 +162,8 @@ Ltac induction_on_compare :=
   *)
   match goal with
   | [ C: comparison |- _ ] =>
-    induction C; [ (* Eq *) compare_to_eq | (* Lt *) | (* Gt *)]
+    induction C; [ (* Eq *) compare_to_eq | (* Lt *) | (* Gt *)]; repeat compare_symmetry
+      ; repeat compare_contradiction
   end
 .
 
@@ -94,7 +176,7 @@ Theorem proof_compare_eq_symm
 Proof.
 intros.
 assert (p1 := p).
-apply proof_compare_eq_is_equal in p.
+apply proof_compare_eq_implies_equal in p.
 rewrite p.
 rewrite p in p1.
 assumption.
@@ -109,15 +191,10 @@ Theorem compare_eq_is_only_equal
 Proof.
 intros.
 induction_on_compare.
-- reflexivity.
-- symmetry in Heqc.
-  symmetry in p.
-  remember (proof_compare_lt_trans x1 x2 x1 Heqc p).
+- remember (proof_compare_lt_trans x1 x2 x1 Heqc p).
   rewrite <- e.
   apply proof_compare_eq_reflex.
-- symmetry in Heqc.
-  symmetry in p.
-  remember (proof_compare_gt_trans x1 x2 x1 Heqc p).
+- remember (proof_compare_gt_trans x1 x2 x1 Heqc p).
   rewrite <- e.
   apply proof_compare_eq_reflex.
 Qed.
@@ -169,6 +246,7 @@ rewrite c12 in c.
 discriminate.
 Qed.
 
+(* Also severves as an example of how to prove using induction on compare, without using the induction_on_compare tactic *)
 Theorem compare_lt_gt_symm
   : forall {A: Type}
            {cmp: Cmp A}
@@ -178,13 +256,12 @@ Theorem compare_lt_gt_symm
 Proof.
 intros.
 remember (compare x2 x1) as iH.
+symmetry in HeqiH.
 induction iH.
-- symmetry in HeqiH.
-  apply proof_compare_eq_symm in HeqiH.
+- apply proof_compare_eq_symm in HeqiH.
   rewrite HeqiH in p.
   discriminate.
-- symmetry in HeqiH.
-  assert (a := proof_compare_lt_trans x1 x2 x1 p HeqiH).
+- assert (a := proof_compare_lt_trans x1 x2 x1 p HeqiH).
   rewrite proof_compare_eq_reflex in a.
   discriminate.
 - reflexivity.
@@ -199,18 +276,28 @@ Theorem compare_gt_lt_symm
 Proof.
   intros.
   induction_on_compare.
-  - rewrite Heq in p.
+  - rewrite Heqc in p.
     rewrite proof_compare_eq_reflex in p.
     discriminate.
-  - trivial.
-  - symmetry in Heqc.
-    set (a := proof_compare_gt_trans x1 x2 x1 p Heqc).
+  - set (a := proof_compare_gt_trans x1 x2 x1 p Heqc).
     rewrite proof_compare_eq_reflex in a.
     discriminate.
 Qed.
 
-Definition compare_leq {A: Type} {cmp: Cmp A} (x y: A) : Prop :=
-  (compare x y = Eq) \/ (compare x y = Lt).
+Theorem proof_compare_anti_symm
+  : forall {A: Type} {c: Cmp A} (x y : A)
+  , compare x y = CompOpp (compare y x).
+Proof.
+intros.
+induction_on_compare.
+- constructor.
+- apply compare_lt_gt_symm in Heqc0.
+  rewrite Heqc0.
+  constructor.
+- apply compare_gt_lt_symm in Heqc0.
+  rewrite Heqc0.
+  constructor.
+Qed.
 
 Lemma compare_leq_trans {A: Type} {cmp: Cmp A} (x y z: A) :
   (compare_leq x y) -> (compare_leq y z) -> (compare_leq x z).
@@ -260,19 +347,3 @@ Proof.
     left.
     reflexivity.
 Qed.
-
-(* If there is a pair of hypotheses
-          compare ?x0 ?x1 = Gt   and   compare ?x0 ?x1 = Lt (or = Eq)
-       then this tactic derives a contradiction.
- *)
-Ltac contradiction_from_compares :=
-  match goal with
-  | [ H1: compare ?x0 ?x1 = Gt , H2: compare ?x0 ?x1 = Lt |- _ ]
-    => exfalso; assert (Gt = Lt); try (rewrite <- H1; rewrite <- H2; reflexivity); discriminate
-  | [ H1: compare ?x0 ?x1 = Gt , H2: compare ?x0 ?x1 = Eq |- _ ]
-    => exfalso; assert (Gt = Eq); try (rewrite <- H1; rewrite <- H2; reflexivity); discriminate
-  | [ H1: compare ?x0 ?x1 = Eq , H2: compare ?x0 ?x1 = Lt |- _ ]
-    => exfalso; assert (Eq = Lt); try (rewrite <- H1; rewrite <- H2; reflexivity); discriminate
-  | [ H1: compare_leq ?x0 ?x1, H2: compare ?x0 ?x1 = Gt |- _ ]
-    => destruct H1; contradiction_from_compares
-  end.

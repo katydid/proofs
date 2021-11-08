@@ -12,7 +12,7 @@ Require Import CoqStock.Cmp.
 
 Definition nat_compare := Nat.compare.
 
-Lemma nat_proof_compare_eq_is_equal:
+Lemma nat_proof_compare_eq_implies_equal:
   forall (x y: nat)
          (p: nat_compare x y = Eq),
     x = y.
@@ -28,7 +28,7 @@ induction x, y.
   reflexivity.
 Qed.
 
-Lemma nat_proof_compare_eq_is_equal' x y:
+Lemma nat_proof_compare_eq_implies_equal' x y:
   nat_compare x y = Eq ->
   x = y.
 Proof.
@@ -84,7 +84,7 @@ Admitted.
 
 Instance CmpNat : Cmp nat :=
   { compare := nat_compare
-  ; proof_compare_eq_is_equal := nat_proof_compare_eq_is_equal
+  ; proof_compare_eq_implies_equal := nat_proof_compare_eq_implies_equal
   ; proof_compare_eq_reflex := nat_proof_compare_eq_reflex
   ; proof_compare_eq_trans := nat_proof_compare_eq_trans
   ; proof_compare_lt_trans := nat_proof_compare_lt_trans

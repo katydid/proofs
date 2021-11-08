@@ -30,7 +30,7 @@ Fixpoint list_compare {A: Type} {c: Cmp A} (xs: list A) (ys: list A) : compariso
 Definition test_compare_list_nat : Prop :=
   list_compare (1 :: 2 :: nil) (1 :: 3 :: nil) = Lt.
 
-Theorem list_proof_compare_eq_is_equal
+Theorem list_proof_compare_eq_implies_equal
   : forall
     {A: Type}
     {c: Cmp A}
@@ -114,11 +114,10 @@ induction xs, ys, zs; intros; try assumption.
   induction_on_compare; induction_on_compare; try discriminate.
   + exact IHxs.
   + reflexivity.
-  + rewrite <- Heq.
+  + rewrite <- Heqc1.
     intros.
-    induction_on_compare; try discriminate; assumption.
+    induction_on_compare.
   + specialize proof_compare_lt_trans with x y z as T.
-    symmetry in Heqc0, Heqc1.
     remember (T Heqc0 Heqc1).
     rewrite e.
     reflexivity.
@@ -144,11 +143,10 @@ induction xs, ys, zs; intros; try assumption.
   induction_on_compare; induction_on_compare; try discriminate.
   + exact IHxs.
   + reflexivity.
-  + rewrite <- Heq.
+  + rewrite <- Heqc1.
     intros.
-    induction_on_compare; try discriminate; assumption.
+    induction_on_compare.
   + specialize proof_compare_gt_trans with x y z as T.
-    symmetry in Heqc0, Heqc1.
     remember (T Heqc0 Heqc1).
     rewrite e.
     reflexivity.
@@ -156,7 +154,7 @@ Qed.
 
 Instance CmpList {A: Type} {c: Cmp A}: Cmp (list A) :=
   { compare := list_compare
-  ; proof_compare_eq_is_equal := list_proof_compare_eq_is_equal
+  ; proof_compare_eq_implies_equal := list_proof_compare_eq_implies_equal
   ; proof_compare_eq_reflex := list_proof_compare_eq_reflex
   ; proof_compare_eq_trans := list_proof_compare_eq_trans
   ; proof_compare_lt_trans := list_proof_compare_lt_trans
