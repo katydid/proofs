@@ -1,7 +1,7 @@
 Require Import CoqStock.Hash.
 
 Definition nat_hash (n: nat): nat :=
-    n.
+  n.
 
 Instance HashNat : Hash nat :=
   {

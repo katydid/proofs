@@ -18,4 +18,5 @@ src/CoqStock/Untie.v
 src/CoqStock/WreckIt.v
 
 src/Symbolic/Expr/Eval.v
+src/Symbolic/Expr/Expr.v
 src/Symbolic/Expr/Pred.v
