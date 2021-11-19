@@ -15,47 +15,30 @@ Inductive Info: Type :=
   Info.
 
 (*
-  Fn is the underlying representation of a function.
-  Unlike Eval which is the class abstraction that will be exposed, Fn is only meant for internal usage.
+  TODO: Create Inductive type isSmartConstructed
+  This will be useful for proofs
 *)
-Record Fn (B: Set): Type :=
-  mkFn {
-      A: Set
-    ; fn: A -> B
-  }.
 
 (*
   RExpr is the underlying representation of an expression.
   Unlike Expr which is the class abstraction that will be exposed, RExpr is only meant for internal usage.
 *)
-Record RExpr (B: Set): Type :=
+Record RExpr {A: Set} (B: Set): Type :=
   mkRExpr {
-      function: Fn B
+    fn: A -> B
     ; info: Info
   }.
 
 (* Getters *)
 
-Definition get_function {B: Set} (x: RExpr B): Fn B :=
-  @function B x.
-
-Definition get_a {B: Set} (x: RExpr B): Set :=
-  A B (get_function x).
-
-Definition get_a' {B: Set} (x: Fn B): Set :=
-  A B x.
-
-Definition get_fn {B: Set} (x: RExpr B): (get_a x) -> B :=
-  fn B (get_function x).
-
-Definition get_fn' {B: Set} (x: Fn B): (get_a' x) -> B :=
+Definition get_fn {A: Set} {B: Set} (x: RExpr B): A -> B :=
   fn B x.
 
-Definition get_info {B: Set} (x: RExpr B): Info :=
-  @info B x.
+Definition get_info {A: Set} {B: Set} (x: RExpr B): Info :=
+  @info A B x.
 
-Definition get_name {B: Set} (x: RExpr B): nat :=
-  match get_info x with
+Definition get_name {A: Set} {B: Set} (x: RExpr B): nat :=
+  match @get_info A B x with
   | mkInfo name _ _ _ => name
   end.
 
@@ -64,8 +47,8 @@ Definition get_name' (x: Info): nat :=
   | mkInfo name _ _ _ => name
   end.
 
-Definition get_params {B: Set} (x: RExpr B): list Info :=
-  match get_info x with
+Definition get_params {A: Set} {B: Set} (x: RExpr B): list Info :=
+  match @get_info A B x with
   | mkInfo _ params _ _ => params
   end.
 
@@ -74,8 +57,8 @@ Definition get_params' (x: Info): list Info :=
   | mkInfo _ params _ _ => params
   end.
 
-Definition get_hasvar {B: Set} (x: RExpr B): bool :=
-  match get_info x with
+Definition get_hasvar {A: Set} {B: Set} (x: RExpr B): bool :=
+  match @get_info A B x with
   | mkInfo _ _ hasvar _ => hasvar
   end.
 
@@ -84,8 +67,8 @@ Definition get_hasvar' (x: Info): bool :=
   | mkInfo _ _ hasvar _ => hasvar
   end.
 
-Definition get_hash {B: Set} (x: RExpr B): nat :=
-  match get_info x with
+Definition get_hash {A: Set} {B: Set} (x: RExpr B): nat :=
+  match @get_info A B x with
   | mkInfo _ _ _ hash => hash
   end.
 
