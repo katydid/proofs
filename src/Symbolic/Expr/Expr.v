@@ -15,11 +15,6 @@ Inductive Info: Type :=
   Info.
 
 (*
-  TODO: Create Inductive type isSmartConstructed
-  This will be useful for proofs
-*)
-
-(*
   RExpr is the underlying representation of an expression.
   Unlike Expr which is the class abstraction that will be exposed, RExpr is only meant for internal usage.
 *)
@@ -27,6 +22,7 @@ Record RExpr {A: Set} (B: Set): Type :=
   mkRExpr {
     fn: A -> B
     ; info: Info
+    (*TODO: ; smart_constructed: IsSmartConsructed Info *)
   }.
 
 (* Getters *)
@@ -103,7 +99,10 @@ Definition has_var_info (params: list Info): bool :=
   let param_hasvars := map get_hasvar' params in
   any param_hasvars.
 
-(* Smart Constructor for Info *)
+(* Smart Constructor for RExpr *)
 
 Definition smartInfo (name: nat) (params: list Info): Info :=
   mkInfo name params (has_var_info params) (hash_info name params).
+
+Definition smartRExpr {A: Set} {B: Set} (fn: A -> B) (name: nat) (params: list Info): RExpr B :=
+  mkRExpr A B fn (smartInfo name params).
