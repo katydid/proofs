@@ -32,7 +32,7 @@ This has the implication that we could explore the automaton without knowing the
 
 In the final implementation of the algorithm, these predicates can be a set of nested functions, for example: `and(ge($int, 10), lt($int, 20))`. This is also something we can explore, and we could prove that evaluation during compilation of the constant parts is equivalent to evaluation at runtime.
 
-The reason to explore symbolic automaton first, is because symbolic automata can technically use trees as their input alphabet and so provide a quick win, but also we will also heavily use the `if` expressions in our final VPA implementation.
+The reason to explore symbolic automaton first, is because symbolic derivatives can technically use trees as their input alphabet and so provide a quick win, but also we will also heavily use the `if` expressions in our final VPA implementation.
 
 A tree in Haskell is simply:
 
