@@ -5,7 +5,7 @@ Proofs written in Coq for the core katydid validation algorithm
 
 ## Goal
 
-The goal is to formalize the core katydid validation algorithm.  This algorithm allows us to validate millions of serialized data structures per second on a single core.  The algorithm is based on derivatives for regular expressions and extends this to Visibly Pushdown Automata (VPA), by splitting the derivative function into two functions.  It also includes several basic optimizations, such as memoization, simplification, laziness, zipping of multiple states, short circuiting, evaluation at compilation and a pull based parser for serialized data structures that allows us to skip over some of the parsing.  You can play around with the validation language on it's [playground](http://katydid.github.io/play/).
+The goal is to formalize the core katydid validation algorithm.  This algorithm allows us to validate millions of serialized data structures per second on a single core.  The algorithm is based on derivatives for regular expressions and extends this to Visibly Pushdown Automata (VPA), by splitting the derivative function into two functions.  It also includes several basic optimizations, such as memoization, simplification, laziness, zipping of multiple states, short circuiting, evaluation at compilation and a pull based parser for serialized data structures that allows us to skip over some of the parsing.  You can play around with the validation language on its [playground](http://katydid.github.io/play/).
 
 ### Steps
 
@@ -13,7 +13,7 @@ This is just a quick overview of the steps towards our goal.
 
 #### Symbolic Derivatives
 
-We will start small, taking learnings from [regex-reexamined-coq](https://github.com/awalterschulze/regex-reexamined-coq/) and applying them to symbolic derivatives.  Symbolic derivatives is a simple abstraction of regular expression derivatives that abstracts out the alphabet.  It replaces the alphabet with predicates, such that in a classic automaton a transition is made by comparing the input character to the character on the transition:
+We will start small, taking our learnings from [regex-reexamined-coq](https://github.com/awalterschulze/regex-reexamined-coq/) and applying them to symbolic derivatives.  Symbolic derivatives is a simple abstraction of regular expression derivatives that abstracts out the alphabet.  It replaces the alphabet with predicates, such that in a classic automaton a transition is made by comparing the input character to the character on the transition:
 
 ```
 start_state -> next_state if input = 'a'
@@ -25,14 +25,14 @@ The symbolic automaton generalizes the classic automaton's transition to a predi
 state_state -> next_state if pred(input), where pred = \input -> input == 'a'
 ```
 
-This has implications that we could explore the automaton without requiring to know the full alphabet and in fact the alphabet can now be infinite, which sacrificing any decidability properties. Unfortunately this does push some complexity onto the transitions, which can grow into `if` expressions with exponential complexity.
+This has the implication that we could explore the automaton without knowing the full alphabet and in fact the alphabet can now be infinite, without sacrificing any decidability properties. Unfortunately this does push some complexity onto the transitions, which can grow into `if` expressions with exponential complexity.
 
-- A basic introduction to symbolic automaton can be found in: [Symbolic Boolean Derivatives - Caleb Stanford, Margus Veanes and Nikolaj Bjorner](https://www.cis.upenn.edu/~castan/doc/2021/PLDI21.pdf) they also show how derivatives can be used to add better regex support to z3, which is very interesting, but adds complexities that aren't necessarily applicable to us.
-- A larger overview of how symbolic automaton fit into the larger computer science field including tree transducers and more, see ["The Power of Symbolic Automata and Transducers" Loris D’Antoni | CAV 2017](https://www.youtube.com/watch?v=ca9IF-7nSOA)
+- A basic introduction to symbolic automaton can be found in [Symbolic Boolean Derivatives - Caleb Stanford, Margus Veanes and Nikolaj Bjorner](https://www.cis.upenn.edu/~castan/doc/2021/PLDI21.pdf). They also show how derivatives can be used to add better regex support to z3, which is very interesting, but adds complexities that aren't necessarily applicable to us.
+- For a larger overview of how symbolic automata fit into the larger computer science field including tree transducers and more, see ["The Power of Symbolic Automata and Transducers" Loris D’Antoni | CAV 2017](https://www.youtube.com/watch?v=ca9IF-7nSOA)
 
-In the final implementation of the algorithm, these predicates can be a set of nested function, for example: `and(ge($int, 10), lt($int, 20))`, which we can also explore, where we could prove that evaluation during compilation of the constant parts are equivalent to evaluation at runtime.
+In the final implementation of the algorithm, these predicates can be a set of nested functions, for example: `and(ge($int, 10), lt($int, 20))`. This is also something we can explore, and we could prove that evaluation during compilation of the constant parts is equivalent to evaluation at runtime.
 
-The reason to explore symbolic automaton first, is because symbolic derivatives can technically use trees as its input alphabet and so provide a quick win, but also we will also heavily use the `if` expressions in our final VPA implementation.
+The reason to explore symbolic automaton first, is because symbolic derivatives can technically use trees as their input alphabet and so provide a quick win, but also we will also heavily use the `if` expressions in our final VPA implementation.
 
 A tree in Haskell is simply:
 
@@ -62,11 +62,11 @@ Another optional opportunity is to formalize the [Haskell algorithm for RelaxNG]
 
 #### Visibly Pushdown Automaton Derivatives
 
-[Visibly Pushdown Automata (VPA)](https://repository.upenn.edu/cgi/viewcontent.cgi?article=1174&context=cis_papers) are built for nested words.  They have 3 transition types, calls (to go down), returns (to go up) and internals (to go forward).  They include a stack, but unlike pushdown automaton the alphabets for these 3 transition types are disjoint, which gives them the same decidability properties as regular expressions.  The downside is some of these decisions come at a much higher complexity.
+[Visibly Pushdown Automata (VPA)](https://repository.upenn.edu/cgi/viewcontent.cgi?article=1174&context=cis_papers) are built for nested words.  They have 3 transition types: calls (to go down), returns (to go up) and internals (to go forward).  They include a stack, but unlike pushdown automata, the alphabets for these 3 transition types are disjoint, which gives them the same decidability properties as regular expressions.  The downside is some of these decisions come at a much higher complexity.
 
-VPAs are slightly more expression that we require, since we are only interested in trees, but VPAs can technically word on for example unbalanced parenthesis, where we are only interested in balanced grammars.  The advantage of using BVPAs (Balanced Visibly Pushdown Automata) over Regular Tree Automata, is that they first walk down and then back up the tree, which makes a big difference in how easy it is to express and translate our validation language to the underlying algorithm.  Also of note is that when implementing a bottom up Tree Automaton, one would have to walk down the tree before one could start running the bottom up algorithm, so as you are walking down anyway, why not evaluate and try to short circuit using some predicates.
+VPAs are slightly more expressive than we require, since we are only interested in trees, but VPAs can technically work on for example unbalanced parentheses, where we are only interested in balanced grammars.  The advantage of using BVPAs (Balanced Visibly Pushdown Automata) over Regular Tree Automata, is that they first walk down and then back up the tree, which makes a big difference in how easy it is to express and translate our validation language to the underlying algorithm.  Also of note is that when implementing a bottom up Tree Automaton, one would have to walk down the tree before one could start running the bottom up algorithm, so as you are walking down anyway, why not evaluate and try to short circuit using some predicates.
 
-Apply derivatives to BVPAs requires splitting the derivative function into two parts: `deriveCall` and `deriveReturn`, which can be pull together to express the original derive function:
+Applying derivatives to BVPAs requires splitting the derivative function into two parts: `deriveCall` and `deriveReturn`, which can be pull together to express the original derive function:
 
 ```haskell
 derive :: Regex -> Char -> Regex
@@ -74,7 +74,7 @@ derive e a = fst $ derivReturn e $ map nullable $ derivCall e a
 ```
 
 These two functions are much better at memoization and lazily building the VPAs states, than the original derive function, as they take a single label as input, instead of a whole tree.
-This algorithm also makes heavy use of the `if` expressions that we will cover during our implementation of symbolic automaton.  These if expressions don't just return a single state, but rather a list of states, which provides an opportunity to zip the states, before sending them down the recursive algorithm and unzip them when the results are returned. The calls also provide an opportunity to short circuit and skip parsing a part of the tree, if the resulting expressions of the `if` expression are all dead ends, such as `.*` and empty set.
+This algorithm also makes heavy use of the `if` expressions that we will cover during our implementation of symbolic automaton.  These `if` expressions don't just return a single state, but rather a list of states, which provides an opportunity to zip the states, before sending them down the recursive algorithm and unzip them when the results are returned. The calls also provide an opportunity to short circuit and skip parsing a part of the tree, if the resulting expressions of the `if` expression are all dead ends, such as `.*` and empty set.
 
 ## Development
 
