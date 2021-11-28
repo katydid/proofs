@@ -48,8 +48,7 @@ induction xs, ys.
   induction_on_compare; intros; try discriminate.
   constructor.
   + reflexivity.
-  + apply IHxs.
-    exact xy.
+  + now apply IHxs.
 Qed.
 
 Theorem list_proof_compare_eq_reflex
