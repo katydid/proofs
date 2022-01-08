@@ -94,6 +94,63 @@ Ltac compare_symmetry :=
     rewrite proof_compare_eq_reflex
   end.
 
+Theorem gt_reflex_discriminate:
+  forall
+    {A: Type}
+    {c: Cmp A}
+    {x: A}
+    (H: compare x x = Gt),
+  False.
+Proof.
+intros.
+specialize (proof_compare_eq_reflex x) as H0.
+rewrite H in H0.
+discriminate.
+Qed.
+
+Theorem lt_reflex_discriminate:
+  forall
+    {A: Type}
+    {c: Cmp A}
+    {x: A}
+    (H: compare x x = Lt),
+  False.
+Proof.
+intros.
+specialize (proof_compare_eq_reflex x) as H0.
+rewrite H in H0.
+discriminate.
+Qed.
+
+Theorem gt_contradiction:
+  forall
+    {A: Type}
+    {c: Cmp A}
+    {x y: A}
+    (H1: compare x y = Gt)
+    (H2: compare y x = Gt),
+  False.
+Proof.
+intros.
+specialize (gt_reflex_discriminate (proof_compare_gt_trans _ _ _ H1 H2)).
+easy.
+Qed.
+
+Theorem lt_contradiction:
+  forall
+    {A: Type}
+    {c: Cmp A}
+    {x y: A}
+    (H1: compare x y = Lt)
+    (H2: compare y x = Lt),
+  False.
+Proof.
+intros.
+specialize (lt_reflex_discriminate (proof_compare_lt_trans _ _ _ H1 H2)).
+easy.
+Qed.
+
+
 (* If there is a pair of hypotheses
           compare ?x0 ?x1 = Gt   and   compare ?x0 ?x1 = Lt (or = Eq)
        then this tactic derives a contradiction.
@@ -107,9 +164,45 @@ Ltac compare_contradiction :=
     => exfalso; assert (Gt = Eq); try (rewrite <- H1; rewrite <- H2; reflexivity); discriminate
   | [ H1: compare ?x0 ?x1 = Eq , H2: compare ?x0 ?x1 = Lt |- _ ]
     => exfalso; assert (Eq = Lt); try (rewrite <- H1; rewrite <- H2; reflexivity); discriminate
+
+    | [ H1: compare ?x0 ?x0 = Gt |- _ ]
+    => exfalso; specialize (gt_reflex_discriminate H1); easy
+  | [ H1: compare ?x0 ?x0 = Lt |- _ ]
+    => exfalso; specialize (lt_reflex_discriminate H1); easy
+  | [ H1: compare ?x0 ?x1 = Gt , H2: compare ?x1 ?x0 = Gt |- _ ]
+    => exfalso; specialize (gt_contradiction H1 H2); easy
+  | [ H1: compare ?x0 ?x1 = Lt , H2: compare ?x1 ?x0 = Lt |- _ ]
+    => exfalso; specialize (lt_contradiction H1 H2); easy
+
   | [ H1: compare_leq ?x0 ?x1, H2: compare ?x0 ?x1 = Gt |- _ ]
     => destruct H1; compare_contradiction
   end.
+
+Theorem example_gt_reflex_discriminate:
+  forall
+    {A: Type}
+    (c: Cmp A)
+    (x: A)
+    (H: compare x x = Gt),
+  False.
+Proof.
+intros.
+compare_contradiction.
+Qed.
+
+Example example_gt_contradiction:
+  forall
+    {A: Type}
+    (c: Cmp A)
+    (x y: A)
+    (H1: compare x y = Gt)
+    (H2: compare y x = Gt),
+  False.
+Proof.
+intros.
+compare_contradiction.
+Qed.
+
 
 (* compare_to_eq turns an hypothesis or goal:
   `Eq = compare x y` or `compare x y = Eq` into:
@@ -191,12 +284,6 @@ Theorem compare_eq_is_only_equal
 Proof.
 intros.
 induction_on_compare.
-- remember (proof_compare_lt_trans x1 x2 x1 Heqc p).
-  rewrite <- e.
-  apply proof_compare_eq_reflex.
-- remember (proof_compare_gt_trans x1 x2 x1 Heqc p).
-  rewrite <- e.
-  apply proof_compare_eq_reflex.
 Qed.
 
 Theorem compare_lt_not_symm_1
@@ -274,14 +361,10 @@ Theorem compare_gt_lt_symm
            (p: compare x1 x2 = Gt)
   , compare x2 x1 = Lt.
 Proof.
-  intros.
-  induction_on_compare.
-  - rewrite Heqc in p.
-    rewrite proof_compare_eq_reflex in p.
-    discriminate.
-  - set (a := proof_compare_gt_trans x1 x2 x1 p Heqc).
-    rewrite proof_compare_eq_reflex in a.
-    discriminate.
+intros.
+induction_on_compare.
+rewrite Heqc in p.
+compare_contradiction.
 Qed.
 
 Theorem proof_compare_anti_symm
@@ -302,15 +385,15 @@ Qed.
 Lemma compare_leq_trans {A: Type} {cmp: Cmp A} (x y z: A) :
   (compare_leq x y) -> (compare_leq y z) -> (compare_leq x z).
 Proof.
-  intros.
-  unfold compare_leq in *.
+intros.
+unfold compare_leq in *.
 
-  destruct H; destruct H0;
-    try ((left; apply proof_compare_eq_trans with (y0 := y); assumption)
-         || (right; apply proof_compare_lt_trans with (y0 := y); assumption));
-    try (compare_to_eq; subst);
-    try (left; assumption);
-    try (right; assumption).
+destruct H; destruct H0;
+  try ((left; apply proof_compare_eq_trans with (y0 := y); assumption)
+        || (right; apply proof_compare_lt_trans with (y0 := y); assumption));
+  try (compare_to_eq; subst);
+  try (left; assumption);
+  try (right; assumption).
 Qed.
 
 Lemma compare_lt_leq_trans {A: Type} {cmp: Cmp A} (x y z: A) :
@@ -318,32 +401,32 @@ Lemma compare_lt_leq_trans {A: Type} {cmp: Cmp A} (x y z: A) :
     -> (compare_leq y z)
     -> (compare x z = Lt).
 Proof.
-  intros H1 H2.
-  destruct H2 as [H2 | H2].
-  - compare_to_eq.
-    subst. assumption.
-  - apply proof_compare_lt_trans with (y0 := y); assumption.
+intros H1 H2.
+destruct H2 as [H2 | H2].
+- compare_to_eq.
+  subst. assumption.
+- apply proof_compare_lt_trans with (y0 := y); assumption.
 Qed.
 
 Lemma compare_leq_reflex {A: Type} {cmp: Cmp A} (x : A) :
   (compare_leq x x).
 Proof.
-  intros.
-  unfold compare_leq.
-  left.
-  apply proof_compare_eq_reflex.
+intros.
+unfold compare_leq.
+left.
+apply proof_compare_eq_reflex.
 Qed.
 
 Lemma compare_eq_dec {A: Type} {cmp: Cmp A} (x y : A):
   {x = y} + {x <> y}.
 Proof.
-  destruct (compare x y) eqn:Heqc;
-    try (right;
-         unfold not; intro;
-         subst;
-         rewrite proof_compare_eq_reflex in Heqc;
-         discriminate).
-  - compare_to_eq.
-    left.
-    reflexivity.
+destruct (compare x y) eqn:Heqc;
+  try (right;
+        unfold not; intro;
+        subst;
+        rewrite proof_compare_eq_reflex in Heqc;
+        discriminate).
+- compare_to_eq.
+  left.
+  reflexivity.
 Qed.

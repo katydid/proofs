@@ -48,8 +48,7 @@ induction xs, ys.
   induction_on_compare; intros; try discriminate.
   constructor.
   + reflexivity.
-  + apply IHxs.
-    exact xy.
+  + now apply IHxs.
 Qed.
 
 Theorem list_proof_compare_eq_reflex
@@ -63,12 +62,6 @@ induction xs.
 - cbn. reflexivity.
 - cbn. induction_on_compare.
   + exact IHxs.
-  + specialize proof_compare_eq_reflex with (x := a) as Heqc1.
-    rewrite Heqc1 in Heqc0.
-    discriminate.
-  + specialize proof_compare_eq_reflex with (x := a) as Heqc1.
-    rewrite Heqc1 in Heqc0.
-    discriminate.
 Qed.
 
 Theorem list_proof_compare_eq_trans
@@ -152,6 +145,7 @@ induction xs, ys, zs; intros; try assumption.
     reflexivity.
 Qed.
 
+#[export]
 Instance CmpList {A: Type} {c: Cmp A}: Cmp (list A) :=
   { compare := list_compare
   ; proof_compare_eq_implies_equal := list_proof_compare_eq_implies_equal
