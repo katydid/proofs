@@ -1,10 +1,19 @@
+Require Import Symbolic.Input.Result.
+
 Class BoolInput (A: Type) :=
   {
-    getBool : A -> bool
+    getBool : A -> Result bool
   }.
 
 #[export]
 Instance BoolIsBoolInput: BoolInput bool :=
   {
-    getBool := fun (b: bool) => b
+    getBool := fun (b: bool) => ok b
+  }.
+
+(* Just and example of an input that is an error *)
+#[export]
+Instance NatIsBoolInput: BoolInput nat :=
+  {
+    getBool := fun (n: nat) => error 0
   }.

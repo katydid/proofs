@@ -20,9 +20,14 @@ src/CoqStock/WreckIt.v
 src/Symbolic/Input/BoolInput.v
 src/Symbolic/Input/NatInput.v
 src/Symbolic/Input/Input.v
+src/Symbolic/Input/Error.v
+src/Symbolic/Input/Result.v
 
-src/Symbolic/Expr/CmpExpr.v
+src/Symbolic/Expr/CmpInfo.v
+src/Symbolic/Expr/CmpRExpr.v
+src/Symbolic/Expr/CmpSmartInfo.v
 src/Symbolic/Expr/Eval.v
-src/Symbolic/Expr/Expr.v
 src/Symbolic/Expr/ExampleExpr.v
-src/Symbolic/Expr/Pred.v
+src/Symbolic/Expr/RExpr.v
+src/Symbolic/Expr/Info.v
+src/Symbolic/Expr/SmartInfo.v
