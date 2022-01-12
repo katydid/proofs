@@ -7,11 +7,21 @@ Proofs written in Coq for the core katydid validation algorithm
 
 The goal is to formalize the core katydid validation algorithm.  This algorithm allows us to validate millions of serialized data structures per second on a single core.  The algorithm is based on derivatives for regular expressions and extends this to Visibly Pushdown Automata (VPA), by splitting the derivative function into two functions.  It also includes several basic optimizations, such as memoization, simplification, laziness, zipping of multiple states, short circuiting, evaluation at compilation and a pull based parser for serialized data structures that allows us to skip over some of the parsing.  You can play around with the validation language on its [playground](http://katydid.github.io/play/).
 
-### Steps
+## Background
+
+### Brzozowski's Derivatives of Regular Expressions
+
+If you are unfamiliar with Brzozowski's Derivatives you can watch this video.
+
+<a href="https://www.youtube.com/watch?v=k9linVmyIiE&list=PLYwF9EIrl42S9ldgii7kfBEIHPle7PqMk&index=1" target="_blank">
+ <img src="https://img.youtube.com/vi/k9linVmyIiE/maxres1.jpg" alt="Watch the video" width="480" border="10" />
+</a>
+
+## Plan
 
 This is just a quick overview of the steps towards our goal.
 
-#### Symbolic Derivatives
+### Symbolic Derivatives
 
 We will start small, taking our learnings from [regex-reexamined-coq](https://github.com/awalterschulze/regex-reexamined-coq/) and applying them to symbolic derivatives.  Symbolic derivatives is a simple abstraction of regular expression derivatives that abstracts out the alphabet.  It replaces the alphabet with predicates, such that in a classic automaton a transition is made by comparing the input character to the character on the transition:
 
@@ -52,7 +62,7 @@ pred = \(Node label children) ->
   nullable (foldl derive children childexpr)
 ```
 
-#### Derivatives on Trees
+### Derivatives on Trees
 
 Applying our symbolic derivatives on trees, would require creating a tree and a pull based parser abstraction, see [an example in Go](https://katydid.github.io/parser/addingparsers.html)
 
@@ -60,7 +70,7 @@ This is an optional opportunity to create a formalization of JSON, Protocol Buff
 
 Another optional opportunity is to formalize the [Haskell algorithm for RelaxNG](http://www.thaiopensource.com/download/old/relaxng/20020531/derivative.html), which is where the whole derivative approach on this project started.
 
-#### Visibly Pushdown Automaton Derivatives
+### Visibly Pushdown Automaton Derivatives
 
 [Visibly Pushdown Automata (VPA)](https://repository.upenn.edu/cgi/viewcontent.cgi?article=1174&context=cis_papers) are built for nested words.  They have 3 transition types: calls (to go down), returns (to go up) and internals (to go forward).  They include a stack, but unlike pushdown automata, the alphabets for these 3 transition types are disjoint, which gives them the same decidability properties as regular expressions.  The downside is some of these decisions come at a much higher complexity.
 
