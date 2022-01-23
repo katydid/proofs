@@ -8,7 +8,7 @@ Require Import CoqStock.Invs.
   This is mostly used to efficiently compare two expressions.
   This includes a hash and whether the expression has a variable.
 *)
-Inductive Info: Type :=
+Inductive Info: Set :=
   mkInfo:
     forall
     (name: nat)

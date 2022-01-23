@@ -246,6 +246,8 @@ Ltac induction_on_compare :=
   match goal with
   | [ |- context [(compare ?X ?Y)] ] =>
     remember (compare X Y)
+  | [H: context [compare ?X ?Y] |- _ ] => (* TODO: create notation for induction_on_compare in H so that tool is more specific  *)
+    remember (compare X Y)
   end;
   (* remember (compare a b) =>
     [

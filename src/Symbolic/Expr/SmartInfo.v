@@ -2,6 +2,7 @@ Require Import CoqStock.Cmp.
 Require Import CoqStock.DubStep.
 Require Import CoqStock.List.
 Require Import CoqStock.Invs.
+Require Import CoqStock.ForAll.
 
 Require Import Symbolic.Expr.Info.
 
@@ -9,8 +10,18 @@ Require Import Symbolic.Expr.Info.
   IsSmart indicates that Info was constructed with a smart constructor.
 *)
 
+Inductive IsSmartParams (params: list Info): Prop :=
+  | isSmartNil:
+    IsSmartParams []
+  | isSmartCons:
+    forall
+    (p: Info)
+    (ps: list Info)
+    (IsSmart p)
+    IsSmartParams
+
 Inductive IsSmartHash (i: Info): Prop :=
-  | isSmartHash :
+  | isSmartHash:
      get_hash i = hash_from_info i
   -> Forall IsSmartHash (get_params i)
   -> IsSmartHash i
@@ -20,7 +31,7 @@ Inductive IsSmartHasVar (i: Info): Prop :=
   | isSmartHasVar :
      get_hasvar i = true
   \/ get_hasvar i = has_var_from_params (get_params i)
-  -> Forall IsSmartHasVar (get_params i)
+  -> ForAll IsSmartHasVar (get_params i)
   -> IsSmartHasVar i
   .
 
@@ -44,14 +55,17 @@ Definition get_info (s: SmartInfo): Info :=
   end.
 
 (* Helper function for get_smart_params. *)
-Fixpoint get_smart_params' (params: list Info) (smartHasVars: Forall IsSmartHasVar params) (smartHashes: Forall IsSmartHash params): list SmartInfo.
-Proof.
+Fixpoint get_smart_params'
+  (params: list Info)
+  (smartHasVars: Forall IsSmartHasVar params)
+  (smartHashes: Forall IsSmartHash params)
+  : list SmartInfo.
 destruct params as [|p ps].
 - exact [].
-- apply Forall_cons_iff in smartHashes.
-  apply Forall_cons_iff in smartHasVars.
-  destruct smartHashes as [smartHash smartHashes].
+- apply Forall_cons_iff in smartHasVars.
+  apply Forall_cons_iff in smartHashes.
   destruct smartHasVars as [smartHasVar smartHasVars].
+  destruct smartHashes as [smartHash smartHashes].
   exact (
     (mkSmart p (isSmart p smartHasVar smartHash))
     :: (get_smart_params' ps  smartHasVars smartHashes)
@@ -77,42 +91,67 @@ match params as params' return (Forall IsSmartHash params' -> Forall IsSmartHasV
       )
 end smartHashes smartHasVars
 ).
-apply Forall_cons_iff in smartHashes'.
 apply Forall_cons_iff in smartHasVars'.
-destruct smartHashes' as [smartHash smartHashes'].
+apply Forall_cons_iff in smartHashes'.
 destruct smartHasVars' as [smartHasVar smartHasVars'].
+destruct smartHashes' as [smartHash smartHashes'].
 exact (
     (mkSmart p (isSmart p smartHasVar smartHash))
     :: (get_smart_params' ps smartHasVars' smartHashes')
   ).
 Defined.
 
-Theorem get_smart_params'_is_correct:
-  forall
+Print get_smart_params''.
+
+Definition magic
+  (A : Type) (P : A -> Prop) (a : A) (l : list A)
+  (for_all: Forall P (a :: l)): P a /\ Forall P l :=
+  match Forall_cons_iff P a l with
+  | conj uncons _ =>
+      uncons for_all
+  end.
+
+Theorem get_smart_params'_is_correct
     (params: list Info)
     (smartHasVars: Forall IsSmartHasVar params)
     (smartHashes: Forall IsSmartHash params)
-  ,
+  :
   map get_info (get_smart_params' params smartHasVars smartHashes)
   =
   params
 .
 Proof.
 intros.
-induction params as [| p ps].
-- reflexivity.
-- specialize (Forall_cons_iff IsSmartHash p ps) as Hiff.
-  inversion smartHashes.
-  subst.
-  rename H1 into smartHash.
-  rename H2 into smartHashes'.
-  inversion smartHasVars.
-  subst.
-  rename H1 into smartHasVar.
-  rename H2 into smartHasVars'.
-  specialize (IHps smartHasVars' smartHashes') as IHps.
-(* TODO *)
+refine (
+  match params as params'
+  return
+    ( forall
+      (smartHasVars': Forall IsSmartHasVar params')
+      (smartHashes': Forall IsSmartHash params')
+      , map get_info (get_smart_params' params' smartHasVars' smartHashes')
+      =
+      params'
+    ) with
+    | [] =>
+      _
+    | (p::ps) =>
+      fun (smartHasVars' : Forall IsSmartHasVar (p :: ps))
+          (smartHashes' : Forall IsSmartHash (p :: ps))
+      =>
+      let smartHashVars'' : IsSmartHasVar p /\ Forall IsSmartHasVar ps :=
+      magic Info IsSmartHasVar p ps smartHasVars' in
+      let smartHashes'' : IsSmartHash p /\ Forall IsSmartHash ps :=
+      magic Info IsSmartHash p ps smartHashes' in
+      _
+  end smartHasVars smartHashes
+).
+intros.
+- cbn. reflexivity.
+- clear smartHasVars smartHashes params.
+  cbn.
+specialize (magic Info IsSmartHasVar p ps smartHasVars') as smartHasVars''.
 Abort.
+(* TODO *)
 
 Definition get_smart_params (s: SmartInfo): list SmartInfo.
 destruct s.

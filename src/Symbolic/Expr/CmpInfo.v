@@ -43,7 +43,6 @@ Theorem proof_info_compare_eq_implies_equal: forall (x y: Info)
   (c: compare_info x y = Eq)
   , x = y.
 Proof.
-intros.
 (*TODO*)
 Admitted.
 

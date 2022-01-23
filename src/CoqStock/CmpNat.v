@@ -10,11 +10,9 @@ Require Import Coq.Lists.List.
 
 Require Import CoqStock.Cmp.
 
-Definition nat_compare := Nat.compare.
-
 Lemma nat_proof_compare_eq_implies_equal:
   forall (x y: nat)
-         (p: nat_compare x y = Eq),
+         (p: Nat.compare x y = Eq),
     x = y.
 Proof.
 induction x, y.
@@ -29,7 +27,7 @@ induction x, y.
 Qed.
 
 Lemma nat_proof_compare_eq_implies_equal' x y:
-  nat_compare x y = Eq ->
+  Nat.compare x y = Eq ->
   x = y.
 Proof.
 (* Because of how the lemma is stated, `x' and `y' are already introduced into
@@ -50,7 +48,7 @@ Qed.
 
 Lemma nat_proof_compare_eq_reflex
   : forall (x: nat)
-  , nat_compare x x = Eq.
+  , Nat.compare x x = Eq.
 Proof.
 induction x.
 - reflexivity.
@@ -59,11 +57,11 @@ Qed.
 
 Lemma nat_proof_compare_eq_trans
   : forall (x y z: nat)
-           (p: nat_compare x y = Eq)
-           (q: nat_compare y z = Eq)
-  , nat_compare x z = Eq.
+           (p: Nat.compare x y = Eq)
+           (q: Nat.compare y z = Eq)
+  , Nat.compare x z = Eq.
 Proof.
-unfold nat_compare.
+unfold Nat.compare.
 intros.
 rewrite PeanoNat.Nat.compare_eq_iff in *.
 subst.
@@ -72,11 +70,11 @@ Qed.
 
 Lemma nat_proof_compare_lt_trans
   : forall (x y z: nat)
-           (p: nat_compare x y = Lt)
-           (q: nat_compare y z = Lt)
-  , nat_compare x z = Lt.
+           (p: Nat.compare x y = Lt)
+           (q: Nat.compare y z = Lt)
+  , Nat.compare x z = Lt.
 Proof.
-unfold nat_compare.
+unfold Nat.compare.
 intros.
 rewrite PeanoNat.Nat.compare_lt_iff in *.
 exact (PeanoNat.Nat.lt_trans x y z  p q).
@@ -84,11 +82,11 @@ Qed.
 
 Lemma nat_proof_compare_gt_trans
   : forall (x y z: nat)
-           (p: nat_compare x y = Gt)
-           (q: nat_compare y z = Gt)
-  , nat_compare x z = Gt.
+           (p: Nat.compare x y = Gt)
+           (q: Nat.compare y z = Gt)
+  , Nat.compare x z = Gt.
 Proof.
-unfold nat_compare.
+unfold Nat.compare.
 intros.
 rewrite PeanoNat.Nat.compare_gt_iff in *.
 exact (PeanoNat.Nat.lt_trans z y x q p).
@@ -96,7 +94,7 @@ Qed.
 
 #[export]
 Instance CmpNat : Cmp nat :=
-  { compare := nat_compare
+  { compare := Nat.compare
   ; proof_compare_eq_implies_equal := nat_proof_compare_eq_implies_equal
   ; proof_compare_eq_reflex := nat_proof_compare_eq_reflex
   ; proof_compare_eq_trans := nat_proof_compare_eq_trans
@@ -106,9 +104,8 @@ Instance CmpNat : Cmp nat :=
 
 Theorem nat_compare_is_compare:
   forall
-    {x y: nat}
-    {c: comparison},
-  Nat.compare x y = c <-> compare x y = c.
+    {x y: nat},
+  Nat.compare x y = compare x y.
 Proof.
 split; intros; assumption.
 Qed.
