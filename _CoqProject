@@ -20,6 +20,9 @@ src/CoqStock/WreckIt.v
 src/Symbolic/Expr/Eval.v
 src/Symbolic/Expr/Pred.v
 
+src/Symbolic/Ast/Func.v
+src/Symbolic/Ast/SmartFunc.v
+
 src/Symbolic/Input/BoolInput.v
 src/Symbolic/Input/Error.v
 src/Symbolic/Input/Input.v
