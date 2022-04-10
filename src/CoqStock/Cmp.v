@@ -234,19 +234,7 @@ compare_to_eq.
 reflexivity.
 Qed.
 
-(* induction_on_compare starts induction on a `compare` expression in the goal.
-   It makes sense to remember this comparison, so that it be rewritten to an
-   equality in the Eq induction goal.
-*)
-Ltac induction_on_compare :=
-  (*
-  Find an expression (compare ?X ?Y)
-  inside the goal and remember it.
-  *)
-  match goal with
-  | [ |- context [(compare ?X ?Y)] ] =>
-    remember (compare X Y)
-  end;
+Ltac induction_on_compare_Heqc :=
   (* remember (compare a b) =>
     [
     c: comparison
@@ -259,6 +247,37 @@ Ltac induction_on_compare :=
       ; repeat compare_contradiction
   end
 .
+
+Ltac induction_on_compare_goal :=
+  (*
+  Find an expression (compare ?X ?Y)
+  inside the goal and remember it.
+  *)
+  match goal with
+  | [ |- context [(compare ?X ?Y)] ] =>
+    remember (compare X Y)
+  end;
+  induction_on_compare_Heqc
+.
+
+Ltac induction_on_compare_in H :=
+  (*
+  Find an expression (compare ?X ?Y)
+  inside the goal and remember it.
+  *)
+  match goal with
+  | [H: context [compare ?X ?Y] |- _ ] =>
+    remember (compare X Y)
+  end;
+  induction_on_compare_Heqc
+.
+
+(* induction_on_compare starts induction on a `compare` expression in the goal.
+   It makes sense to remember this comparison, so that it be rewritten to an
+   equality in the Eq induction goal.
+*)
+Tactic Notation "induction_on_compare" := induction_on_compare_goal.
+Tactic Notation "induction_on_compare" "in" hyp(H) := induction_on_compare_in H.
 
 Theorem proof_compare_eq_symm
   : forall {A: Type}
