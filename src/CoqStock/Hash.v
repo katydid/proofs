@@ -2,7 +2,7 @@ Require Import CoqStock.Untie.
 
 Class Hash (A : Type) :=
   {
-    hash : A -> nat (* TODO: upgrade to Sint63 with Coq 8.14 *)
+    hash : A -> nat (* TODO: upgrade to Sint63 with Coq 8.15 *)
   }.
 
 Lemma f_neq_to_neq
