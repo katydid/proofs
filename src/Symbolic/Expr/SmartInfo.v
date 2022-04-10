@@ -10,16 +10,6 @@ Require Import Symbolic.Expr.Info.
   IsSmart indicates that Info was constructed with a smart constructor.
 *)
 
-Inductive IsSmartParams (params: list Info): Prop :=
-  | isSmartNil:
-    IsSmartParams []
-  | isSmartCons:
-    forall
-    (p: Info)
-    (ps: list Info)
-    (IsSmart p)
-    IsSmartParams
-
 Inductive IsSmartHash (i: Info): Prop :=
   | isSmartHash:
      get_hash i = hash_from_info i
