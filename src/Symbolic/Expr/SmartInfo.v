@@ -21,7 +21,7 @@ Inductive IsSmartHasVar (i: Info): Prop :=
   | isSmartHasVar :
      get_hasvar i = true
   \/ get_hasvar i = has_var_from_params (get_params i)
-  -> ForAll IsSmartHasVar (get_params i)
+  -> Forall IsSmartHasVar (get_params i)
   -> IsSmartHasVar i
   .
 
