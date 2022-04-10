@@ -11,6 +11,7 @@ Instance NatIsNatInput: NatInput nat :=
     getNat := fun (n: nat) => ok n
   }.
 
+(* An example to show that different types can be cast to the same input type. *)
 #[export]
 Instance BoolIsNatInput: NatInput bool :=
   {
