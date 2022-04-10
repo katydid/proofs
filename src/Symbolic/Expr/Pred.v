@@ -37,28 +37,33 @@ Definition compare_pred {A: Type} (p1 p2: RPred A) :=
 Theorem proof_compare_eq_implies_equal: forall {A: Type} (p1 p2: RPred A)
   (c: compare_pred p1 p2 = Eq)
   , p1 = p2.
+(* TODO *)
 Admitted.
 
 Theorem proof_compare_eq_reflex: forall {A: Type} (p: RPred A)
   , compare_pred p p = Eq.
+(* TODO *)
 Admitted.
 
 Theorem proof_compare_eq_trans: forall {A: Type} (p1 p2 p3: RPred A)
   (c12: compare_pred p1 p2 = Eq)
   (c23: compare_pred p2 p3 = Eq)
   , compare_pred p1 p3 = Eq.
+(* TODO *)
 Admitted.
 
 Theorem proof_compare_lt_trans: forall {A: Type} (p1 p2 p3: RPred A)
   (c12: compare_pred p1 p2 = Lt)
   (c23: compare_pred p2 p3 = Lt)
   , compare_pred p1 p3 = Lt.
+(* TODO *)
 Admitted.
 
 Theorem proof_compare_gt_trans: forall {A: Type} (p1 p2 p3: RPred A)
   (c12: compare_pred p1 p2 = Gt)
   (c23: compare_pred p2 p3 = Gt)
   , compare_pred p1 p3 = Gt.
+(* TODO *)
 Admitted.
 
 Instance CmpPred {A: Type}: Cmp (RPred A) :=
