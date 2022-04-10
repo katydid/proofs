@@ -33,3 +33,11 @@ src/Symbolic/Expr/ExampleExpr.v
 src/Symbolic/Expr/RExpr.v
 src/Symbolic/Expr/Info.v
 src/Symbolic/Expr/SmartInfo.v
+src/Symbolic/Expr/Pred.v
+
+src/Symbolic/Input/BoolInput.v
+src/Symbolic/Input/Error.v
+src/Symbolic/Input/Input.v
+src/Symbolic/Input/NatInput.v
+src/Symbolic/Input/Parser.v
+src/Symbolic/Input/Result.v
