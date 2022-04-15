@@ -57,7 +57,7 @@ Definition smart_func_compare (x y: SmartFunc): comparison :=
   sfunc_compare fx fy.
 
 
-Theorem func_proof_compare_eq_implies_equal
+Theorem smart_func_proof_compare_eq_implies_equal
   : forall (x y: SmartFunc)
            (p: smart_func_compare x y = Eq)
   , x = y.
@@ -65,14 +65,14 @@ Proof.
 (* TODO *)
 Admitted.
 
-Theorem func_proof_compare_eq_reflex
+Theorem smart_func_proof_compare_eq_reflex
   : forall (x: SmartFunc)
   , smart_func_compare x x = Eq.
 Proof.
 (* TODO *)
 Admitted.
 
-Theorem func_proof_compare_eq_trans
+Theorem smart_func_proof_compare_eq_trans
   : forall (x y z: SmartFunc)
            (xy: smart_func_compare x y = Eq)
            (yz: smart_func_compare y z = Eq)
@@ -82,7 +82,7 @@ Proof.
 Admitted.
 
 
-Theorem func_proof_compare_lt_trans
+Theorem smart_func_proof_compare_lt_trans
   : forall (x y z: SmartFunc)
            (xy: smart_func_compare x y = Lt)
            (yz: smart_func_compare y z = Lt)
@@ -92,7 +92,7 @@ Proof.
 Admitted.
 
 
-Theorem func_proof_compare_gt_trans
+Theorem smart_func_proof_compare_gt_trans
   : forall (x y z: SmartFunc)
            (xy: smart_func_compare x y = Gt)
            (yz: smart_func_compare y z = Gt)
@@ -104,9 +104,9 @@ Admitted.
 #[export]
 Instance CmpSmartFunc : Cmp SmartFunc :=
   { compare := smart_func_compare
-  ; proof_compare_eq_implies_equal := func_proof_compare_eq_implies_equal
-  ; proof_compare_eq_reflex := func_proof_compare_eq_reflex
-  ; proof_compare_eq_trans := func_proof_compare_eq_trans
-  ; proof_compare_lt_trans := func_proof_compare_lt_trans
-  ; proof_compare_gt_trans := func_proof_compare_gt_trans
+  ; proof_compare_eq_implies_equal := smart_func_proof_compare_eq_implies_equal
+  ; proof_compare_eq_reflex := smart_func_proof_compare_eq_reflex
+  ; proof_compare_eq_trans := smart_func_proof_compare_eq_trans
+  ; proof_compare_lt_trans := smart_func_proof_compare_lt_trans
+  ; proof_compare_gt_trans := smart_func_proof_compare_gt_trans
   }.
