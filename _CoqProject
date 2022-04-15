@@ -1,6 +1,7 @@
 -R src ""
 
 src/CoqStock/Cmp.v
+src/CoqStock/CmpBool.v
 src/CoqStock/CmpNat.v
 src/CoqStock/CmpList.v
 src/CoqStock/DubStep.v
@@ -22,6 +23,8 @@ src/Symbolic/Expr/Expr.v
 src/Symbolic/Expr/Pred.v
 src/Symbolic/Expr/RExpr.v
 
+src/Symbolic/Ast/CmpFunc.v
+src/Symbolic/Ast/CmpSmartFunc.v
 src/Symbolic/Ast/Func.v
 src/Symbolic/Ast/SmartFunc.v
 
