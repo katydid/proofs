@@ -54,7 +54,7 @@ Definition get_static {A: Set} {B: Set} (x: RExpr B): bool :=
 (* Smart Constructor for RExpr *)
 
 Definition smartRExpr {A: Set} {B: Set} (fn: A -> Result B) (name: nat) (sparams: list SmartFunc): @RExpr A B :=
-  mkRExpr A B fn (mkSmartFunc name sparams false).
+  mkRExpr A B fn (mkSmartFunc name sparams true).
 
 Definition smartRExprVar {A: Set} {B: Set} (fn: A -> Result B) (name: nat) (sparams: list SmartFunc): @RExpr A B :=
-  mkRExpr A B fn (mkSmartFunc name sparams true).
+  mkRExpr A B fn (mkSmartFunc name sparams false).
