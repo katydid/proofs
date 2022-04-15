@@ -30,12 +30,12 @@ Definition get_sfunc {A: Set} {B: Set} (x: RExpr B): SmartFunc :=
 
 Definition get_name {A: Set} {B: Set} (x: RExpr B): nat :=
   match @get_func A B x with
-  | mkFunc name _ _ => name
+  | mkFunc name _ _ _ => name
   end.
 
 Definition get_params {A: Set} {B: Set} (x: RExpr B): list Func :=
   match @get_func A B x with
-  | mkFunc _ params _ => params
+  | mkFunc _ params _ _ => params
   end.
 
 Definition get_sparams {A: Set} {B: Set} (x: RExpr B): list SmartFunc :=
@@ -43,10 +43,18 @@ Definition get_sparams {A: Set} {B: Set} (x: RExpr B): list SmartFunc :=
 
 Definition get_hash {A: Set} {B: Set} (x: RExpr B): nat :=
   match @get_func A B x with
-  | mkFunc _ _ hash => hash
+  | mkFunc _ _ hash _ => hash
+  end.
+
+Definition get_static {A: Set} {B: Set} (x: RExpr B): bool :=
+  match @get_func A B x with
+  | mkFunc _ _ _ static => static
   end.
 
 (* Smart Constructor for RExpr *)
 
 Definition smartRExpr {A: Set} {B: Set} (fn: A -> Result B) (name: nat) (sparams: list SmartFunc): @RExpr A B :=
-  mkRExpr A B fn (mkSmartFunc name sparams).
+  mkRExpr A B fn (mkSmartFunc name sparams true).
+
+Definition smartRExprVar {A: Set} {B: Set} (fn: A -> Result B) (name: nat) (sparams: list SmartFunc): @RExpr A B :=
+  mkRExpr A B fn (mkSmartFunc name sparams false).

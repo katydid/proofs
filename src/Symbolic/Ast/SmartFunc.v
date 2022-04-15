@@ -10,8 +10,10 @@ Inductive IsSmart (f: Func): Prop :=
     (name: nat)
     (params: list Func)
     (hash: nat)
-  ,   f = mkFunc name params hash
+    (static: bool)
+  ,   f = mkFunc name params hash static
   ->  hash = hash_from_func f
+  ->  static = false \/ static = static_from_params params
   ->  Forall IsSmart params
   ->  IsSmart f
 .
@@ -20,10 +22,12 @@ Ltac destructIsSmart S :=
   let Name := fresh "name" in
   let Params := fresh "params" in
   let Hash := fresh "hash" in
+  let Static := fresh "static" in
   let Feq := fresh "feq" in
   let Heq := fresh "heq" in
+  let Seq := fresh "seq" in
   let HSmarts := fresh "Hsmarts" in
-  destruct S as [Name Params Hash Feq Heq HSmarts].
+  destruct S as [Name Params Hash Static Feq Heq Seq HSmarts].
 
 Definition SmartFunc := { func | IsSmart func }.
 
@@ -35,12 +39,17 @@ Ltac destructSmartFunc SF :=
 
 Definition get_func (x: SmartFunc): Func :=
   match x with
-  | exist _ f p => f
+  | exist _ f _ => f
   end.
 
 Definition get_shash (x: SmartFunc): nat :=
   match x with
-  | exist _ f p => get_hash f
+  | exist _ f _ => get_hash f
+  end.
+
+Definition get_sstatic (x: SmartFunc): bool :=
+  match x with
+  | exist _ f _ => get_static f
   end.
 
 Definition hash_from_params (hname: nat) (params: list Func): nat :=
@@ -50,6 +59,10 @@ Definition hash_from_params (hname: nat) (params: list Func): nat :=
 Definition hash_from_sparams (hname: nat) (sparams: list SmartFunc): nat :=
   let param_hashes := map get_shash sparams in
   fold_left hash_per_elem param_hashes hname.
+
+Definition static_from_sparams (sparams: list SmartFunc): bool :=
+  let params_static := map get_sstatic sparams in
+  all params_static.
 
 Lemma hash_from_params_is_hash_from_sparams:
   forall (hname: nat) (sparams: list SmartFunc),
@@ -111,6 +124,37 @@ induction sparams as [| sp sps].
   apply IHsps.
 Qed.
 
+Lemma get_sstatic_is_get_static_get_func:
+  forall (sp: SmartFunc),
+  (get_sstatic sp) = get_static (get_func sp).
+Proof.
+intros.
+destructSmartFunc sp.
+unfold get_sstatic.
+unfold get_func.
+reflexivity.
+Qed.
+
+Lemma static_from_params_is_static_from_sparams:
+  forall (sparams: list SmartFunc),
+    static_from_sparams sparams
+    =
+    static_from_params (map get_func sparams).
+Proof.
+induction sparams as [| sp sps].
+- reflexivity.
+- unfold static_from_params.
+  cbn [map].
+  cbn [all].
+  fold (static_from_params (map get_func sps)).
+  rewrite <- IHsps.
+  unfold static_from_sparams.
+  cbn [map].
+  cbn [all].
+  rewrite get_sstatic_is_get_static_get_func.
+  reflexivity.
+Qed.
+
 Lemma forall_smart_from_sparams
   (sparams: list SmartFunc):
   Forall IsSmart (map get_func sparams).
@@ -131,33 +175,41 @@ Lemma smart_from_sparam
 Proof.
 destructSmartFunc s.
 cbn.
-apply (isSmart f name params hash); assumption.
+apply (isSmart f name params hash static); assumption.
 Qed.
 
-Lemma is_smart (name: nat) (sparams: list SmartFunc):
+Lemma is_smart (name: nat) (sparams: list SmartFunc) (var: bool):
   IsSmart
     (mkFunc
       name
       (map get_func sparams)
       (hash_from_sparams (31 * 17 * name) sparams)
+      (negb var && static_from_sparams sparams)
     ).
 Proof.
 induction sparams as [| p ps].
 - cbn [map].
-  apply (isSmart _ name [] (hash_from_sparams (31 * 17 * name) [])).
+  apply (isSmart _ name [] (hash_from_sparams (31 * 17 * name) []) (negb var && static_from_sparams [])).
   + reflexivity.
   + reflexivity.
+  + destruct var.
+    * left. reflexivity.
+    * right. reflexivity.
   + constructor.
-- apply (isSmart _ name (map get_func (p :: ps)) (hash_from_params (31 * 17 * name) (map get_func (p::ps)))).
+- apply (isSmart _ name (map get_func (p :: ps)) (hash_from_params (31 * 17 * name) (map get_func (p::ps))) (negb var && static_from_sparams (p::ps))).
   + rewrite hash_from_params_is_hash_from_sparams. reflexivity.
   + unfold hash_from_params.
     unfold hash_from_func.
     fold hash_from_func.
     reflexivity.
+  + rewrite static_from_params_is_static_from_sparams.
+    destruct var.
+    * left. reflexivity.
+    * right. reflexivity.
   + apply forall_smart_from_sparams.
 Qed.
 
-Definition mkSmartFunc (name: nat) (sparams: list SmartFunc): SmartFunc :=
+Definition mkSmartFunc (name: nat) (sparams: list SmartFunc) (var: bool): SmartFunc :=
 exist
   _
   (mkFunc
@@ -167,22 +219,23 @@ exist
       (31 * 17 * name)
       sparams
     )
+    (negb var && static_from_sparams sparams)
   )
   (is_smart
     name
     sparams
+    var
   )
 .
-
 
 (*
 We can reconstruct our list of SmartFunc again from our list of params and the Forall property.
 *)
 
-Definition getSmartParamsFromMkFunc (name : nat) (params : list Func) (hash : nat)
-  (is : IsSmart (mkFunc name params hash)): Forall IsSmart params :=
+Definition getSmartParamsFromMkFunc (name : nat) (params : list Func) (hash : nat) (static: bool)
+  (is : IsSmart (mkFunc name params hash static)): Forall IsSmart params :=
 match is with
-| isSmart _ _ _ _ feq _ Hsmarts =>
+| isSmart _ _ _ _ _ feq _ _ Hsmarts =>
   eq_ind_r
     (fun params' : list Func => Forall IsSmart params')
     Hsmarts
@@ -192,12 +245,12 @@ end.
 Definition get_smart_sig_params (s : SmartFunc): {params : list Func | Forall IsSmart params} :=
 let (f, is) := s in
 match f as f' return (IsSmart f' -> {params : list Func | Forall IsSmart params}) with
-| mkFunc name params hash =>
-  (fun (is' : IsSmart (mkFunc name params hash)) =>
+| mkFunc name params hash static =>
+  (fun (is' : IsSmart (mkFunc name params hash static)) =>
     exist
       (fun params' : list Func => Forall IsSmart params')
       params
-      (getSmartParamsFromMkFunc name params hash is')
+      (getSmartParamsFromMkFunc name params hash static is')
   )
 end is.
 
@@ -271,14 +324,17 @@ injection feq.
 intros.
 subst params0.
 subst name0.
-rewrite <- H in heq.
+subst static0.
+rewrite <- H0 in heq.
 subst hash0.
 clear heq.
+clear seq.
 induction params as [| p ps].
 - reflexivity.
 - cbn.
   destruct Forall_cons_if as [sp sps].
-  cbn.
+  cbn [map].
+  cbn [get_func].
   apply list_cons_eq.
   split.
   + reflexivity.
