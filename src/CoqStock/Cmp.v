@@ -58,7 +58,7 @@ intros; split; intros.
 - symmetry. apply compare_eq_is_equal. assumption.
 Qed.
 
-Ltac compare_symmetry :=
+Ltac comparison_symmetry :=
   match goal with
   | [ H_Eq_Compare : Eq = Eq |- _ ] =>
     clear H_Eq_Compare
@@ -90,6 +90,11 @@ Ltac compare_symmetry :=
     reflexivity
   | [ |- Gt = Gt ] =>
     reflexivity
+  end.
+
+Ltac compare_symmetry :=
+  comparison_symmetry
+  || match goal with
   | [ |- context [compare ?X ?X] ] =>
     rewrite proof_compare_eq_reflex
   end.
@@ -173,9 +178,19 @@ Ltac compare_contradiction :=
     => exfalso; specialize (gt_contradiction H1 H2); easy
   | [ H1: compare ?x0 ?x1 = Lt , H2: compare ?x1 ?x0 = Lt |- _ ]
     => exfalso; specialize (lt_contradiction H1 H2); easy
-
   | [ H1: compare_leq ?x0 ?x1, H2: compare ?x0 ?x1 = Gt |- _ ]
     => destruct H1; compare_contradiction
+  end.
+
+Ltac comparison_contradiction F :=
+  repeat comparison_symmetry;
+  match goal with
+  | [ H1: F ?x0 ?x1 = Gt , H2: F ?x0 ?x1 = Lt |- _ ]
+    => exfalso; assert (Gt = Lt); try (rewrite <- H1; rewrite <- H2; reflexivity); discriminate
+  | [ H1: F ?x0 ?x1 = Gt , H2: F ?x0 ?x1 = Eq |- _ ]
+    => exfalso; assert (Gt = Eq); try (rewrite <- H1; rewrite <- H2; reflexivity); discriminate
+  | [ H1: F ?x0 ?x1 = Eq , H2: F ?x0 ?x1 = Lt |- _ ]
+    => exfalso; assert (Eq = Lt); try (rewrite <- H1; rewrite <- H2; reflexivity); discriminate
   end.
 
 Theorem example_gt_reflex_discriminate:
@@ -201,6 +216,19 @@ Example example_gt_contradiction:
 Proof.
 intros.
 compare_contradiction.
+Qed.
+
+Example example_gt_lt_contradiction:
+  forall
+    {A: Type}
+    (c: Cmp A)
+    (x y: A)
+    (H1: compare x y = Lt)
+    (H2: compare x y = Gt),
+  False.
+Proof.
+intros.
+comparison_contradiction compare.
 Qed.
 
 
@@ -272,12 +300,49 @@ Ltac induction_on_compare_in H :=
   induction_on_compare_Heqc
 .
 
+Ltac induction_on_comparison_Heqc :=
+  (* remember (compare a b) =>
+    [
+    c: comparison
+    Heqc: c = compare a b
+    |- _ ]
+  *)
+  match goal with
+  | [ C: comparison |- _ ] =>
+    induction C; [ (* Eq *) | (* Lt *) | (* Gt *)]
+    ; repeat comparison_symmetry
+    ; repeat (comparison_contradiction compare)
+  end
+.
+
+Ltac induction_on_comparison_goal F X Y :=
+  match goal with
+  | [ |- context [F X Y]] =>
+    remember (F X Y)
+  end;
+  induction_on_comparison_Heqc
+.
+
+Ltac induction_on_comparison_in F X Y H :=
+  match goal with
+  | [H: context [F X Y] |- _] =>
+    remember (F X Y)
+  end;
+  induction_on_comparison_Heqc
+.
+
 (* induction_on_compare starts induction on a `compare` expression in the goal.
    It makes sense to remember this comparison, so that it be rewritten to an
    equality in the Eq induction goal.
 *)
 Tactic Notation "induction_on_compare" := induction_on_compare_goal.
 Tactic Notation "induction_on_compare" "in" hyp(H) := induction_on_compare_in H.
+
+(* induction_on_comparison is like induction_on_compare, but doesn't assume that the function is called compare or has any proofs associated with it.
+  This tactic is useful when proving that a new compare function is an instance of Cmp.
+*)
+Tactic Notation "induction_on_comparison" constr(F) constr(X) constr(Y) := induction_on_comparison_goal F X Y.
+Tactic Notation "induction_on_comparison" constr(F) constr(X) constr(Y) "in" hyp(H) := induction_on_comparison_in F X Y H.
 
 Theorem proof_compare_eq_symm
   : forall {A: Type}
@@ -303,6 +368,44 @@ Theorem compare_eq_is_only_equal
 Proof.
 intros.
 induction_on_compare.
+Qed.
+
+(* Test for induction_on_comparison_in  *)
+Example test_compare_Nat_eq_is_only_equal_goal
+  : forall (x1 x2: nat)
+           (q: Nat.compare x1 x2 <> Eq -> Nat.compare x1 x2 <> Nat.compare x2 x1)
+           (p: Nat.compare x1 x2 = Nat.compare x2 x1)
+  , Nat.compare x1 x2 = Eq.
+Proof.
+intros.
+induction_on_comparison Nat.compare x1 x2 in p.
+- assert (Lt <> Eq). discriminate.
+  specialize (q H) as q.
+  symmetry in p.
+  contradiction.
+- assert (Gt <> Eq). discriminate.
+  specialize (q H) as q.
+  symmetry in p.
+  contradiction.
+Qed.
+
+(* Test for induction_on_comparison_goal  *)
+Example test_compare_Nat_eq_is_only_equal_in
+  : forall (x1 x2: nat)
+           (q: Nat.compare x1 x2 <> Eq -> Nat.compare x1 x2 <> Nat.compare x2 x1)
+           (p: Nat.compare x1 x2 = Nat.compare x2 x1)
+  , Nat.compare x1 x2 = Eq.
+Proof.
+intros.
+induction_on_comparison Nat.compare x1 x2.
+- assert (Lt <> Eq). discriminate.
+  specialize (q H) as q.
+  symmetry in p.
+  contradiction.
+- assert (Gt <> Eq). discriminate.
+  specialize (q H) as q.
+  symmetry in p.
+  contradiction.
 Qed.
 
 Theorem compare_lt_not_symm_1
