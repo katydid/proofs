@@ -5,6 +5,7 @@ src/CoqStock/CmpBool.v
 src/CoqStock/CmpNat.v
 src/CoqStock/CmpList.v
 src/CoqStock/DubStep.v
+src/CoqStock/Fequal.v
 src/CoqStock/Hash.v
 src/CoqStock/HashNat.v
 src/CoqStock/HashList.v
