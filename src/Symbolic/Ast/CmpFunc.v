@@ -29,23 +29,23 @@ Fixpoint func_compare (x y: Func) {struct x}: comparison :=
           | Lt => Lt
           | Gt => Gt
           | Eq => ((fix params_compare (xs ys: list Func) {struct xs} :=
-              match xs with
-              | [] =>
+            match xs with
+            | [] =>
               match ys with
               | [] => Eq
               | _ => Lt
               end
-              | (x'::xs') =>
+            | (x'::xs') =>
               match ys with
               | [] => Gt
               | (y'::ys') =>
-                  match func_compare x' y' with
-                  | Lt => Lt
-                  | Gt => Gt
-                  | Eq => params_compare xs' ys'
-                  end
+                match func_compare x' y' with
+                | Lt => Lt
+                | Gt => Gt
+                | Eq => params_compare xs' ys'
+                end
               end
-              end
+            end
           ) xparams yparams)
           end
         end
