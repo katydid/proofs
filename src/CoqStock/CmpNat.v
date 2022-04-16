@@ -1,6 +1,5 @@
 (*
-compare_nat contains comparable_nat,
-which is a instance of comparable for nat.
+CmpNat is an instance of Cmp for Nat.compare.
 *)
 
 Set Implicit Arguments.

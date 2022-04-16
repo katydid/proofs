@@ -1,3 +1,5 @@
+(* CmpList is an instance of Cmp for list_compare. *)
+
 Set Implicit Arguments.
 Set Asymmetric Patterns.
 
