@@ -1,4 +1,5 @@
-# proofs
+# Archived Coq version of the katydid proofs
+
 Proofs written in Coq for the core katydid validation algorithm
 
 ![Check Proofs](https://github.com/katydid/proofs/workflows/Check%20Proofs/badge.svg)
