@@ -2,7 +2,7 @@
 
 ## How to start
 
-1. Create a pull request on master
+1. Create a pull request on main
 2. Add yourself to the AUTHORS file
 3. Make sure the github action that automatically checks your proofs passes.
 4. Wait for at least one approval from a reviewer
@@ -12,12 +12,12 @@
 
 ### Where to jump in
 
-1. Find a TODO.
+1. Find a TODO, `admit` or `sorry`.
 2. Open an github issue, if you would like to prove something different that you still feels belong here.
 
 ### I have an alternative proof
 
-The more the merrier. We welcome alternative proofs.  Please submit your proof with a new name.
+The more the merrier. We welcome alternative proofs. Please submit your proof with a new name.
 
 ### Comments
 
@@ -26,7 +26,7 @@ The more the merrier. We welcome alternative proofs.  Please submit your proof w
 
 ### When to use a separate file
 
-Now.  When you are starting to ask this question, it is time to start using a separate file.
+Now. When you are starting to ask this question, it is time to start using a separate file.
 
 ### Tactics
 
