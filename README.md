@@ -49,9 +49,10 @@ Lean has great [instructions for installing Lean4 in VS Code](https://github.com
 
 ### Pair Programming
 
-We have pair programming session on some Saturdays 14:30 - 17:00 UK time. If you would like to watch, this will be streamed on [Twitch](https://www.twitch.tv/awalterschulze).
+We have pair programming session on some Saturdays 14:30 - 17:00 UK time, stating 29 October. 
 
-If you would like to do more than watch and join us inside the zoom session that we will be streaming, then we have some prerequisites to make sure you won't be out of your depth.
+- If you would like to watch, this will be streamed on [Twitch](https://www.twitch.tv/awalterschulze).
+- If you would like to do more than watch and join us inside the zoom session that we will be streaming, then we have some prerequisites to make sure you won't be out of your depth.
 
 Prerequisites:
 - Interactive theorem proving experience in for example Coq or Lean. This experience should include:
