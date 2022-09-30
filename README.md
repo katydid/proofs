@@ -41,7 +41,7 @@ This is just a quick overview of the steps towards our goal.
 
 ### Contributing
 
-Please read the [contributing guidelines](https://github.com/awalterschulze/regex-reexamined-coq/blob/master/CONTRIBUTING.md).  They are short and shouldn't be surprising.
+Please read the [contributing guidelines](https://github.com/katydid/proofs/blob/master/CONTRIBUTING.md).  They are short and shouldn't be surprising.
 
 ### Setup
 
