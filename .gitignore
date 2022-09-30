@@ -1,11 +1,3 @@
-.DS_Store
-.idea
-*.glob
-*.aux
-*.vo
-*.vok
-*.vos
-*.lia.cache
-\#*.v\#
-/.Makefile.d
-/Makefile.conf
+build/
+lean_packages/*
+!/lean_packages/manifest.json
