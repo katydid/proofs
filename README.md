@@ -8,16 +8,34 @@ Proofs written in Lean4 for the core [katydid](https://katydid.github.io/) valid
 
 The goal is to formalize the core [katydid](https://katydid.github.io/) validation algorithm.  This algorithm allows us to validate millions of serialized data structures per second on a single core.  The algorithm is based on derivatives for regular expressions and extends this to Visibly Pushdown Automata (VPA), by splitting the derivative function into two functions.  It also includes several basic optimizations, such as memoization, simplification, laziness, zipping of multiple states, short circuiting, evaluation at compilation, symbolic derivatives and a pull based parser for serialized data structures that allows us to skip over some of the parsing.  You can play around with the validation language on its [playground](http://katydid.github.io/play/).
 
-## Background
+## Prerequisites
 
-This is required reading for understanding the underlying algorithm.
+This is required reading for understanding the underlying algorithm, the subject of the proofs in this repo:
 
-- [Derivatives of Regular Expressions explained](https://medium.com/@awalterschulze/how-to-take-the-derivative-of-a-regular-expression-explained-2e7cea15028d)
-- **TODO by 7 October**: Derivatives of Context-Free Grammars explained
-- **TODO by 14 October**: Derivatives of Symbolic Automata explained
-- **TODO TBD**: Derivatives of Tree Expressions explained
+  - [Derivatives of Regular Expressions explained](https://medium.com/@awalterschulze/how-to-take-the-derivative-of-a-regular-expression-explained-2e7cea15028d)
+  - **TODO by 7 October**: Derivatives of Context-Free Grammars explained (only the simplification rules, smart constructors and memoization are important)
+  - **TODO by 14 October**: Derivatives of Symbolic Automata explained
+  - **TODO TBD (not required right now)**: Derivatives of Tree Expressions explained
 
-## Plan
+This repo also requires the following background:
+
+  - Knowledge of dependent types, induction and understanding the difference between a property `True` and a boolean `true`. We recommend reading [The Little Typer](https://mitpress.mit.edu/9780262536431/the-little-typer/) to gain an understanding of the basics.
+  - Experience with an Interactive Theorem Prover, like Coq or Lean, including using tactics and Inductive Predicates.  We recommend reading [Coq in a Hurry](https://cel.archives-ouvertes.fr/file/index/docid/459139/filename/coq-hurry.pdf) as a teaser and [Coq Art](https://www.labri.fr/perso/casteran/CoqArt/) up to `Chapter 8: Inductive Predicates` for a proper understanding.
+
+Optionally the following will also be helpful, but this is not required:
+
+  - Experience with Lean4, since this project is written in Lean4. We recommend reading [Theorem Proving in Lean4](https://leanprover.github.io/theorem_proving_in_lean4/title_page.html) to close the gap between Coq and Lean.
+
+## Development
+
+### Pair Programming
+
+We have pair programming sessions on some Saturdays 14:00 - 17:00 UK time, starting 29 October. 
+
+- If you would like to watch, this will be streamed on [Twitch](https://www.twitch.tv/awalterschulze) from 14:30.
+- If you would like to do more than watch and join us inside the zoom session, then please make sure you have meet the [prerequisites](https://github.com/katydid/proofs#prerequisites) and email [Walter](https://github.com/awalterschulze).
+
+### Plan
 
 This is just a quick overview of the steps towards our goal.
 
@@ -26,41 +44,19 @@ This is just a quick overview of the steps towards our goal.
   + Prove simplification rules for `or`, `and`, `false`, etc.
   + Prove that non-reader functions can be pre-computed before evaluating time
   + Prove that the optimized comparison method using a hash is comparable (transitive, associative, etc.)
-- Create symbolic regular expressions, stealing from [our previous work in Coq](https://github.com/awalterschulze/regex-reexamined-coq/)
-  + Create Inductive Predicate for symbolic regular expressions
-  + Prove that these expressions are decidable
-  + Create derivative algorithm for symbolic regular expressions
-  + Prove that it is equivalent to the inductive predicate
-- Extend the symbolic regular expressions to trees
-  + Prove that these expressions are still decidable
-  + Create derivative algorithm for symbolic tree expressions
-  + Prove that it is equivalent to the inductive predicate
-  + Prove all optimizations of the katydid algorithm
-
-## Development
+- Create the symbolic regular expressions for trees
+  + Steal as much as we can from [our previous work in Coq](https://github.com/awalterschulze/regex-reexamined-coq/)
+  + Prove that the induction predicate is decidable.
+  + Create derivative functions for the symbolic tree expressions.
+  + Prove that the simple tree function and the VPA functions are equivalent and equivalent to the inductive predicate.
+  + Prove all optimizations of the katydid algorithm ...
 
 ### Contributing
 
-Please read the [contributing guidelines](https://github.com/katydid/proofs/blob/master/CONTRIBUTING.md).  They are short and shouldn't be surprising.
+Please check the [prerequisites](https://github.com/katydid/proofs#prerequisites) and read the [contributing guidelines](https://github.com/katydid/proofs/blob/master/CONTRIBUTING.md).  The contributing guidelines are short and shouldn't be surprising.
 
 ### Setup
 
-Lean has great [instructions for installing Lean4 in VS Code](https://github.com/leanprover/lean4/blob/master/doc/quickstart.md).
+Lean4 has exceptional [instructions for installing Lean4 in VS Code](https://github.com/leanprover/lean4/blob/master/doc/quickstart.md).
 
-### Pair Programming
-
-We have pair programming session on some Saturdays 14:30 - 17:00 UK time, stating 29 October. 
-
-- If you would like to watch, this will be streamed on [Twitch](https://www.twitch.tv/awalterschulze).
-- If you would like to do more than watch and join us inside the zoom session that we will be streaming, then we have some prerequisites to make sure you won't be out of your depth.
-
-Prerequisites:
-- Interactive theorem proving experience in for example Coq or Lean. This experience should include:
-  + Understanding the difference between a property and a boolean
-  + Experience with using tactics
-  + Having defined and used Inductive Predicates
-  + The rest we can teach you on the fly or it might be something we need to learn from you
-- Having read the posts explaining the derivative algorithm that we are trying to prove.  See the [Background](https://github.com/katydid/proofs#background) section of the Readme.
-
-Please email [Walter](https://github.com/awalterschulze) if you would like to join us.
 
