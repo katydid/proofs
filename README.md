@@ -49,7 +49,9 @@ This is just a quick overview of the steps towards our goal.
   + Prove that the induction predicate is decidable.
   + Create derivative functions for the symbolic tree expressions.
   + Prove that the simple tree function and the VPA functions are equivalent and equivalent to the inductive predicate.
-  + Prove all optimizations of the katydid algorithm ...
+  + Prove simplification rules
+  + Prove all optimizations of the katydid algorithm
+  + ...
 
 ### Contributing
 
