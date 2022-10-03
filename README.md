@@ -28,7 +28,7 @@ Optionally the following will also be helpful, but this is not required:
 
 ## Development
 
-### Pair Programming
+### Pair Programming Proofs
 
 We have pair programming sessions on some Saturdays 14:00 - 17:00 UK time, starting 29 October. 
 
