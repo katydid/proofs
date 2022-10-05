@@ -1,6 +1,6 @@
 # proofs
 
-Proofs written in Lean4 for the core [katydid](https://katydid.github.io/) validation algorithm
+Proofs written in [Lean4](https://leanprover.github.io/) for the core [katydid](https://katydid.github.io/) validation algorithm
 
 ![Check Proofs](https://github.com/katydid/proofs/workflows/Check%20Proofs/badge.svg)
 
