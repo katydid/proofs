@@ -13,7 +13,7 @@ The goal is to formalize the core [katydid](https://katydid.github.io/) validati
 This is required reading for understanding the underlying algorithm, the subject of the proofs in this repo:
 
   - [Derivatives of Regular Expressions explained](https://medium.com/@awalterschulze/how-to-take-the-derivative-of-a-regular-expression-explained-2e7cea15028d)
-  - **TODO by 7 October**: Derivatives of Context-Free Grammars explained (only the simplification rules, smart constructors and memoization are important)
+  - [Derivatives of Context-Free Grammars explained](https://medium.com/@awalterschulze/derivatives-of-context-free-grammars-explained-3f930c5e363b) (only the simplification rules, smart constructors and memoization are important)
   - **TODO by 14 October**: Derivatives of Symbolic Automata explained
   - **TODO TBD (not required right now)**: Derivatives of Tree Expressions explained
 
