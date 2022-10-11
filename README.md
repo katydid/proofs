@@ -32,7 +32,7 @@ Optionally the following will also be helpful, but this is not required:
 We have pair programming sessions on some Saturdays 14:00 - 17:00 UK time, starting 29 October. 
 
 - If you would like to watch, this will be streamed on [Twitch](https://www.twitch.tv/awalterschulze) starting at 14:30. We will use the time from 14:00 to 14:30 for preparation.
-- If you would like to do more than watch and join us inside the zoom session, then please make sure you have meet the [prerequisites](https://github.com/katydid/proofs#prerequisites) and email [Walter](https://github.com/awalterschulze).
+- If you would like to do more than watch and join us inside the zoom session, then please make sure you have met the [prerequisites](https://github.com/katydid/proofs#prerequisites) and email [Walter](https://github.com/awalterschulze).
 
 ### Plan
 
