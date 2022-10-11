@@ -15,7 +15,6 @@ This is required reading for understanding the underlying algorithm, the subject
   - [Derivatives of Regular Expressions explained](https://medium.com/@awalterschulze/how-to-take-the-derivative-of-a-regular-expression-explained-2e7cea15028d)
   - [Derivatives of Context-Free Grammars explained](https://medium.com/@awalterschulze/derivatives-of-context-free-grammars-explained-3f930c5e363b) (only the simplification rules, smart constructors and memoization are important)
   - [Derivatives of Symbolic Automata explained](https://medium.com/@awalterschulze/derivatives-of-symbolic-automata-explained-4673dee6af82)
-  - **TODO TBD (not required right now)**: Derivatives of Tree Expressions explained
 
 This repo also requires the following background:
 
