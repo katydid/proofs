@@ -23,7 +23,9 @@ This repo also requires the following background:
 
 Optionally the following will also be helpful, but this is not required:
 
-  - Experience with Lean4, since this project is written in Lean4. We recommend reading [Theorem Proving in Lean4](https://leanprover.github.io/theorem_proving_in_lean4/title_page.html) to close the gap between Coq and Lean.
+  - Experience with Lean4, since this project is written in Lean4. We recommend reading:
+    + [Theorem Proving in Lean4](https://leanprover.github.io/theorem_proving_in_lean4/title_page.html) to close the gap between Coq and Lean.
+    + [Lean Manual](https://leanprover.github.io/lean4/doc/whatIsLean.html) for programming in Lean and Monads.
 
 ## Development
 
