@@ -9,7 +9,7 @@ lean_lib Hello {
   -- add library configuration options here
 }
 
-@[default_target]
+@[defaultTarget]
 lean_exe hello {
   root := `Main
 }
