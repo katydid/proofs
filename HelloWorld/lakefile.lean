@@ -1,15 +1,15 @@
 import Lake
 open Lake DSL
 
-package helloWorld {
+package hello {
   -- add package configuration options here
 }
 
-lean_lib HelloWorld {
+lean_lib Hello {
   -- add library configuration options here
 }
 
-@[defaultTarget]
+@[default_target]
 lean_exe hello {
   root := `Main
 }
