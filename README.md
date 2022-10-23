@@ -19,7 +19,7 @@ This is required reading for understanding the underlying algorithm, the subject
 This repo also requires the following background:
 
   - Knowledge of dependent types, induction and understanding the difference between a property `True` and a boolean `true`. We recommend reading [The Little Typer](https://mitpress.mit.edu/9780262536431/the-little-typer/) to gain an understanding of the basics.
-  - Experience with an Interactive Theorem Prover, like Coq or Lean, including using tactics and Inductive Predicates.  We recommend reading [Coq in a Hurry](https://cel.archives-ouvertes.fr/file/index/docid/459139/filename/coq-hurry.pdf) as a teaser and [Coq Art](https://www.labri.fr/perso/casteran/CoqArt/) up to `Chapter 8: Inductive Predicates` for a proper understanding.
+  - Experience with an Interactive Theorem Prover, like Coq or Lean, including using tactics and Inductive Predicates. If you are unfamiliar with interactive theorem provers you can watch our [talk](https://www.youtube.com/watch?v=-NHWF4ntc1I) for a taste. We recommend reading [Coq in a Hurry](https://cel.archives-ouvertes.fr/file/index/docid/459139/filename/coq-hurry.pdf) as a quick overview and [Coq Art](https://www.labri.fr/perso/casteran/CoqArt/) up to `Chapter 8: Inductive Predicates` for a proper understanding.
 
 Optionally the following will also be helpful, but this is not required:
 
