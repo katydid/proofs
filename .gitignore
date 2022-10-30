@@ -6,3 +6,4 @@ lean_packages/*
 /build
 /lean_packages/*
 !/lean_packages/manifest.json
+prelude/build/
