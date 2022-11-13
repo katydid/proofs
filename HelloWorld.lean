@@ -1,2 +1,3 @@
-import HelloWorld.Compare
+import HelloWorld.Algebra
+import HelloWorld.Ordering
 import HelloWorld.Predicate
