@@ -29,10 +29,3 @@ namespace algebra_using_structure'
     right_identity: ∀ x, op x e = x
 
 end algebra_using_structure'
-
-
-
-
-
-
-
