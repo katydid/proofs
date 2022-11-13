@@ -10,9 +10,9 @@ class Semigroup (G : Type u) extends Magma G where
   -- is_assoc : op (op a b) c = op a (op b c)
 
 class Monoid (M : Type u) extends Semigroup M where
-  identity: M
-  left_identity: ∀ (a: M), op identity a = a
-  right_identity: ∀ (a: M), op a identity = a
+  empty: M -- alternative names: identity or unit or ε
+  left_identity: ∀ (a: M), op empty a = a
+  right_identity: ∀ (a: M), op a empty = a
 
 namespace algebra_using_structure'
 

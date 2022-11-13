@@ -71,10 +71,9 @@ instance : Semigroup Ordering where
   is_assoc := lex_assoc
 
 instance : Monoid Ordering where
-  identity := Ordering.eq
+  empty := Ordering.eq
   left_identity := lex_left_identity
   right_identity := lex_right_identity
-
 
 section instances_using_structure'
 
