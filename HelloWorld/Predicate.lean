@@ -1,6 +1,6 @@
-import HelloWorld.Compare
+import HelloWorld.Ordering
 
-#eval less_than Ordering.eq Ordering.lt
+#eval lex Ordering.eq Ordering.lt
 
 inductive Desc where
   | intro
