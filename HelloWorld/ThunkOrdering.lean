@@ -13,14 +13,6 @@ def lex (x: Thunk Ordering) (y: Thunk Ordering): Thunk Ordering :=
   | Ordering.eq => y
   | _ => x.get
 
-theorem thunkAux : (fun _ => as ()) = as := funext fun x => by
-    cases x
-    exact rfl
-
-theorem thunk' : (fun _ => as ()) = as := funext fun x => by
-    cases x
-    exact rfl
-
 theorem lex_assoc:
   ∀ a b c, lex (lex a b) c = lex a (lex b c) := by
   intros a b c
@@ -35,10 +27,6 @@ theorem lex_assoc:
 theorem lex_left_identity (a: Thunk Ordering):
   lex Ordering.eq a = a := by
   cases a <;> rfl
-
-theorem thunky (x: Thunk α):
-  x = Thunk.mk (fun _ => x.get) :=
-  rfl
 
 theorem lex_right_identity (a: Thunk Ordering):
   lex a Ordering.eq = a := by
