@@ -1,4 +1,4 @@
 import HelloWorld.Algebra
 import HelloWorld.Ordering
-import HelloWorld.ThunkOrdering
 import HelloWorld.Predicate
+import HelloWorld.ThunkOrdering

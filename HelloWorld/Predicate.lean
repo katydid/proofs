@@ -1,6 +1,6 @@
 import HelloWorld.Ordering
 
-#eval lex Ordering.eq Ordering.lt
+#eval Ordering.lex Ordering.eq Ordering.lt
 
 inductive Desc where
   | intro

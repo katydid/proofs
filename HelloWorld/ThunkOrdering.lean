@@ -7,6 +7,8 @@ instance : Repr (Thunk Ordering) where
     | Ordering.gt => ">"
     | Ordering.eq => "="
 
+namespace ThunkOrdering
+
 -- lexicographical ordering
 def lex (x: Thunk Ordering) (y: Thunk Ordering): Thunk Ordering :=
   match x.get with
@@ -36,13 +38,16 @@ theorem lex_right_identity (a: Thunk Ordering):
     rw [<-h] <;>
     rfl
 
+end ThunkOrdering
+
 instance : Magma (Thunk Ordering) where
-  op a b := lex a b
+  op a b := ThunkOrdering.lex a b
 
 instance : Semigroup (Thunk Ordering) where
-  is_assoc := lex_assoc
+  is_assoc := ThunkOrdering.lex_assoc
 
 instance : Monoid (Thunk Ordering) where
   empty := Ordering.eq
-  left_identity := lex_left_identity
-  right_identity := lex_right_identity
+  left_identity := ThunkOrdering.lex_left_identity
+  right_identity := ThunkOrdering.lex_right_identity
+
