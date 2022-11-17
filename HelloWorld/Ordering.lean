@@ -6,6 +6,8 @@ instance : Repr Ordering where
     | Ordering.gt, _ => ">"
     | Ordering.eq, _ => "="
 
+namespace Ordering
+
 -- lexicographical ordering
 def lex (x: Ordering) (y: Ordering): Ordering :=
   match x with
@@ -64,50 +66,52 @@ theorem lex_right_identity'':
   { rfl }
   { rfl }
 
+end Ordering
+
 instance : Magma Ordering where
-  op a b := lex a b
+  op a b := Ordering.lex a b
 
 instance : Semigroup Ordering where
-  is_assoc := lex_assoc
+  is_assoc := Ordering.lex_assoc
 
 instance : Monoid Ordering where
   empty := Ordering.eq
-  left_identity := lex_left_identity
-  right_identity := lex_right_identity
+  left_identity := Ordering.lex_left_identity
+  right_identity := Ordering.lex_right_identity
 
 section instances_using_structure'
 
   open algebra_using_structure'
 
-  def instanceMagmaLex := Magma'Struct.mk Ordering lex
+  def instanceMagmaLex := Magma'Struct.mk Ordering Ordering.lex
   def instanceMagmaLex': Magma'Struct := {
     carrier := Ordering,
-    op := lex
+    op := Ordering.lex
   }
 
   def instanceSemigroupLex : Semigroup'Struct := {
     toMagma'Struct := instanceMagmaLex,
-    is_assoc := lex_assoc
+    is_assoc := Ordering.lex_assoc
   }
   def instanceSemigroupLex' : Semigroup'Struct := {
     carrier := Ordering,
-    op := lex,
-    is_assoc := lex_assoc
+    op := Ordering.lex,
+    is_assoc := Ordering.lex_assoc
   }
 
   def instanceMonoidLex : Monoid'Struct := {
     carrier := Ordering,
-    op := lex,
-    is_assoc := lex_assoc,
+    op := Ordering.lex,
+    is_assoc := Ordering.lex_assoc,
     e := Ordering.eq,
-    left_identity := lex_left_identity,
-    right_identity := lex_right_identity,
+    left_identity := Ordering.lex_left_identity,
+    right_identity := Ordering.lex_right_identity,
   }
   def instanceMonoidLex' : Monoid'Struct := {
     toSemigroup'Struct := instanceSemigroupLex,
     e := Ordering.eq,
-    left_identity := lex_left_identity,
-    right_identity := lex_right_identity,
+    left_identity := Ordering.lex_left_identity,
+    right_identity := Ordering.lex_right_identity,
   }
 
 end instances_using_structure'
