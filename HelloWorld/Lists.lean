@@ -20,62 +20,148 @@ theorem list_cons_nil_ne (x : α) (xs : List α):
   intro h'
   contradiction
 
+theorem list_append_ne_nil (x : α) (xs : List α):
+  [x] ++ xs ≠ [] := by
+  intro h'
+  contradiction
+
+theorem list_append_nil_ne (x : α) (xs : List α):
+  xs ++ [x] ≠ [] := by
+  intro h'
+  cases xs with
+  | nil =>
+    contradiction
+  | cons head tail =>
+    contradiction
+
 theorem list_length_zero_is_empty (xs: List α):
   length xs = 0 -> xs = [] := by
   cases xs
   · intro _
     rfl
-  · intro _
+  · intro h'
+    simp [length] at h'
     contradiction
-
-theorem list_nil_cons (x: α) (xs: List α):
-  [] ≠ x :: xs := by
-  -- TODO
-  sorry
-
 
 theorem list_app_nil_l (xs: List α):
   [] ++ xs = xs := by
-  -- TODO
-  sorry
+  rfl
 
 theorem list_app_nil_r (xs: List α):
   xs ++ [] = xs := by
-  -- TODO
-  sorry
-
-theorem list_app_assoc (xs ys zs: List α):
-  xs ++ ys ++ zs = (xs ++ ys) ++ zs := by
   induction xs with
-  | nil => rfl
-  | cons head tail =>
+  | nil =>
+    rfl
+  | cons head tail ih =>
     apply (congrArg (cons head))
     assumption
 
+theorem list_app_assoc (xs ys zs: List α):
+  xs ++ (ys ++ zs) = (xs ++ ys) ++ zs := by
+  induction xs with
+  | nil => rfl
+  | cons head tail ih =>
+    apply (congrArg (cons head))
+    exact ih
+
 theorem list_app_assoc_reverse (xs ys zs: List α):
-  (xs ++ ys) ++ zs = xs ++ ys ++ zs := by
-  -- TODO
-  sorry
+  (xs ++ ys) ++ zs = xs ++ (ys ++ zs) := by
+  apply Eq.symm -- same as symmetry tactic in Coq and Lean3
+  apply list_app_assoc
 
 theorem list_app_comm_cons (x: α) (xs ys: List α):
   x :: (xs ++ ys) = (x :: xs) ++ ys := by
-  -- TODO
-  sorry
+  apply (congrArg (cons x))
+  rfl
 
 theorem list_app_cons_not_nil (x: α) (xs ys: List α):
-  [] ≠ xs ++ y :: ys := by
-  -- TODO
-  sorry
+  [] ≠ xs ++ (y :: ys) := by
+  cases xs <;> { intro h' ; contradiction }
+
+theorem list_app_nil_nil (xs ys: List α):
+  xs ++ ys = [] <-> xs = [] /\ ys = [] := by
+  apply Iff.intro
+  case mp =>
+    cases xs with
+    | nil =>
+      simp
+      intro h'
+      assumption
+    | cons head tail =>
+      intro h'
+      contradiction
+  case mpr =>
+    intro h'
+    cases h' with
+    | intro h1 h2 =>
+      rw [h1, h2]
+      rfl
 
 theorem list_app_eq_unit (a: α) (xs ys: List α):
-  xs ++ ys = [a] -> xs = [] /\ ys = [a] \/ xs = [a] /\ ys = [] := by
-  -- TODO
-  sorry
+  xs ++ ys = [a] -> (xs = [] /\ ys = [a]) \/ (xs = [a] /\ ys = []) := by
+  cases xs with
+  | nil =>
+    intro hy
+    simp at hy
+    apply Or.intro_left
+    apply And.intro
+    case left => rfl
+    case right => assumption
+  | cons head tail =>
+    intro hy
+    simp at hy
+    apply Or.intro_right
+    cases hy with
+    | intro h1 h2 =>
+      rw [h1]
+      have h3: tail = [] /\ ys = [] := (Iff.mp (list_app_nil_nil tail ys)) h2
+      cases h3 with
+      | intro h4 h5 =>
+        rw [h4, h5]
+        apply And.intro <;> rfl
 
 theorem list_app_inj_tail (xs ys: List α) (x y: α):
   xs ++ [x] = ys ++ [y] -> xs = ys /\ x = y := by
-  -- TODO
-  sorry
+  revert ys -- same as generalize dependent ys in Coq
+  induction xs with
+  | nil =>
+    intro ys h'
+    simp at h'
+    have h3: (ys = [] /\ [y] = [x]) \/ (ys = [x] /\ [y] = []) := (list_app_eq_unit x ys [y]) (Eq.symm h')
+    cases h3 with -- Or
+    | inl left =>
+      cases left with
+      | intro empty xy =>
+        simp at xy
+        rw [empty, xy]
+        apply And.intro <;> rfl
+    | inr right =>
+      cases right with
+      | intro empty ysx =>
+        contradiction
+  | cons headx tailx ihx =>
+    intro ys
+    cases ys with
+    | nil =>
+      intro h'
+      simp at h'
+      cases h' with
+      | intro _ hfalse =>
+        simp [List.append] at hfalse
+        have h: tailx ++ [x] ≠ [] := list_append_nil_ne x tailx
+        contradiction
+    | cons heady taily =>
+      intro h'
+      simp at h'
+      cases h' with
+      | intro heads tails =>
+        rw [heads]
+        have h: tailx = taily ∧ x = y := (ihx taily tails)
+        cases h with
+        | intro tailxy xy =>
+          rw [tailxy]
+          rw [xy]
+          apply And.intro <;> rfl
 
 theorem list_app_nil_end (xs: List α):
   xs = xs ++ [] := by
