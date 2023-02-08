@@ -165,18 +165,21 @@ theorem list_app_inj_tail (xs ys: List α) (x y: α):
 
 theorem list_app_nil_end (xs: List α):
   xs = xs ++ [] := by
-  -- TODO
-  sorry
+  cases xs with
+  | nil => rfl
+  | cons head tail => simp [List.append]
 
 theorem list_app_length (xs ys: List α):
   length (xs ++ ys) = length xs + length ys := by
-  -- TODO
-  sorry
+  induction xs with
+  | nil => simp
+  | cons _ tailx ih => simp [ih, Nat.succ_add]
 
 theorem list_last_length (xs: List α):
   length (xs ++ x :: nil) = (length xs) + 1 := by
-  -- TODO
-  sorry
+  induction xs with
+  | nil => rfl
+  | cons _ tail ih => simp [ih]
 
 theorem list_cons_eq (x y: α) (xs ys: List α):
   x :: xs = y :: ys <-> x = y /\ xs = ys := by
@@ -194,24 +197,56 @@ theorem list_cons_eq (x y: α) (xs ys: List α):
 
 theorem list_length_zero_or_smaller_is_empty (xs: List α):
   length xs <= 0 -> xs = [] := by
-  -- TODO
-  sorry
-
+  cases xs with
+  | nil => intro; rfl
+  | cons head tail => intro; contradiction
 
 theorem list_take_nil {α: Type u} (n: Nat):
   take n ([] : List α) = [] := by
-  -- TODO
-  sorry
+  cases n with
+  | zero => rfl
+  | succ => rfl
 
 theorem list_take_cons (n: Nat) (x: α) (xs: List α):
   take (n + 1) (x::xs) = x :: (take n xs) := by
-  -- TODO
-  sorry
+  rw [take]
 
 theorem list_take_all (xs: List α):
   take (length xs) xs = xs := by
-  -- TODO
-  sorry
+  induction xs with
+  | nil => rfl
+  | cons head tail ih =>
+    have h : take (length (head::tail)) (head::tail) =
+        head :: (take (length tail) tail) := by
+      apply list_take_cons
+    rw [ih] at h
+    trivial
+
+theorem list_take_zero_is_empty (xs : List α) :
+  take zero xs = [] := by rw [take]
+
+theorem list_rev_empty (xs : List α) :
+  reverse xs = [] -> xs = [] := by
+  cases xs with
+  | nil => simp
+  | cons head tail =>
+    intro h
+    have h' : (reverse (reverse (head :: tail)) = []) := congrArg reverse h
+    simp at h'
+
+theorem list_rev_empty2 (xs : List α) :
+  reverse ([] : List α) = [] := by trivial
+
+theorem list_rev_eq (n : Nat) (xs ys : List α) :
+  reverse xs = reverse ys -> xs = ys := by
+  intro h
+  have h' : reverse (reverse xs) = reverse (reverse ys) :=
+    congrArg reverse h
+  simp at h'
+  assumption
+
+theorem take_one_nil : take 1 ([] : List α) = [] := by
+  rw [take]
 
 theorem list_take_all2 (n: Nat) (xs: List α):
   (length xs) <= n -> take n xs = xs := by
