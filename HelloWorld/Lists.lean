@@ -248,20 +248,56 @@ theorem list_rev_eq (n : Nat) (xs ys : List α) :
 theorem take_one_nil : take 1 ([] : List α) = [] := by
   rw [take]
 
+theorem nat_succ_leq : succ n ≤ succ m -> n ≤ m := by
+  sorry
+
+theorem list_length_cons_succ : length (head :: tail) ≤ succ k -> length tail ≤ k := by
+  sorry
+
 theorem list_take_all2 (n: Nat) (xs: List α):
   (length xs) <= n -> take n xs = xs := by
-  -- TODO
-  sorry
+  revert xs
+  induction n with
+  | zero =>
+    intro xs h
+    have f := list_length_zero_or_smaller_is_empty xs h
+    rw [f]
+    rw [take]
+  | succ k ih =>
+    intro xs
+    cases xs with
+    | nil =>
+      intro h
+      apply list_take_nil
+    | cons head tail =>
+      intro h
+      rw [take]
+      apply (congrArg (cons head))
+      sorry
 
 theorem list_take_O (xs: List α):
   take 0 xs = [] := by
-  -- TODO
-  sorry
+  rw [take]
 
 theorem list_take_le_length (n: Nat) (xs: List α):
   length (take n xs) <= n := by
-  -- TODO
-  sorry
+  revert n
+  induction xs with
+  | nil =>
+    intro n
+    rw [list_take_nil]
+    simp
+  | cons head tail ih =>
+    intro n
+    cases n with
+    | zero  =>
+      rw [take]
+      simp
+    | succ k =>
+      rw [take]
+      rw [length]
+      apply succ_le_succ
+      apply (ih k)
 
 theorem list_take_length_le (n: Nat) (xs: List α):
   n <= length xs -> length (take n xs) = n := by
