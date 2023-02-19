@@ -248,11 +248,10 @@ theorem list_rev_eq (n : Nat) (xs ys : List α) :
 theorem take_one_nil : take 1 ([] : List α) = [] := by
   rw [take]
 
-theorem nat_succ_leq : succ n ≤ succ m -> n ≤ m := by
-  sorry
-
-theorem list_length_cons_succ : length (head :: tail) ≤ succ k -> length tail ≤ k := by
-  sorry
+theorem list_length_cons_le_succ (head : α) (tail : List α) (k : Nat):
+length (head :: tail) ≤ succ k -> length tail ≤ k := by
+  rw [length]
+  apply Nat.le_of_succ_le_succ
 
 theorem list_take_all2 (n: Nat) (xs: List α):
   (length xs) <= n -> take n xs = xs := by
@@ -260,8 +259,7 @@ theorem list_take_all2 (n: Nat) (xs: List α):
   induction n with
   | zero =>
     intro xs h
-    have f := list_length_zero_or_smaller_is_empty xs h
-    rw [f]
+    rw [list_length_zero_or_smaller_is_empty xs h]
     rw [take]
   | succ k ih =>
     intro xs
@@ -273,7 +271,7 @@ theorem list_take_all2 (n: Nat) (xs: List α):
       intro h
       rw [take]
       apply (congrArg (cons head))
-      sorry
+      apply ih tail (list_length_cons_le_succ head tail k h)
 
 theorem list_take_O (xs: List α):
   take 0 xs = [] := by
@@ -296,13 +294,56 @@ theorem list_take_le_length (n: Nat) (xs: List α):
     | succ k =>
       rw [take]
       rw [length]
-      apply succ_le_succ
+      apply Nat.succ_le_succ
       apply (ih k)
+
+theorem nat_succ_eq_plus_one : succ n = n + 1 := by simp
+
+theorem list_length_succ_le_cons  (head : α) (tail : List α) (k : Nat):
+k ≤ length tail -> succ k ≤ length (head :: tail) := by
+  rw [length, <-nat_succ_eq_plus_one]
+  apply Nat.succ_le_succ
+
+theorem nat_pred_le_succ : {n m : Nat} -> Nat.le n (succ m) -> Nat.le (pred n) m
+  | zero, zero, _ => Nat.le.refl
+  | _, _, Nat.le.refl => Nat.le.refl
+  | zero, succ _, Nat.le.step h => h
+  | succ _, succ _, Nat.le.step h => Nat.le_trans (le_succ _) h
+
+theorem list_length_pred_le_cons (head : α) (tail : List α) (k : Nat):
+k ≤ length (head :: tail) -> pred k ≤ length tail := by
+  rw [length, <-nat_succ_eq_plus_one]
+  apply nat_pred_le_succ 
+
+theorem list_length_cons_succ : length (x :: xs) = succ (length xs) := by simp
 
 theorem list_take_length_le (n: Nat) (xs: List α):
   n <= length xs -> length (take n xs) = n := by
-  -- TODO
-  sorry
+  revert n
+  induction xs with
+  | nil =>
+    intro n
+    rw [list_take_nil] 
+    rw [length] 
+    cases n with
+    | zero =>
+      intro h
+      rfl
+    | succ n' =>
+      intro h
+      contradiction
+  | cons head tail ih =>
+    intro n
+    intro h
+    have h' : _ := ih (pred n)
+    have h₂ : _ := h' ((list_length_pred_le_cons head tail n) h)
+    cases n with
+    | zero => rw [list_take_zero_is_empty, length]
+    | succ n' =>
+      simp at h₂
+      rw [list_take_cons, list_length_cons_succ]
+      have h₃ : _ := congrArg succ h₂ 
+      exact h₃
 
 theorem list_take_app (n: Nat) (xs ys: List α):
   take n (xs ++ ys) = (take n xs) ++ (take (n - length xs) ys) := by
