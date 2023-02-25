@@ -234,7 +234,7 @@ theorem list_rev_empty (xs : List α) :
     have h' : (reverse (reverse (head :: tail)) = []) := congrArg reverse h
     simp at h'
 
-theorem list_rev_empty2 (xs : List α) :
+theorem list_rev_empty2 :
   reverse ([] : List α) = [] := by trivial
 
 theorem list_rev_eq (n : Nat) (xs ys : List α) :
@@ -265,7 +265,7 @@ theorem list_take_all2 (n: Nat) (xs: List α):
     intro xs
     cases xs with
     | nil =>
-      intro h
+      intro _
       apply list_take_nil
     | cons head tail =>
       intro h
@@ -300,7 +300,7 @@ theorem list_take_le_length (n: Nat) (xs: List α):
 theorem nat_succ_eq_plus_one : succ n = n + 1 := by simp
 
 theorem list_length_succ_le_cons  (head : α) (tail : List α) (k : Nat):
-k ≤ length tail -> succ k ≤ length (head :: tail) := by
+  k ≤ length tail -> succ k ≤ length (head :: tail) := by
   rw [length, <-nat_succ_eq_plus_one]
   apply Nat.succ_le_succ
 
@@ -311,9 +311,9 @@ theorem nat_pred_le_succ : {n m : Nat} -> Nat.le n (succ m) -> Nat.le (pred n) m
   | succ _, succ _, Nat.le.step h => Nat.le_trans (le_succ _) h
 
 theorem list_length_pred_le_cons (head : α) (tail : List α) (k : Nat):
-k ≤ length (head :: tail) -> pred k ≤ length tail := by
+  k ≤ length (head :: tail) -> pred k ≤ length tail := by
   rw [length, <-nat_succ_eq_plus_one]
-  apply nat_pred_le_succ 
+  apply nat_pred_le_succ
 
 theorem list_length_cons_succ : length (x :: xs) = succ (length xs) := by simp
 
@@ -323,11 +323,11 @@ theorem list_take_length_le (n: Nat) (xs: List α):
   induction xs with
   | nil =>
     intro n
-    rw [list_take_nil] 
-    rw [length] 
+    rw [list_take_nil]
+    rw [length]
     cases n with
     | zero =>
-      intro h
+      intro _
       rfl
     | succ n' =>
       intro h
@@ -342,23 +342,75 @@ theorem list_take_length_le (n: Nat) (xs: List α):
     | succ n' =>
       simp at h₂
       rw [list_take_cons, list_length_cons_succ]
-      have h₃ : _ := congrArg succ h₂ 
+      have h₃ : _ := congrArg succ h₂
       exact h₃
+
+theorem nat_succ_sub_succ : {n m : Nat} ->
+  succ n - succ m = n - m := by
+  sorry
 
 theorem list_take_app (n: Nat) (xs ys: List α):
   take n (xs ++ ys) = (take n xs) ++ (take (n - length xs) ys) := by
-  -- TODO
-  sorry
+  revert xs ys
+  induction n with
+  | zero =>
+    intro xs ys
+    rw [Nat.zero_sub]
+    repeat rw [take]
+    simp
+  | succ n ih =>
+    intro xs ys
+    cases xs with
+    | nil =>
+      repeat rw [take]
+      simp
+    | cons x xs =>
+      rw [take]
+      rw [length]
+      rw [nat_succ_sub_succ]
+      rw [<- list_app_comm_cons]
+      rw [take]
+      apply (congrArg (cons x))
+      apply ih
 
 theorem list_take_app_2 (n: Nat) (xs ys: List α):
   take ((length xs) + n) (xs ++ ys) = xs ++ take n ys := by
-  -- TODO
-  sorry
+  induction xs with
+  | nil =>
+    simp
+  | cons x xs ih =>
+    rw [<- list_app_comm_cons]
+    rw [length]
+    have hcomm: length xs + 1 + n = succ (length xs + n) := by
+      rw [Nat.add_comm (length xs) 1]
+      rw [Nat.add_assoc]
+      rw [Nat.add_comm]
+      rfl
+    rw [hcomm]
+    rw [take]
+    apply (congrArg (cons x))
+    apply ih
+
+theorem nat_min_zero {n: Nat}: min 0 n = 0 := by
+  rw [min]
+  simp
+
+theorem nat_zero_min {n: Nat}: min n 0 = 0 := by
+  rw [min]
+  cases n with
+  | zero => simp
+  | succ n' => simp
 
 theorem list_take_take (n n: Nat) (xs: List α):
   take n (take m xs) = take (min n m) xs := by
-  -- TODO
-  sorry
+  revert xs m
+  induction n with
+  | zero =>
+    intro xs m
+    rw [nat_min_zero]
+    repeat rw [take]
+  | succ n ihn =>
+    sorry
 
 theorem list_take_drop_comm (n m: Nat) (xs: List α):
   take m (drop n xs) = drop n (take (n + m) xs) := by
@@ -372,28 +424,59 @@ theorem list_drop_take_comm (n m: Nat) (xs: List α):
 
 theorem list_drop_O (xs: List α):
   drop 0 xs = xs := by
-  -- TODO
-  sorry
+  rw [drop]
 
 theorem list_drop_nil {α: Type u} (n: Nat):
   drop n ([] : List α) = [] := by
-  -- TODO
-  sorry
+  cases n with
+  | zero => rw [drop]
+  | succ n' => rw [drop]
 
 theorem list_drop_cons (n: Nat) (x: α) (xs: List α):
   drop (n + 1) (x::xs) = drop n xs := by
-  -- TODO
-  sorry
+  rw [drop]
 
 theorem list_drop_all (xs: List α):
   drop (length xs) xs = nil := by
-  -- TODO
-  sorry
+  induction xs with
+  | nil =>
+    rw [list_drop_nil]
+  | cons head tail ih =>
+    rw [length]
+    rw [drop]
+    exact ih
+
+theorem nat_succ_le_succ_iff {x y: Nat}:
+  succ x ≤ succ y <-> x ≤ y := by
+  apply Iff.intro
+  case mp =>
+    apply Nat.le_of_succ_le_succ
+  case mpr =>
+    apply Nat.succ_le_succ
 
 theorem list_drop_all2 (n: Nat) (xs: List α):
   length xs <= n -> drop n xs = [] := by
-  -- TODO
-  sorry
+  revert xs
+  induction n with
+  | zero =>
+    intro xs
+    intro h
+    have empty_list := list_length_zero_or_smaller_is_empty xs h
+    rw [empty_list]
+    rw [drop]
+  | succ n ih =>
+    intro xs
+    cases xs with
+    | nil =>
+      rw [length]
+      intro _
+      rw [drop]
+    | cons x xs =>
+      rw [length]
+      intro h
+      rw [drop]
+      have h' := Nat.le_of_succ_le_succ h
+      exact ih xs h'
 
 theorem list_take_drop (n: Nat) (xs: List α):
   take n xs ++ drop n xs = xs := by
