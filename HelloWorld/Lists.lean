@@ -10,6 +10,14 @@
 open Nat
 open List
 
+theorem nat_succ_le_succ_iff (x y: Nat):
+  succ x ≤ succ y <-> x ≤ y := by
+  apply Iff.intro
+  case mp =>
+    apply Nat.le_of_succ_le_succ
+  case mpr =>
+    apply Nat.succ_le_succ
+
 theorem list_cons_ne_nil (x : α) (xs : List α):
   x :: xs ≠ [] := by
   intro h'
@@ -345,10 +353,6 @@ theorem list_take_length_le (n: Nat) (xs: List α):
       have h₃ : _ := congrArg succ h₂
       exact h₃
 
-theorem nat_succ_sub_succ : {n m : Nat} ->
-  succ n - succ m = n - m := by
-  sorry
-
 theorem list_take_app (n: Nat) (xs ys: List α):
   take n (xs ++ ys) = (take n xs) ++ (take (n - length xs) ys) := by
   revert xs ys
@@ -367,7 +371,7 @@ theorem list_take_app (n: Nat) (xs ys: List α):
     | cons x xs =>
       rw [take]
       rw [length]
-      rw [nat_succ_sub_succ]
+      rw [succ_sub_succ]
       rw [<- list_app_comm_cons]
       rw [take]
       apply (congrArg (cons x))
@@ -403,14 +407,56 @@ theorem nat_zero_min {n: Nat}: min n 0 = 0 := by
 
 theorem list_take_take (n n: Nat) (xs: List α):
   take n (take m xs) = take (min n m) xs := by
-  revert xs m
+  revert m xs
   induction n with
   | zero =>
-    intro xs m
+    intro m xs
     rw [nat_min_zero]
     repeat rw [take]
   | succ n ihn =>
-    sorry
+    intro m xs
+    cases m with
+    | zero =>
+      rw [take, min]
+      simp
+      rw [take]
+      apply list_take_nil
+    | succ m =>
+      unfold min
+      split
+      · case succ.succ.inl h =>
+        rw [nat_succ_le_succ_iff] at h
+        cases xs with
+        | nil =>
+          rw [take]
+        | cons x xs =>
+          repeat rw [take]
+          apply (congrArg (cons x))
+          have hmin : min n m = n := by
+            unfold min
+            split
+            · rfl
+            · contradiction
+          have ihn' : _ := @ihn m xs
+          rw [hmin] at ihn'
+          exact ihn'
+      · case succ.succ.inr h =>
+        rw [nat_succ_le_succ_iff] at h
+        cases xs with
+        | nil =>
+          rw [take]
+          apply list_take_nil
+        | cons x xs =>
+          repeat rw [take]
+          apply (congrArg (cons x))
+          have hmin : min n m = m := by
+            unfold min
+            split
+            · contradiction
+            · rfl
+          have ihn' : _ := @ihn m xs
+          rw [hmin] at ihn'
+          exact ihn'
 
 theorem list_take_drop_comm (n m: Nat) (xs: List α):
   take m (drop n xs) = drop n (take (n + m) xs) := by
@@ -446,14 +492,6 @@ theorem list_drop_all (xs: List α):
     rw [drop]
     exact ih
 
-theorem nat_succ_le_succ_iff {x y: Nat}:
-  succ x ≤ succ y <-> x ≤ y := by
-  apply Iff.intro
-  case mp =>
-    apply Nat.le_of_succ_le_succ
-  case mpr =>
-    apply Nat.succ_le_succ
-
 theorem list_drop_all2 (n: Nat) (xs: List α):
   length xs <= n -> drop n xs = [] := by
   revert xs
@@ -475,13 +513,28 @@ theorem list_drop_all2 (n: Nat) (xs: List α):
       rw [length]
       intro h
       rw [drop]
-      have h' := Nat.le_of_succ_le_succ h
-      exact ih xs h'
+      rw [nat_succ_le_succ_iff] at h
+      exact ih xs h
 
 theorem list_take_drop (n: Nat) (xs: List α):
   take n xs ++ drop n xs = xs := by
-  -- TODO
-  sorry
+  revert xs
+  induction n with
+  | zero =>
+    intro xs
+    rw [take]
+    rw [drop]
+    rw [list_app_nil_l]
+  | succ n ih =>
+    intro xs
+    cases xs with
+    | nil =>
+      rw [take, drop]
+      simp
+    | cons x xs =>
+      rw [take, drop]
+      apply (congrArg (cons x))
+      apply ih
 
 theorem list_take_length (n: Nat) (xs: List α):
   length (take n xs) = min n (length xs) := by
