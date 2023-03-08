@@ -26,9 +26,11 @@ Optionally the following will also be helpful, but this is not required:
   - Experience with Lean4, since this project is written in Lean4. We recommend reading:
     + [Theorem Proving in Lean4](https://leanprover.github.io/theorem_proving_in_lean4/title_page.html) to close the gap between Coq and Lean.
     + [Lean Manual](https://leanprover.github.io/lean4/doc/whatIsLean.html) for programming in Lean and Monads.
-    + [Lean Tactics](https://github.com/leanprover/lean4/blob/master/src/Init/Tactics.lean)
+    + [Lean Tactics File](https://github.com/leanprover/lean4/blob/master/src/Init/Tactics.lean)
     + [Lean Standard Libary Documentation](https://leanprover-community.github.io/mathlib4_docs/Std/Data/HashMap/Basic.html#Std.HashMap)
-    + [Zulip Chat](https://leanprover.zulipchat.com/)
+    + [Lean4 Meta Programming Book](https://github.com/arthurpaulino/lean4-metaprogramming-book)
+    
+Questions about Lean4 can be asked on [proofassistants.stackexchange](https://proofassistants.stackexchange.com/) by tagging questions with `lean` and `lean4` or in the [Zulip Chat](https://leanprover.zulipchat.com/).
 
 ## Development
 
