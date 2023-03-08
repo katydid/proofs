@@ -27,6 +27,21 @@ theorem nat_pred_le_succ : {n m : Nat} -> Nat.le n (succ m) -> Nat.le (pred n) m
   | zero, succ _, Nat.le.step h => h
   | succ _, succ _, Nat.le.step h => Nat.le_trans (le_succ _) h
 
+theorem nat_pred_le_succ' : {n m : Nat} -> Nat.le n (succ m) -> Nat.le (pred n) m := by
+  intro n m h
+  cases h with
+  | refl =>
+    constructor
+  | step h =>
+    cases n with
+    | zero =>
+      dsimp
+      exact h
+    | succ n =>
+      dsimp
+      have h_n_le_succ_n := Nat.le_succ n
+      exact (Nat.le_trans h_n_le_succ_n h)
+
 theorem nat_min_zero {n: Nat}: min 0 n = 0 := by
   rw [min]
   simp
@@ -49,6 +64,21 @@ theorem nat_add_succ_is_succ_add (n m: Nat): succ n + m = succ (n + m) := by
       rw [HAdd.hAdd]
       rfl
     rw [h]
+
+theorem nat_pred_le_pred : {n m : Nat} → LE.le n m → LE.le (pred n) (pred m) := by
+  intro n m h
+  cases h with
+  | refl => constructor
+  | step h =>
+    rename_i m
+    cases n with
+    | zero =>
+      dsimp
+      exact h
+    | succ n =>
+      dsimp
+      have h_n_le_succ_n := Nat.le_succ n
+      exact (Nat.le_trans h_n_le_succ_n h)
 
 theorem list_cons_ne_nil (x : α) (xs : List α):
   x :: xs ≠ [] := by
