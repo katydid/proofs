@@ -3,5 +3,5 @@ open Lake DSL
 
 package hello
 
-@[defaultTarget]
+@[default_target]
 lean_lib HelloWorld
