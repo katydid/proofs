@@ -43,14 +43,20 @@ theorem nat_pred_le_succ' : {n m : Nat} -> Nat.le n (succ m) -> Nat.le (pred n) 
       exact (Nat.le_trans h_n_le_succ_n h)
 
 theorem nat_min_zero {n: Nat}: min 0 n = 0 := by
-  rw [min]
+  unfold min
+  unfold instMinNat
+  unfold minOfLe
   simp
 
 theorem nat_zero_min {n: Nat}: min n 0 = 0 := by
-  rw [min]
   cases n with
-  | zero => simp
-  | succ n' => simp
+  | zero =>
+    simp
+  | succ n =>
+    unfold min
+    unfold instMinNat
+    unfold minOfLe
+    simp
 
 theorem nat_add_succ_is_succ_add (n m: Nat): succ n + m = succ (n + m) := by
   cases n with
@@ -257,9 +263,7 @@ theorem list_cons_eq (x y: α) (xs ys: List α):
   · intro h
     apply And.intro
     · injections
-      assumption
     · injections
-      assumption
   · intro h
     congr
     · exact h.left
@@ -461,12 +465,18 @@ theorem list_take_take (n n: Nat) (xs: List α):
     intro m xs
     cases m with
     | zero =>
-      rw [take, min]
+      unfold min
+      unfold instMinNat
+      unfold minOfLe
+      rw [take]
       simp
       rw [take]
       apply list_take_nil
     | succ m =>
       unfold min
+      unfold instMinNat
+      unfold minOfLe
+      simp
       split
       case succ.succ.inl h =>
         rw [nat_succ_le_succ_iff] at h
@@ -478,6 +488,9 @@ theorem list_take_take (n n: Nat) (xs: List α):
           apply (congrArg (cons x))
           have hmin : min n m = n := by
             unfold min
+            unfold instMinNat
+            unfold minOfLe
+            simp
             split
             · rfl
             · contradiction
@@ -495,6 +508,9 @@ theorem list_take_take (n n: Nat) (xs: List α):
           apply (congrArg (cons x))
           have hmin : min n m = m := by
             unfold min
+            unfold instMinNat
+            unfold minOfLe
+            simp
             split
             · contradiction
             · rfl
