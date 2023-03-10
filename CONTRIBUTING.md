@@ -14,10 +14,7 @@
 
 1. Find a TODO, `admit` or `sorry`.
 2. Open an github issue, if you would like to prove something different that you still feels belong here.
-
-### I have an alternative proof
-
-The more the merrier. We welcome alternative proofs. Please submit your proof with a new name.
+3. If there is an already existing proof, that you would like to prove in an different way, you are welcome. In that case, we would like to keep both copies, so copy the name, add a tick `'` at the end, write your alternative proof and submit your pull request.
 
 ### Comments
 
@@ -32,7 +29,7 @@ Now. When you are starting to ask this question, it is time to start using a sep
 
 Tactics unlike proofs, definitions, etc. don't have any types.
 This means they lack some documentation and type checking.
-For this reason, we prefer that new tactics come with:
+For this reason, we require that new tactics come with:
   - some comments above that describe the tactic.
   - some examples below that use the tactic.
 

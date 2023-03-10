@@ -1,4 +1,4 @@
-import HelloWorld.Ordering
+import Katydid.Std.Ordering
 
 #eval Ordering.lex Ordering.eq Ordering.lt
 
