@@ -1,4 +1,4 @@
-import HelloWorld.Algebra
+import Katydid.Std.Algebra
 
 instance : Repr (Thunk Ordering) where
   reprPrec thunk _ :=

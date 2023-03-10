@@ -1,4 +1,4 @@
-import HelloWorld.Algebra
+import Katydid.Std.Algebra
 
 instance : Repr Ordering where
   reprPrec

@@ -1,7 +1,7 @@
 import Lake
 open Lake DSL
 
-package hello
+package katydid
 
 @[default_target]
-lean_lib HelloWorld
+lean_lib Katydid
