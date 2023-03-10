@@ -1,3 +1,11 @@
+import Std.Classes.Order
+
+/-
+We want to represent some nested function calls for a very restricted language, for example:
+  and(lt(3, 5), contains("abcd", "bc"))
+We represent the description (including AST) of the expr, or as we call it the Descriptor here:
+-/
+
 inductive Desc where
   | intro
     (name : String)
@@ -6,6 +14,15 @@ inductive Desc where
     (reader: Bool)
   : Desc
   deriving Repr
+
+/-
+The `hash` field is important, because it is used to efficiently compare functions calls, so that we can reorder and simplify.  For example:
+  * and(lt(3, 5), contains("abcd", "bc")) => and(contains("abcd", "bc"), lt(3, 5))
+  * and(lt(3, 5), lt(3, 5)) => lt(3, 5)
+  * or(and(lt(3, 5), contains("abcd", "bc")), and(contains("abcd", "bc"), lt(3, 5))) => and(contains("abcd", "bc"), lt(3, 5))
+-/
+
+/- The reader field tells us whether the function has any variables or can be evaluated at compile time. -/
 
 def get_reader (desc: Desc): Bool :=
   match desc with
@@ -64,3 +81,17 @@ where cmps (xs ys : List Desc) : Ordering :=
     then r
     else cmps xs ys
   | _, _ => Ordering.eq
+
+instance : Hashable Desc where
+  hash x := get_hash x
+
+instance : Ord Desc where
+  compare x y := cmp x y
+
+theorem cmp_symm : ∀ (x y : Desc),
+  Ordering.swap (cmp x y) = cmp y x := by
+  -- TODO
+  sorry
+
+instance : Std.OrientedCmp cmp where
+  symm x y := cmp_symm x y
