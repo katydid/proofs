@@ -41,16 +41,12 @@ def hash_string (s: String): UInt64 :=
 def hash_with_name (name: String) (params: List Desc): UInt64 :=
   hash_list (31 * 17 + hash_string name) (List.map get_hash params)
 
-#eval hash_string "abcdefghjasdfasdf"
-
 def introDesc (name: String) (params: List Desc): Desc :=
   Desc.intro
     name
     (hash_with_name name params)
     params
     (List.any params get_reader)
-
-#eval introDesc "a" List.nil
 
 def introReaderDesc (name: String) (params: List Desc): Desc :=
   ⟨
@@ -90,8 +86,27 @@ instance : Ord Desc where
 
 theorem cmp_symm : ∀ (x y : Desc),
   Ordering.swap (cmp x y) = cmp y x := by
-  -- TODO
+  -- TODO: Prove this on Desc or a Desc Sigma type that has the property that the hash is the hash of the name and params
   sorry
 
 instance : Std.OrientedCmp cmp where
   symm x y := cmp_symm x y
+
+def le (x y: Desc): Bool :=
+  Ordering.isLE (cmp x y)
+
+theorem le_total : ∀ (x y: Desc),
+  le x y = true ∨ le y x = true := by
+  -- TODO: Prove this on Desc or a Desc Sigma type that has the property that the hash is the hash of the name and params
+  sorry
+
+instance : Std.TotalBLE le where
+  total x y := le_total x y
+
+theorem cmp_trans : ∀ {x y z: Desc},
+  cmp x y ≠ .gt → cmp y z ≠ .gt → cmp x z ≠ .gt := by
+  -- TODO: Prove this on Desc or a Desc Sigma type that has the property that the hash is the hash of the name and params
+  sorry
+
+instance : Std.TransCmp cmp where
+  le_trans cxy cyz := cmp_trans cxy cyz
