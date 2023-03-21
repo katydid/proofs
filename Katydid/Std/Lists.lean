@@ -61,15 +61,13 @@ theorem nat_zero_min {n: Nat}: min n 0 = 0 := by
 theorem nat_add_succ_is_succ_add (n m: Nat): succ n + m = succ (n + m) := by
   cases n with
   | zero =>
+    rewrite [Nat.add_comm]
     simp
-    rw [Nat.add_comm]
   | succ n =>
-    rw [Nat.add_comm]
-    rw [Nat.add_comm (succ n) m]
-    have h: m + succ (succ n) = succ (m + (succ n)) := by
-      rw [HAdd.hAdd]
-      rfl
-    rw [h]
+    rewrite [Nat.add_comm]
+    rewrite [Nat.add_comm (succ n)]
+    repeat rewrite [Nat.add_succ]
+    rfl
 
 theorem nat_pred_le_pred : {n m : Nat} → LE.le n m → LE.le (pred n) (pred m) := by
   intro n m h
@@ -322,8 +320,8 @@ theorem list_rev_eq (n : Nat) (xs ys : List α) :
 theorem take_one_nil : take 1 ([] : List α) = [] := by
   rw [take]
 
-theorem list_length_cons_le_succ (head : α) (tail : List α) (k : Nat):
-length (head :: tail) ≤ succ k -> length tail ≤ k := by
+private theorem list_length_cons_le_succ (head : α) (tail : List α) (k : Nat):
+  length (head :: tail) ≤ succ k -> length tail ≤ k := by
   rw [length]
   apply Nat.le_of_succ_le_succ
 
@@ -574,7 +572,7 @@ theorem list_drop_take_comm (n m: Nat) (xs: List α):
       | cons x xs =>
         rw [take]
         rw [drop]
-        rw [succ_sub_succ]
+        rw [Nat.succ_sub_succ]
         rw [drop]
         apply ih
 
@@ -636,15 +634,77 @@ theorem list_take_drop (n: Nat) (xs: List α):
       apply (congrArg (cons x))
       apply ih
 
+theorem nat_succ_gt_succ {n m: Nat}:
+  succ n > succ m -> n > m := by
+  intro h
+  cases h with
+  | refl =>
+    constructor
+  | step s =>
+    apply Nat.le_of_succ_le_succ
+    exact (Nat.le_succ_of_le s)
+
+theorem nat_succ_gt_succ' {n m: Nat}:
+  succ n > succ m -> n > m := by
+  apply Nat.le_of_succ_le_succ
+
+theorem list_take_large_length {n: Nat} {xs: List α}:
+  n > length xs -> length (take n xs) = length xs := by
+  revert xs
+  induction n with
+  | zero =>
+    intro xs
+    intro h
+    contradiction
+  | succ n ih =>
+    intro xs
+    intro h
+    cases xs with
+    | nil =>
+      rw [take]
+    | cons x xs =>
+      rw [take]
+      repeat rw [length]
+      apply congrArg succ
+      rw [length] at h
+      have h' := nat_succ_gt_succ h
+      exact ih h'
+
 theorem list_take_length (n: Nat) (xs: List α):
   length (take n xs) = min n (length xs) := by
-  -- TODO
-  sorry
+  unfold min
+  unfold instMinNat
+  unfold minOfLe
+  simp
+  split
+  case inl =>
+    rename_i c
+    apply (list_take_length_le _ _ c)
+  case inr =>
+    rename_i c
+    have c' := gt_of_not_le c
+    exact (list_take_large_length c')
 
 theorem list_drop_length (n: Nat) (xs: List α):
   length (drop n xs) = length xs - n := by
-  -- TODO
-  sorry
+  revert xs
+  induction n with
+  | zero =>
+    intro xs
+    rw [drop]
+    rw [Nat.sub_zero]
+  | succ n ih =>
+    intro xs
+    cases xs with
+    | nil =>
+      rw [drop]
+      rw [length]
+      rw [Nat.zero_sub]
+    | cons x xs =>
+      rw [drop]
+      rw [length]
+      rw [Nat.succ_sub_succ]
+      apply ih
 
 theorem list_drop_app (n: Nat) (xs ys: List α):
   drop n (xs ++ ys) = (drop n xs) ++ (drop (n - length xs) ys) := by
@@ -653,8 +713,19 @@ theorem list_drop_app (n: Nat) (xs ys: List α):
 
 theorem list_take_app_length (xs ys: List α):
   take (length xs) (xs ++ ys) = xs := by
-  -- TODO
-  sorry
+  revert ys
+  induction xs with
+  | nil =>
+    intro ys
+    simp
+    apply list_take_zero
+  | cons x xs ih =>
+    intro ys
+    rw [length]
+    rw [<- list_app_comm_cons]
+    rw [take]
+    apply (congrArg (cons x))
+    apply ih
 
 theorem list_drop_app_length (xs ys: List α):
   drop (length xs) (xs ++ ys) = ys := by
@@ -666,8 +737,52 @@ theorem list_split_list (xs: List α) (n : Nat): ∀ (ys zs: List α),
   xs = ys ++ zs ->
   ys = take n xs /\
   zs = drop n xs := by
-  -- TODO
-  sorry
+  revert xs
+  induction n with
+  | zero =>
+    intro xs ys zs hl ha
+    have he := list_length_zero_is_empty _ hl
+    rw [he]
+    rw [he] at ha
+    rw [take]
+    rw [drop]
+    rw [list_app_nil_l] at ha
+    have ha' := Eq.symm ha
+    constructor
+    case left =>
+      rfl
+    case right =>
+      exact ha'
+  | succ n ih =>
+    intro xs ys zs hl ha
+    cases xs with
+    | nil =>
+      rw [take]
+      rw [drop]
+      have ha' := Eq.symm ha
+      rw [list_app_nil_nil] at ha'
+      exact ha'
+    | cons x xs =>
+      rw [take, drop]
+      cases ys with
+      | nil =>
+        rw [length] at hl
+        contradiction
+      | cons y ys =>
+        simp at hl
+        have hzs : y :: ys ++ zs = y :: (ys ++ zs) := by
+          simp
+        rw [hzs] at ha
+        rw [list_cons_eq] at ha
+        cases ha with
+        | intro hxy ha =>
+          rw [hxy]
+          have ih' := ih xs ys zs hl ha
+          cases ih' with
+          | intro hys hzs =>
+            rw [<- hys]
+            rw [<- hzs]
+            simp
 
 theorem list_prefix_leq_length (xs ys zs: List α):
   xs = ys ++ zs -> length ys <= length xs := by
@@ -691,15 +806,39 @@ theorem list_prefix_length_leq: ∀ (xs ys zs: List α),
 
 theorem list_length_gt_zero: ∀ (xs: List α),
   xs ≠ [] -> 0 < length xs := by
-  -- TODO
-  sorry
+  intro xs
+  cases xs with
+  | nil =>
+    intro h
+    contradiction
+  | cons x xs =>
+    intro _
+    rw [length]
+    apply Nat.zero_lt_succ
 
 theorem list_prefix_is_gt_zero_and_leq: ∀ (xs ys zs: List α),
   (xs ≠ []) ->
   xs ++ ys = zs ->
   (0 < length xs /\ length xs <= length zs) := by
-  -- TODO
-  sorry
+  intro xs ys zs
+  revert xs ys
+  cases zs with
+  | nil =>
+    intro xs ys hneq ha
+    rw [list_app_nil_nil] at ha
+    cases ha with
+    | intro hxs hys =>
+      contradiction
+  | cons z zs =>
+    intro xs ys hneq ha
+    have hl := list_length_gt_zero _ hneq
+    rw [<- ha]
+    apply And.intro
+    case left =>
+      exact hl
+    case right =>
+      rw [list_app_length]
+      apply Nat.le_add_right
 
 theorem list_prefix_is_not_empty_with_index_gt_zero: ∀ (xs: List α) (n: Nat)
   (range: 0 < n /\ n <= length xs),
