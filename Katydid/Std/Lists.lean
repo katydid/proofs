@@ -148,7 +148,7 @@ theorem list_app_comm_cons (x: α) (xs ys: List α):
   apply (congrArg (cons x))
   rfl
 
-theorem list_app_cons_not_nil (x: α) (xs ys: List α):
+theorem list_app_cons_not_nil (y: α) (xs ys: List α):
   [] ≠ xs ++ (y :: ys) := by
   cases xs <;> { intro h' ; contradiction }
 
