@@ -103,7 +103,7 @@ def fresh [Monad m] [Lean.MonadLCtx m] (suggestion : Lean.Name) : m Lean.Syntax.
 -- mkHyp makes a new hypothesis
 --  let name ← fresh suggestion
 --  evalTactic ← `(tactic| have $name := $t )
-def mkHyp (suggestion: String) (t: Lean.Elab.Tactic.TacticM (Lean.TSyntax `term)): Lean.Elab.Tactic.TacticM Lean.Ident := do
+def mkHyp (suggestion: String) (t: Lean.Elab.Tactic.TacticM (Lean.TSyntax `term)): Lean.Elab.Tactic.TacticM Lean.Ident := Lean.Elab.Tactic.withMainContext do
   let t' ← t
   let name ← fresh suggestion
   run `(tactic| have $name := $t' )
