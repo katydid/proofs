@@ -171,7 +171,7 @@ theorem list_app_nil_nil (xs ys: List α):
       rw [h1, h2]
       rfl
 
-theorem list_app_eq_unit (a: α) (xs ys: List α):
+theorem list_app_eq_unit {a: α} {xs ys: List α}:
   xs ++ ys = [a] -> (xs = [] /\ ys = [a]) \/ (xs = [a] /\ ys = []) := by
   cases xs with
   | nil =>
@@ -201,7 +201,7 @@ theorem list_app_inj_tail (xs ys: List α) (x y: α):
   | nil =>
     intro ys h'
     simp at h'
-    have h3: (ys = [] /\ [y] = [x]) \/ (ys = [x] /\ [y] = []) := (list_app_eq_unit x ys [y]) (Eq.symm h')
+    have h3: (ys = [] /\ [y] = [x]) \/ (ys = [x] /\ [y] = []) := list_app_eq_unit (Eq.symm h')
     cases h3 with -- Or
     | inl left =>
       cases left with

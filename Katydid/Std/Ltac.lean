@@ -139,6 +139,31 @@ example (x: Nat) (Hz: x = z) (H: z < y): (x + 1 <= y /\ x + 1 <= y):= by
   example_combo_tactic
   example_assumption_tactic
 
+-- applyIn takes a hypothesis name and tactic and apply the tactic to the hypothesis and place the result in the same hypothesis
+def applyIn (name: Lean.Ident) (t: Lean.Elab.Tactic.TacticM (Lean.TSyntax `term)): Lean.Elab.Tactic.TacticM Unit := Lean.Elab.Tactic.withMainContext do
+  let t' ← t
+  run `(tactic| have $name := $t' $name )
+  let tempName: Lean.Ident ← fresh "H0"
+  let tempBinder ← `(Lean.binderIdent| $tempName:ident)
+  run `(tactic| rename_i $tempBinder)
+  run `(tactic| clear $tempName)
+  return ()
+
+local elab "example_applyin_tactic" : tactic => do
+  let hyps ← getHypotheses
+  for (name, ty) in hyps do
+    match ty with
+    | ~q((((($a : Prop)) → $b)) /\ ($a')) =>
+      if ← Lean.Meta.isExprDefEq a a' then
+        let hleft ← mkHyp "HLeft" `(($name).left )
+        let hright ← mkHyp "HRight" `(($name).right )
+        applyIn hright `($hleft)
+    | _ => return ()
+
+example (P: (A -> B) /\ A): B := by
+  example_applyin_tactic
+  assumption
+
 -- Other References of using quote4 and other tactics:
 --  - https://github.com/leanprover-community/mathlib4/blob/7e2613afa5a47788e24f31a386e4dfad92b40289/Mathlib/Tactic/Set.lean#L58
 --  - https://github.com/leanprover-community/mathlib4/blob/2d97a156aa63b50456ed3e5a7d6af3096ac7958e/Mathlib/Tactic/Tauto.lean
