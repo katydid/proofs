@@ -36,10 +36,10 @@ Questions about Lean4 can be asked on [proofassistants.stackexchange](https://pr
 
 ### Pair Programming Proofs
 
-We have pair programming sessions on some Thursdays 18:00 - 20:00 UK time.
+We have pair programming sessions on some Thursdays 18:00 - 20:00 UK time, which is announced on [meetup.com](https://www.meetup.com/london-tydd/).
 
 - If you would like to watch, this will be streamed on [Twitch](https://www.twitch.tv/awalterschulze).
-- If you would like to do more than watch and join us inside the zoom session, then please make sure you have met the [prerequisites](https://github.com/katydid/proofs#prerequisites) and email [Walter](https://github.com/awalterschulze).
+- If you would like to do more than watch and join us inside the zoom session, please make sure you have met the [prerequisites](https://github.com/katydid/proofs#prerequisites) and email [Walter](https://github.com/awalterschulze).
 
 ### Plan
 
