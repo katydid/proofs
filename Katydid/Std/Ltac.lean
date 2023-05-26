@@ -16,19 +16,18 @@ def newTactic (x : Lean.Elab.Tactic.TacticM α) : Lean.Elab.Tactic.TacticM α :=
   Lean.Elab.Tactic.withMainContext x
 
 -- Check if the expression is a Prop and if so return it as a Q(Prop) that can be used in a pattern match.
-private def getQProp (e: Lean.Expr) : Lean.Elab.Tactic.TacticM (Option Q(Prop)) := do
+private def castToProp (e: Lean.Expr) : Lean.Elab.Tactic.TacticM (Option Q(Prop)) := do
   Qq.checkTypeQ (u := Lean.levelOne) e q(Prop)
 
 -- getHypotheses returns the hypotheses as an array of tuples of (Hypothesis name, Q(Prop))
 -- This way the hypothesis Q(Prop) can be used in a pattern match and
 -- the name can be used to refer to the hypothesis in other tactics
 def getHypotheses : Lean.Elab.Tactic.TacticM (Array (Lean.Syntax.Ident × Q(Prop))) := do
-  let ldecls ← Lean.MonadLCtx.getLCtx
   let mut res := #[]
-  for ldecl in ldecls do
-    if let some htyp ← getQProp ldecl.type then
-      let name := Lean.mkIdent ldecl.userName
-      res := res.push (name, htyp)
+  for localDecl in ← Lean.MonadLCtx.getLCtx do
+    if let some typ ← castToProp localDecl.type then
+      let name := Lean.mkIdent localDecl.userName
+      res := res.push (name, typ)
   return res
 
 -- a tactic that prints the hypotheses and their types
@@ -73,7 +72,7 @@ example {A B: Prop} (P: A -> B) (a: A): B := by
 -- Returns the main goal as a Q(Prop), such that it can be used in a pattern match.
 def getGoalProp : Lean.Elab.Tactic.TacticM Q(Prop) := do
   let goal ← Lean.Elab.Tactic.getMainTarget
-  match ← getQProp goal with
+  match ← castToProp goal with
   | some qType => return qType
   | none => throwError "goal is not a proposition"
 
@@ -113,12 +112,17 @@ def fresh [Monad m] [Lean.MonadLCtx m] (suggestion : Lean.Name) : m Lean.Syntax.
   let name ← Lean.Meta.getUnusedUserName suggestion
   return Lean.mkIdent name
 
+-- Removes quotes from the start of a string
+def unquote (s: String): String :=
+  s.dropWhile (λ c => c.isWhitespace || c == '"' || c == '`')
+
 -- mkHyp makes a new hypothesis
 --  let name ← fresh suggestion
 --  evalTactic ← `(tactic| have $name := $t )
 def mkHyp (suggestion: String) (t: Lean.Elab.Tactic.TacticM (Lean.TSyntax `term)): Lean.Elab.Tactic.TacticM Lean.Ident := Lean.Elab.Tactic.withMainContext do
   let t' ← t
-  let name ← fresh suggestion
+  let suggestion' := unquote suggestion
+  let name ← fresh <| unquote suggestion'
   run `(tactic| have $name := $t' )
   return name
 
@@ -168,8 +172,8 @@ local elab "example_applyin_tactic" : tactic => do
     match ty with
     | ~q((((($a : Prop)) → $b)) /\ ($a')) =>
       if ← Lean.Meta.isExprDefEq a a' then
-        let hleft ← mkHyp "HLeft" `(($name).left )
-        let hright ← mkHyp "HRight" `(($name).right )
+        let hleft ← mkHyp (toString name ++ "Left") `(($name).left )
+        let hright ← mkHyp (toString name ++ "Right") `(($name).right )
         applyIn hright `($hleft)
     | _ => return ()
 
