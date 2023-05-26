@@ -2,6 +2,19 @@ import Std.Lean.Meta.UnusedNames
 import Qq
 open Qq
 
+-- Execute `x` using the main goal local context and instances -
+-- This is necessary to make sure that the context is properly updated for future tactics.
+-- This way the state is affected by the tactic for reading from the local context by the next tactic.
+-- Place this at the start of extra tactic's do notation block.
+-- For example:
+-- ```
+--   local elab "mytacticname" : tactic => newTactic do
+--     let goal ← getGoalProp
+--     ...
+-- ```
+def newTactic (x : Lean.Elab.Tactic.TacticM α) : Lean.Elab.Tactic.TacticM α :=
+  Lean.Elab.Tactic.withMainContext x
+
 -- Check if the expression is a Prop and if so return it as a Q(Prop) that can be used in a pattern match.
 private def getQProp (e: Lean.Expr) : Lean.Elab.Tactic.TacticM (Option Q(Prop)) := do
   Qq.checkTypeQ (u := Lean.levelOne) e q(Prop)
