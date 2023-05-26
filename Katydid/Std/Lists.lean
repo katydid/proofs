@@ -138,6 +138,10 @@ theorem list_app_assoc (xs ys zs: List α):
     apply (congrArg (cons head))
     exact ih
 
+theorem list_app_assoc_singleton (xs ys: List α) (z: α):
+  xs ++ (ys ++ [z]) = (xs ++ ys) ++ [z] := by
+  apply list_app_assoc
+
 theorem list_app_assoc_reverse (xs ys zs: List α):
   (xs ++ ys) ++ zs = xs ++ (ys ++ zs) := by
   apply Eq.symm -- same as symmetry tactic in Coq and Lean3
@@ -148,8 +152,12 @@ theorem list_app_comm_cons (x: α) (xs ys: List α):
   apply (congrArg (cons x))
   rfl
 
-theorem list_app_cons_not_nil (y: α) (xs ys: List α):
+theorem list_nil_ne_app_cons (y: α) (xs ys: List α):
   [] ≠ xs ++ (y :: ys) := by
+  cases xs <;> { intro h' ; contradiction }
+
+theorem list_app_cons_ne_nil (y: α) (xs ys: List α):
+  xs ++ (y :: ys) ≠ [] := by
   cases xs <;> { intro h' ; contradiction }
 
 theorem list_app_nil_nil (xs ys: List α):
@@ -194,7 +202,14 @@ theorem list_app_eq_unit {a: α} {xs ys: List α}:
         rw [h4, h5]
         apply And.intro <;> rfl
 
-theorem list_app_inj_tail (xs ys: List α) (x y: α):
+theorem list_eq_unit_app {a: α} {xs ys: List α}:
+  [a] = xs ++ ys -> (xs = [] /\ ys = [a]) \/ (xs = [a] /\ ys = []) := by
+  intro H
+  apply list_app_eq_unit
+  apply Eq.symm
+  assumption
+
+theorem list_app_inj_tail {xs ys: List α} {x y: α}:
   xs ++ [x] = ys ++ [y] -> xs = ys /\ x = y := by
   revert ys -- same as generalize dependent ys in Coq
   induction xs with
@@ -230,12 +245,19 @@ theorem list_app_inj_tail (xs ys: List α) (x y: α):
       cases h' with
       | intro heads tails =>
         rw [heads]
-        have h: tailx = taily ∧ x = y := (ihx taily tails)
+        have h: tailx = taily ∧ x = y := (ihx tails)
         cases h with
         | intro tailxy xy =>
           rw [tailxy]
           rw [xy]
           apply And.intro <;> rfl
+
+theorem list_inj_tail_app {xs ys: List α} {x y: α}:
+  xs = ys /\ x = y -> xs ++ [x] = ys ++ [y] := by
+  intro H
+  cases H with
+  | intro H1 H2 =>
+    rw [H1, H2]
 
 theorem list_app_nil_end (xs: List α):
   xs = xs ++ [] := by
@@ -255,7 +277,7 @@ theorem list_last_length (xs: List α):
   | nil => rfl
   | cons _ tail ih => simp [ih]
 
-theorem list_cons_eq (x y: α) (xs ys: List α):
+theorem list_cons_eq {x y: α} {xs ys: List α}:
   x :: xs = y :: ys <-> x = y /\ xs = ys := by
   apply Iff.intro
   · intro h
@@ -846,13 +868,56 @@ theorem list_prefix_is_not_empty_with_index_gt_zero: ∀ (xs: List α) (n: Nat)
   -- TODO
   sorry
 
-theorem list_app_uncons: ∀ (x: α) (xs ys zs: List α),
+theorem list_app_uncons: ∀ {x: α} {xs ys zs: List α},
   ys ++ zs = x :: xs ->
   (ys = [] /\ zs = x :: xs)
   \/ (∃
      (ys': List α)
-     (pys: ys = x :: ys'),
+     (_pys: ys = x :: ys'),
      ys' ++ zs = xs
   ) := by
-  -- TODO
-  sorry
+  intro x xs ys zs H
+  cases ys with
+  | nil =>
+    apply Or.inl
+    apply And.intro
+    · rfl
+    · simp at H
+      assumption
+  | cons y_ ys_ =>
+    -- ys = y_ :: ys_
+    apply Or.inr
+    have H' := list_cons_eq.mp H
+    have HR := H'.right
+    have HL := H'.left
+    -- pys = (y_ :: ys_ = x :: ys')
+    apply Exists.intro ys_
+    -- pys = (y_ :: ys_ = x :: ys_)
+    rw [HL]
+    -- pys = (x :: ys_ = x :: ys_)
+    apply Exists.intro rfl
+    exact HR
+
+theorem list_app_inv_head: ∀ {xs ys zs: List α},
+  xs ++ ys = xs ++ zs -> ys = zs := by
+  intro xs ys zs H
+  simp at H
+  assumption
+
+theorem list_app_inv_head_reverse: ∀ {xs ys zs: List α},
+  ys = zs -> xs ++ ys = xs ++ zs := by
+  intro xs ys zs H
+  simp
+  assumption
+
+theorem list_app_inv_tail: ∀ {xs ys zs: List α},
+  xs ++ zs = ys ++ zs -> xs = ys := by
+  intro xs ys zs H
+  simp at H
+  assumption
+
+theorem list_app_inv_tail_reverse: ∀ {xs ys zs: List α},
+  xs = ys -> xs ++ zs = ys ++ zs := by
+  intro xs ys zs H
+  simp
+  assumption
