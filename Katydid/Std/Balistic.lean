@@ -237,6 +237,29 @@ example (xs ys zs: List α):
   ys = zs -> ys ++ xs = zs ++ xs := by
   list_app
 
+
+local elab "wreck_exists" : tactic => newTactic do
+  let hyps ← getHypotheses
+  for (name, ty) in hyps do
+    match ty with
+    | ~q(∃ x _y, $p x) =>
+      let e ← fresh "e"
+      let E ← fresh "E"
+      run `(tactic| cases $name:ident <;> rename_i $name:ident <;> rename_i $e:ident)
+      run `(tactic| cases $name:ident <;> rename_i $name:ident <;> rename_i $E:ident)
+    | _ =>
+      return ()
+
+local elab "wreck_conj": tactic => newTactic do
+  let hyps ← getHypotheses
+  for (name, ty) in hyps do
+    match ty with
+    | ~q($x /\ $y) =>
+      _ ← mkHyp (toString name ++ "Left") `(($name).left )
+      _ ← mkHyp (toString name ++ "Right") `(($name).right )
+    | _ =>
+      return ()
+
 -- list_app_uncons:
 --  Finds an hypotheses that it can deconstruct using the list_app_cons lemma:
 --  ys ++ zs = x :: xs
@@ -249,6 +272,10 @@ local elab "list_app_uncons" : tactic => newTactic do
     match ty with
     | ~q($ys ++ $zs = $x :: $xs ) =>
       applyIn name `(list_app_uncons)
+      run `(tactic| cases $name:ident <;> rename_i $name:ident)
+      run `(tactic| any_goals wreck_exists)
+      run `(tactic| all_goals wreck_conj)
+      run `(tactic| all_goals simp [*])
     | _ =>
       return ()
 
@@ -259,7 +286,38 @@ example (xs ys: List α) (x y: α):
   \/ (xs = [x,y] /\ ys = []) := by
   intro H
   list_app_uncons
-  sorry
+  list_single
+  cases H with
+  | inl H =>
+    apply Or.inl
+    assumption
+  | inr H =>
+    apply Or.inr
+    assumption
+
+example (xs ys: List α) (x y: α):
+  xs ++ ys = [x,y,z] ->
+  (xs = [] /\ ys = [x,y,z])
+  \/ (xs = [x] /\ ys = [y,z])
+  \/ (xs = [x,y] /\ ys = [z])
+  \/ (xs = [x,y,z] /\ ys = []) := by
+  intro H
+  list_app_uncons
+  list_app_uncons
+  list_single
+  assumption
+
+-- Tactic Combinators
+-- https://leanprover.github.io/theorem_proving_in_lean4/tactics.html#tactic-combinators
+
+-- or tactics
+-- first | t₁ | t₂ | ... | tₙ
+
+-- repeat tactic
+-- repeat (first | t1 | ... | tₙ)
+
+local elab "balistic" : tactic => newTactic do
+  run `(tactic| repeat (first| list_empty | list_single | list_app | list_app_uncons))
 
 
 
