@@ -11,9 +11,9 @@ open Qq
 example (xs ys zs: List α): (xs ++ ys ++ zs) = (xs ++ ys) ++ zs := by
   ac_rfl
 
--- list_empty is a tactic that tries to solve simple theorems about empty lists
+-- list_empty_matcher is a tactic that tries to solve simple theorems about empty lists
 -- Reference for list tactic in Coq: https://github.com/katydid/proofs/blob/old-coq/src/CoqStock/Listerine.v#L59-L107
-local elab "list_empty" : tactic => newTactic do
+local elab "list_empty_matcher" : tactic => newTactic do
   let goal ← getGoalProp
   match goal with
   | ~q([] ≠ $x :: $xs) =>
@@ -22,38 +22,56 @@ local elab "list_empty" : tactic => newTactic do
   | ~q($x :: $xs ≠ []) =>
     -- x :: xs ≠ []
     run `(tactic| apply list_cons_ne_nil )
-  | _ => return ()
-  let hyps ← getHypotheses
-  for (name, ty) in hyps do
-    match ty with
-    | ~q([] = $x :: $xs) =>
-      -- [] = x :: xs -> False
-      run `(tactic| contradiction )
-    | ~q($x :: $xs = []) =>
-      -- x :: xs = [] -> False
-      run `(tactic| contradiction )
-    | ~q($xs ++ $ys = []) =>
-      -- xs ++ ys = [] -> xs = [] /\ ys = []
-      let conjName ← mkHyp "H" `((list_app_nil_nil _ _).mp $name)
-      run `(tactic| clear $name)
-      _ ← mkHyp (toString name ++ "Left") `(($conjName).left )
-      _ ← mkHyp (toString name ++ "Right") `(($conjName).right )
-      run `(tactic| clear $conjName)
-      run `(tactic| try subst_vars )
-    | ~q([] = $xs ++ $ys) =>
-      -- [] = xs ++ ys -> xs = [] /\ ys = []
-      let symmName ← mkHyp "Hsymm" `(Eq.symm $name)
-      run `(tactic| clear $name)
-      let conjName ← mkHyp "H" `((list_app_nil_nil _ _).mp $symmName)
-      run `(tactic| clear $symmName)
-      _ ← mkHyp (toString name ++ "Left") `(($conjName).left )
-      _ ← mkHyp (toString name ++ "Right") `(($conjName).right )
-      run `(tactic| clear $conjName)
-      run `(tactic| try subst_vars )
-    | _ => return ()
-  run `(tactic| try rw [list_app_nil_l] at * )
-  run `(tactic| try rw [list_app_nil_r] at * )
-  run `(tactic| try subst_vars )
+  | _ =>
+    let hyps ← getHypotheses
+    for (name, ty) in hyps do
+      let matched ← match ty with
+      | ~q([] = $x :: $xs) =>
+        -- [] = x :: xs -> False
+        run `(tactic| contradiction )
+        return true
+      | ~q($x :: $xs = []) =>
+        -- x :: xs = [] -> False
+        run `(tactic| contradiction )
+        return true
+      | ~q($xs ++ $ys = []) =>
+        -- xs ++ ys = [] -> xs = [] /\ ys = []
+        let conjName ← mkHyp "H" `((list_app_nil_nil _ _).mp $name)
+        run `(tactic| clear $name)
+        _ ← mkHyp (toString name ++ "Left") `(($conjName).left )
+        _ ← mkHyp (toString name ++ "Right") `(($conjName).right )
+        run `(tactic| clear $conjName)
+        run `(tactic| try subst_vars )
+        return true
+      | ~q([] = $xs ++ $ys) =>
+        -- [] = xs ++ ys -> xs = [] /\ ys = []
+        let symmName ← mkHyp "Hsymm" `(Eq.symm $name)
+        run `(tactic| clear $name)
+        let conjName ← mkHyp "H" `((list_app_nil_nil _ _).mp $symmName)
+        run `(tactic| clear $symmName)
+        _ ← mkHyp (toString name ++ "Left") `(($conjName).left )
+        _ ← mkHyp (toString name ++ "Right") `(($conjName).right )
+        run `(tactic| clear $conjName)
+        run `(tactic| try subst_vars )
+        return true
+      | _ =>
+        return false
+      if matched then
+        -- matching one is enough
+        return ()
+    throwError "tactic 'list_empty_matcher' did not match the goal or any hypotheses"
+
+local elab "list_empty_rewriter" : tactic => newTactic do
+  run `(tactic| (first
+    | rw [list_app_nil_l] at *
+    | rw [list_app_nil_r] at *
+  ))
+
+local elab "list_empty": tactic => newTactic do
+  run `(tactic| (first
+    | list_empty_matcher
+    | list_empty_rewriter
+  ))
 
 example (H: [] = List.cons x xs): False := by
   have _: Lean.Name := `list_empty
@@ -94,10 +112,12 @@ example: xs ++ [] = xs := by
 
 example (H: [] ++ xs = ys): ys = xs := by
   list_empty
+  subst_vars
   rfl
 
 example (H: xs ++ [] = ys): ys = xs := by
   list_empty
+  subst_vars
   rfl
 
 example: [] ≠ [x] := by
@@ -106,7 +126,7 @@ example: [] ≠ [x] := by
 example: [x] ≠ [] := by
   list_empty
 
-local elab "list_single" : tactic => newTactic do
+local elab "list_single_matcher" : tactic => newTactic do
   let goal ← getGoalProp
   match goal with
   | ~q([] ≠ $xs ++ ($y :: $ys)) =>
@@ -121,34 +141,53 @@ local elab "list_single" : tactic => newTactic do
   | ~q($x :: $xs = $y :: $ys) =>
     -- x :: xs = y :: ys -> x = y /\ xs = ys
     run `(tactic| apply list_cons_eq.mpr)
-  | _ => return ()
-  let hyps ← getHypotheses
-  for (name, ty) in hyps do
-    match ty with
-    | ~q($xs ++ $ys = [$a]) =>
-      -- xs ++ ys = [a] -> (xs = [] /\ ys = [a]) \/ (xs = [a] /\ ys = [])
-      applyIn name `(list_app_eq_unit)
-    | ~q([$a] = $xs ++ $ys) =>
-      -- [a] = xs ++ ys -> (xs = [] /\ ys = [a]) \/ (xs = [a] /\ ys = [])
-      applyIn name `(list_eq_unit_app)
-    | ~q([] = $xs ++ ($y :: $ys)) =>
-      -- [] = xs ++ y :: ys -> False
-      _ ← mkHyp (toString name) `(list_nil_ne_app_cons _ _ _ $name)
-      run `(tactic| contradiction )
-    | ~q($xs ++ [$x] = $ys ++ [$y]) =>
-      -- xs ++ [x] = ys ++ [y] -> xs = ys /\ x = y
-      applyIn name `(list_app_inj_tail)
-      _ ← mkHyp (toString name ++ "Left") `(($name).left )
-      _ ← mkHyp (toString name ++ "Right") `(($name).right )
-    | ~q($x :: $xs = $y :: $ys) =>
-      -- x :: xs = y :: ys -> x = y /\ xs = ys
-      applyIn name `(list_cons_eq.mp)
-      _ ← mkHyp (toString name ++ "Left") `(($name).left )
-      _ ← mkHyp (toString name ++ "Right") `(($name).right )
-    | _ =>
-      return ()
-  run `(tactic| try rw [list_app_assoc_singleton] at * )
-  run `(tactic| try rw [← list_app_comm_cons] at * )
+  | _ =>
+    let hyps ← getHypotheses
+    for (name, ty) in hyps do
+      let matched ← match ty with
+      | ~q($xs ++ $ys = [$a]) =>
+        -- xs ++ ys = [a] -> (xs = [] /\ ys = [a]) \/ (xs = [a] /\ ys = [])
+        applyIn name `(list_app_eq_unit)
+        return true
+      | ~q([$a] = $xs ++ $ys) =>
+        -- [a] = xs ++ ys -> (xs = [] /\ ys = [a]) \/ (xs = [a] /\ ys = [])
+        applyIn name `(list_eq_unit_app)
+        return true
+      | ~q([] = $xs ++ ($y :: $ys)) =>
+        -- [] = xs ++ y :: ys -> False
+        _ ← mkHyp (toString name) `(list_nil_ne_app_cons _ _ _ $name)
+        run `(tactic| contradiction )
+        return true
+      | ~q($xs ++ [$x] = $ys ++ [$y]) =>
+        -- xs ++ [x] = ys ++ [y] -> xs = ys /\ x = y
+        applyIn name `(list_app_inj_tail)
+        _ ← mkHyp (toString name ++ "Left") `(($name).left )
+        _ ← mkHyp (toString name ++ "Right") `(($name).right )
+        return true
+      | ~q($x :: $xs = $y :: $ys) =>
+        -- x :: xs = y :: ys -> x = y /\ xs = ys
+        applyIn name `(list_cons_eq.mp)
+        _ ← mkHyp (toString name ++ "Left") `(($name).left )
+        _ ← mkHyp (toString name ++ "Right") `(($name).right )
+        return true
+      | _ =>
+        return false
+      if matched then
+        -- matching one is enough
+        return ()
+    throwError "tactic 'list_single' did not match the goal or any hypotheses"
+
+local elab "list_single_rewriter": tactic => newTactic do
+  run `(tactic| (first
+    | rw [list_app_assoc_singleton] at *
+    | rw [← list_app_comm_cons] at *
+  ))
+
+local elab "list_single": tactic => newTactic do
+  run `(tactic| (first
+    | list_single_matcher
+    | list_single_rewriter
+  ))
 
 example (H: xs ++ ys = [a]): (xs = [] /\ ys = [a]) \/ (xs = [a] /\ ys = []) := by
   list_single
@@ -237,28 +276,38 @@ example (xs ys zs: List α):
   ys = zs -> ys ++ xs = zs ++ xs := by
   list_app
 
-
 local elab "wreck_exists" : tactic => newTactic do
   let hyps ← getHypotheses
   for (name, ty) in hyps do
-    match ty with
+    let matched ← match ty with
     | ~q(∃ x _y, $p x) =>
       let e ← fresh "e"
       let E ← fresh "E"
       run `(tactic| cases $name:ident <;> rename_i $name:ident <;> rename_i $e:ident)
       run `(tactic| cases $name:ident <;> rename_i $name:ident <;> rename_i $E:ident)
+      return true
     | _ =>
+      return false
+    if matched then
+      -- matching one is enough
       return ()
+  throwError "tactic 'wreck_exists' did not match the goal or any hypotheses"
 
 local elab "wreck_conj": tactic => newTactic do
   let hyps ← getHypotheses
   for (name, ty) in hyps do
-    match ty with
+    let matched ← match ty with
     | ~q($x /\ $y) =>
       _ ← mkHyp (toString name ++ "Left") `(($name).left )
       _ ← mkHyp (toString name ++ "Right") `(($name).right )
+      run `(tactic| clear $name)
+      return true
     | _ =>
+      return false
+    if matched then
+      -- matching one is enough
       return ()
+  throwError "tactic 'wreck_conj' did not match the goal or any hypotheses"
 
 -- list_app_uncons:
 --  Finds an hypotheses that it can deconstruct using the list_app_cons lemma:
@@ -269,15 +318,20 @@ local elab "wreck_conj": tactic => newTactic do
 local elab "list_app_uncons" : tactic => newTactic do
   let hyps ← getHypotheses
   for (name, ty) in hyps do
-    match ty with
+    let matched ← match ty with
     | ~q($ys ++ $zs = $x :: $xs ) =>
       applyIn name `(list_app_uncons)
       run `(tactic| cases $name:ident <;> rename_i $name:ident)
       run `(tactic| any_goals wreck_exists)
-      run `(tactic| all_goals wreck_conj)
+      run `(tactic| try all_goals wreck_conj)
       run `(tactic| all_goals simp [*])
+      return true
     | _ =>
+      return false
+    if matched then
+      -- matching one is enough
       return ()
+  throwError "tactic 'list_app_uncons' did not match the goal or any hypotheses"
 
 example (xs ys: List α) (x y: α):
   xs ++ ys = [x,y] ->
@@ -307,6 +361,24 @@ example (xs ys: List α) (x y: α):
   list_single
   assumption
 
+-- garbage_collect_rfl removes hypotheses of the form x = x
+local elab "garbage_collect_rfl" : tactic => newTactic do
+  let hyps ← getHypotheses
+  for (name, ty) in hyps do
+    let matched ← match ty with
+    | ~q($x = $y) =>
+      if ← Lean.Meta.isExprDefEq x y then
+        run `(tactic| clear $name)
+        return true
+      else
+        return false
+    | _ =>
+      return false
+    if matched then
+      -- matching one is enough
+      return ()
+  throwError "tactic 'garbage_collect_rfl' did not match the goal or any hypotheses"
+
 -- Tactic Combinators
 -- https://leanprover.github.io/theorem_proving_in_lean4/tactics.html#tactic-combinators
 
@@ -317,8 +389,115 @@ example (xs ys: List α) (x y: α):
 -- repeat (first | t1 | ... | tₙ)
 
 local elab "balistic" : tactic => newTactic do
-  run `(tactic| repeat (first| list_empty | list_single | list_app | list_app_uncons))
+  run `(tactic| repeat (first
+    | garbage_collect_rfl
+    | list_empty
+    | list_single
+    | list_app_uncons
+    | wreck_conj
+  ) <;> try simp
+    <;> try assumption
+    <;> try exact ⟨rfl, rfl⟩
+    <;> subst_vars
+    <;> try contradiction
+  )
 
+example: ∀ (x y: List α) (a: α),
+    [] ≠ x ++ a :: y := by
+intro x y a
+intro H -- TODO: add list_cons_neq to balistic and try to remove this intro
+balistic
 
+example: ∀ (x y:List α) (a: α),
+  x ++ y = [a] -> x = [] /\ y = [a] \/ x = [a] /\ y = [] := by
+intro x y a
+intro H
+balistic
 
+-- An example we have done before, but now with balistic
+example:
+  ∀ (xs ys: List α) (x y: α),
+  xs ++ ys = [x, y] ->
+  (xs = [] /\ ys = [x, y])
+  \/ (xs = [x] /\ ys = [y])
+  \/ (xs = [x, y] /\ ys = []) := by
+intro xs ys x y H
+balistic
 
+-- An example we have done before, but now with balistic and simp
+example:
+  ∀ (xs ys: List α) (x y: α),
+  xs ++ ys = [x,y] ->
+  (xs = [] /\ ys = [x,y])
+  \/ (xs = [x] /\ ys = [y])
+  \/ (xs = [x,y] /\ ys = []) := by
+intro xs ys x y H
+balistic
+
+-- An example we have done before, but now with balistic and simp
+example: ∀ (x y: α) (xs ys: List α),
+    xs ++ ys = [x,x,y] ->
+    (xs = [] /\ ys = [x,x,y])
+    \/ (xs = [x] /\ ys = [x,y])
+    \/ (xs = [x,x] /\ ys = [y])
+    \/ (xs = [x,x,y] /\ ys = []) := by
+intro x y xs ys H
+balistic
+
+-- An example we have done before, but now with balistic and simp
+-- This required auto 10 in Coq.
+example: ∀ (x y: α) (xs ys: List α),
+    xs ++ ys = [x,x,x,y] ->
+    (xs = [] /\ ys = [x,x,x,y])
+    \/ (xs = [x] /\ ys = [x,x,y])
+    \/ (xs = [x,x] /\ ys = [x,y])
+    \/ (xs = [x,x,x] /\ ys = [y])
+    \/ (xs = [x,x,x,y] /\ ys = []) := by
+intro x y xs ys H
+balistic
+
+example: ∀ (x: α) (y: α) (xs: List α) (ys: List α),
+  x :: xs = [y] ++ ys ->
+  x = y /\ xs = ys := by
+intro x y xs ys H
+balistic
+
+example: ∀ (x y z: α),
+    [x, y, z] = [x, y] ++ [z] := by
+intro x y z
+balistic
+
+example: ∀ (x y: α) (xs ys zs xs': List α),
+  x ≠ y ->
+  xs ++ ys ++ zs = xs' ++ [x] ->
+  zs ≠ [y] := by
+intro x y xs ys zs xs' xy H
+-- TODO: balistic should be able to do this with list_cons_neq
+sorry
+
+example:
+  ∀ (x y: α) (nxy: x ≠ y) (xy: y = x), False := by
+intro x y nxy xy
+have xy' := Eq.symm xy -- TODO: contradiction should be smarter
+contradiction
+
+example:
+  ∀ (x y: α) (xy: x ≠ y) (xs: List α),
+  xs ++ [x] ++ [y] ≠ [y] ++ [x] := by
+intro x y xy xs H
+balistic
+have xy' := Eq.symm HRight -- TODO: contradiction should be smarter
+contradiction
+
+example:
+  ∀ (x y: α) (xy: x ≠ y) (xs: List α),
+  xs ++ [x] ++ [y] ≠ [y] ++ [y] ++ [y] ++ [x] := by
+sorry
+
+example:
+  ∀ (x y: α) (xy: x ≠ y) (xs: List α),
+  [y] ++ [y] ++ xs ≠ [x] := by
+intro x y xy xs H
+balistic
+-- TODO: balistic should be able to do this with list_cons_neq
+sorry
