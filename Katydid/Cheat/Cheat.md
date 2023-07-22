@@ -166,6 +166,14 @@ Mathlib4 has several alternatives for finding theorems and next steps, see:
 - exact?
 - rewrite?
 
+## Ltac
+
+[quote4](https://github.com/gebner/quote4) is a great meta programming library that by chance also allows you to do pattern matching on the goal and hypothesis. It does not include the capabilities of Coq's `context`, but we found in all those cases we could just `try rewrite ...`.
+
+Using this library we have made an attempt to recreate [Ltac in Lean](https://github.com/katydid/proofs/blob/main/Katydid/Std/Ltac.lean).
+
+Using this Ltac library we created a tactic to automate proofs about lists, called [balistic](https://github.com/katydid/proofs/blob/main/Katydid/Std/Balistic.lean).
+
 ## References
 
 - [Tactics chapter of Theorem Proving in Lean4](https://leanprover.github.io/theorem_proving_in_lean4/title_page.html)
