@@ -1,84 +1,108 @@
-# Tired of old fat Coq, try new Lean vegetarian
+# Cheat Sheet: Coq Proof Assistant to LeanProver
 
-- apply
+## Quick Start tips
 
-apply is the same
+- Lean is space sensitive and uses newlines instead of dots.
+- The `by` keyword is used to invoke proof mode. Trust us and just put the `by` keyword on the same line as the `:=`. So always write `... := by` followed by a newline.
+- Use VS Code and install the [lean4 extension](https://github.com/leanprover/vscode-lean4).
 
-- intros
+## Quick Reference Table
+
+| Coq | Lean |
+| --- | ---  |
+| Theorem | theorem |
+| admit | sorry |
+| reflexivity | rfl |
+| exact | exact |
+| apply | apply |
+| intros | intros |
+| rewrite H | rewrite [H], rw [H] |
+| rewrite <- H | rewrite [<- H], rw [<- H] |
+| assumption | assumption |
+| cbn | dsimp |
+| simpl | simp |
+| auto | simp |
+| unfold | unfold |
+| discriminate | contradiction |
+| contradiction | contradiction |
+| constructor | constructor |
+| case | cases |
+| elim | cases |
+| destruct | cases |
+| induction | induction |
+| ; | <;> |
+| - | `\.` |
+| repeat | repeat |
+| try | try |
+| A\|B | (first\|A\|B)
+| subst | subst_vars |
+| generalize dependent | revert |
+| remember | have |
+| refine | refine |
+| specialize | specialize |
+| split | apply And.intro |
+| left | left (requires mathlib) |
+| right | right (requires mathlib) |
+| ring | requires mathlib |
+| exists | use (requires mathlib) |
+| lia | linarith (requires mathlib) |
+| inversion | ? |
+
+## Details about Tactics
+
+### intros
 
 In Coq intros, introduces all hypotheses, but in Lean intros needs to name every hypothesis that it introduces. `intro` does not exist.
 
-- elim
+### destruct
 
+Coq:
 
+```
+destruct H as [H1 H2]
+```
 
-- case
-
-
-- destruct H as [H1 H2]
+Lean:
 
 ```
 cases H with
 | intro H1 H2 =>
 ```
 
-- split
+### split
 
 split is a different tactic in Lean, but you can use `constructor` or `apply And.intro`.
 
 ```
-constructor -- apply And.intro
+constructor
 case left => exact H2
 case right => exact H1
 ```
 
-- left, right
+```
+apply And.intro
+case left => exact H2
+case right => exact H1
+```
 
-This is only available in mathlib4
-
-- exists
-
-mathlib4 has a `use` tactic
-just `import MathLib.Tactic`
-
-- rewrite H
+### rewrite
 
 `rewrite H` in Coq is `rewrite [H]` in Lean
 `rw [H]` is the same as `rewrite [H]` followed by `try rfl`
 
-- rewrite <- H
+Reverse rewriting in Coq is done:
 
-`rewrite <- H` in Coq is `rewrite [<- H]` in Lean
+```
+rewrite <- H
+```
 
-- reflexivity
+In Lean we can provide a list so we put the rule in braces: `rewrite [<- H]`.
 
-rfl
-
-- ring
-
-TODO: For this you need mathlib4
-
-- exact
-
-exact works exactly the same.
-
-- assumption
-
-Your assumption that assumption works the same is correct.
-
-- inversion
-
-We don't know
-
-- subst
-
-`subst` in Coq is `subst_vars` in Lean
-
-- cbn
+### cbn
 
 `dsimp` was the closest we could find.
 
-- simpl
+### simpl
 
 `simp` is kind of the same, but more powerful, as it includes at least reflexivity.
 
@@ -88,35 +112,17 @@ We don't know
 
 `simp [Nat.add_zero]` uses the theorems in the list to simplify and also all the usual theorems
 
-`simp_all` TODO: does something else
+Other variants include: `simp_all`, `simp [*]`, `simp [*] at *`, `simp at H`
 
-`simp [*]` TODO: does something else
+See the [Lean Tactics file](https://github.com/leanprover/lean4/blob/master/src/Init/Tactics.lean) for more documentation.
 
-`simp [*] at *`
+### remember
 
-`simp at H`  simplifies the hypotheses
+See the [Tatics chapter of Theorem proving in Lean 4](https://leanprover.github.io/theorem_proving_in_lean4/tactics.html#structuring-tactic-proofs) for how to use `have`.
 
-- unfold
+### induction
 
-unfold is the same
-
-- contradiction
-
-This is also `contradiction` in Lean.
-
-- discriminate
-
-This is also `contradiction` in Lean.
-
-- generalize dependent
-
-This is `revert` in Lean.
-
-- remember
-
-TODO: This is `have`
-
-- induction
+Coq:
 
 ```
 induction x as [ | x0 IHx0].
@@ -124,7 +130,7 @@ induction x as [ | x0 IHx0].
 - ...
 ```
 
-In Lean you need to intro a variable before you can do induction on it.
+In Lean you need to intro a variable before you can do induction on it:
 
 ```
 intros x
@@ -135,54 +141,32 @@ case succ x0 IHx0 =>
   ...
 ```
 
-- constructor
+### refine
 
-same
-
-- refine
-
-Instead of using `_` using `?_`
+In Lean instead of using `_` use `?_`
 
 `refine (Or.intro_right _ ?_)`
 
 Here the `_` is the inferred type and the `?_` is the hole to prove in the next step.
 
-- lia
+### auto
 
-linarith is available in mathlib4, but we haven't tried it
+`auto` in Coq is like `simp` in Lean, because it is also extensible. You can add more theorems to this tactic by annotating the theorems with `@[simp]`.
 
-- auto
+### Other useful tactics
 
-`auto` in Coq is like `simp` in Lean, because it is also extensible. You can add more theorems to this tactic by annotate by `@[simp]` above the theorem and importing it.
+Lean requires all hypothesis that you intend to use to be named. You can use the `rename_i` tactic to rename the most recent inaccessible names in your context.
 
-- SearchRewrite (_ * (_ + _)).
+## Searching for theorems
 
-TODO: In mathlib4 there are several alternatives
+Mathlib4 has several alternatives for finding theorems and next steps, see:
+
 - #find
 - apply?
 - exact?
 - rewrite?
 
-- admit
+## References
 
-sorry
-
-- specialize
-
-TODO: have and/or specialize
-
-# Other useful tactic
-
-`rename_i`
-
-# Tactic Operators
-
-; => <;>
-- => \.
-repeat => repeat
-try => try
-
-# Pattern Matching
-
-Definition example7 (t : bin): bool :=
-match t with N L L => false | _ => true end.
+- [Tactics chapter of Theorem Proving in Lean4](https://leanprover.github.io/theorem_proving_in_lean4/title_page.html)
+- [Lean Tactics File](https://github.com/leanprover/lean4/blob/master/src/Init/Tactics.lean)

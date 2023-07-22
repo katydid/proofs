@@ -14,6 +14,14 @@ theorem example2':
     case left => exact H2
     case right => exact H1
 
+theorem example2'':
+  ∀ a b: Prop, a /\ b -> b /\ a := by
+  intros a b H
+  cases H
+  apply And.intro
+  case left => assumption
+  case right => assumption
+
 theorem plus_assoc:
  forall x y z: Nat , (x+y)+z = x+(y+z) := by
 intros x
