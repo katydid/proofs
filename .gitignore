@@ -1,10 +1,10 @@
 .DS_Store
 build/
-lean_packages/*
-!/lean_packages/manifest.json/build
-/lean_packages/*
-!/lean_packages/manifest.json
+lake-packages/*
+!/lake-packages/manifest.json/build
+/lake-packages/*
+!/lake-packages/manifest.json
 /build
-/lean_packages/*
-!/lean_packages/manifest.json
+/lake-packages/*
+!/lake-packages/manifest.json
 prelude/build/
