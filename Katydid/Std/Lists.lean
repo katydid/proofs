@@ -467,7 +467,6 @@ theorem list_take_app_2 (n: Nat) (xs ys: List α):
       rw [Nat.add_comm (length xs) 1]
       rw [Nat.add_assoc]
       rw [Nat.add_comm]
-      rfl
     rw [hcomm]
     rw [take]
     apply (congrArg (cons x))
