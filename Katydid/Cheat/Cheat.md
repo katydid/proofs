@@ -41,6 +41,7 @@
 | refine | refine |
 | specialize | specialize |
 | split | apply And.intro |
+| symmetry | apply Eq.symm |
 | left | left (requires mathlib) |
 | right | right (requires mathlib) |
 | ring | requires mathlib |

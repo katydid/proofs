@@ -1,4 +1,4 @@
-Lemma example2:
+Lemma add_comm:
   forall a b:Prop, a /\ b -> b /\ a.
 Proof.
   intros a b H.

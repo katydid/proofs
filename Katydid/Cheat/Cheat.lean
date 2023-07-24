@@ -1,20 +1,20 @@
-theorem example2:
+theorem add_comm:
   ∀ a b: Prop, a /\ b -> b /\ a := by
   intros a b H
   cases H with
   | intro H1 H2 =>
     exact ⟨H2, H1⟩
 
-theorem example2':
+theorem and_comm':
   ∀ a b: Prop, a /\ b -> b /\ a := by
   intros a b H
   cases H with
   | intro H1 H2 =>
-    constructor -- apply And.intro
+    apply And.intro -- constructor
     case left => exact H2
     case right => exact H1
 
-theorem example2'':
+theorem add_comm'':
   ∀ a b: Prop, a /\ b -> b /\ a := by
   intros a b H
   cases H
@@ -22,17 +22,22 @@ theorem example2'':
   case left => assumption
   case right => assumption
 
+theorem add_comm''':
+  ∀ a b: Prop, a /\ b -> b /\ a := by
+  intros a b H
+  have H1 := H.left
+  have H2: b := H.right
+  exact And.intro H2 H1
+
 theorem plus_assoc:
- forall x y z: Nat , (x+y)+z = x+(y+z) := by
-intros x
-induction x
-case zero =>
-  simp
-case succ x0 IHx0 =>
-  intros y z
+  forall x y z: Nat,
+  (x+y) + z = x + (y + z) := by
+intros x y z
+induction x with
+| zero => simp
+| succ x IH =>
   repeat rw [Nat.succ_add]
-  rewrite [IHx0] -- rewrite [<- IHx0]
-  rfl
+  rw [IH]
 
 theorem list_cons_ne_nil (x : α) (xs : List α):
   x :: xs ≠ [] := by
@@ -47,11 +52,6 @@ intros h
 induction xs with
 | nil =>
   contradiction
-| cons x xs' _ =>
-  simp
-  apply Nat.zero_lt_succ
+| cons x xs' ih =>
+  simp <;> apply Nat.zero_lt_succ
 
--- induction xs.
--- - contradiction.
--- - cbn.
---   lia.
