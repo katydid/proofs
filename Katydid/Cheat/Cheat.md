@@ -179,3 +179,10 @@ Using this Ltac library we created a tactic to automate proofs about lists, call
 
 - [Tactics chapter of Theorem Proving in Lean4](https://leanprover.github.io/theorem_proving_in_lean4/title_page.html)
 - [Lean Tactics File](https://github.com/leanprover/lean4/blob/master/src/Init/Tactics.lean)
+
+## Authors
+
+- [Paul Cadman](https://www.linkedin.com/in/paul-cadman/)
+- [Gregor Feierabend](https://www.linkedin.com/in/gregorfeierabend/)
+- [Walter Schulze](https://awalterschulze.github.io/)
+
