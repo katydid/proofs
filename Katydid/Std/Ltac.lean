@@ -58,6 +58,9 @@ def run (t: Lean.Elab.Tactic.TacticM (Lean.TSyntax `tactic)): Lean.Elab.Tactic.T
   let t' ← t
   Lean.Elab.Tactic.evalTactic t'
 
+def run' (t: Lean.TSyntax `tactic): Lean.Elab.Tactic.TacticM Unit := do
+  Lean.Elab.Tactic.evalTactic t
+
 -- an example tactic that applies a hypothesis to the goal if it matches a pattern
 local elab "example_apply_hypothesis" : tactic => do
   let hyps ← getHypotheses
@@ -187,6 +190,123 @@ example (P: (A -> B) /\ A): B := by
 --  - https://github.com/leanprover-community/mathlib4/blob/bac7310cc18d6ed292606d26ccb5fb9ffc697c7a/Mathlib/Tactic/Slice.lean
 --  - https://github.com/siddhartha-gadgil/LeanAide
 
+-- declare_syntax_cat ltac
+-- syntax "runtactic" tactic : ltac -- parenthesis
+
+-- elab t1:tactic " ⟨|⟩ " t2:tactic : tactic =>
+--    try Lean.Elab.Tactic.evalTactic t1
+--    catch err => Lean.Elab.Tactic.evalTactic t2
+
+-- partial def elabLtac : Lean.Syntax → Lean.Meta.MetaM Lean.Expr
+--   | `(ltac| runtactic $t:tactic) => Lean.Elab.Tactic.evalTactic t
+--   | _ => Lean.Elab.throwUnsupportedSyntax
+
+-- elab " Ltac := " t:tactic : term => elabLtac t
+
+-- elab "runtactic" t:tactic : tactic => Lean.Elab.Tactic.evalTactic t
+
+
+
+-- local elab "list_empty_matcher" : tactic => newTactic do
+--   let goal ← getGoalProp
+--   match goal with
+--   | ~q([] ≠ $x :: $xs) =>
+--     run `(tactic| apply list_cons_nil_ne )
+--   | _ =>
+--     let hyps ← getHypotheses
+--     for (name, ty) in hyps do
+--       let matched ← match ty with
+--       | ~q([] = $x :: $xs) =>
+--         run `(tactic| contradiction )
+--         return true
+--       | ~q($xs ++ $ys = []) =>
+--         let conjName ← mkHyp "H" `((list_app_nil_nil _ _).mp $name)
+--         run `(tactic| clear $name)
+--         _ ← mkHyp (toString name ++ "Left") `(($conjName).left )
+--         _ ← mkHyp (toString name ++ "Right") `(($conjName).right )
+--         run `(tactic| clear $conjName)
+--         run `(tactic| try subst_vars )
+--         return true
+--       | _ =>
+--         return false
+--       if matched then
+--         return ()
+--     throwError "tactic 'list_empty_matcher' did not match the goal or any hypotheses"
+
+-- Local Ltac list_empty :=
+--    discriminate
+-- || match goal with
+-- | [ |- [] <> ?X ++ (?Y :: ?YS) ] =>
+--   apply app_cons_not_nil
+-- | [ H: ?XS ++ ?YS = [] |- _ ] =>
+--   let H0 := fresh "H0" in
+--   let H1 := fresh "H1" in
+--   apply app_eq_nil in H;
+--   destruct H as [H0 H1];
+--   try rewrite H0 in *;
+--   try rewrite H1 in *
+-- | [ H: context [[] ++ _] |- _ ] =>
+--   rewrite app_nil_l in H
+-- | [ |- context [(?X :: ?XS) ++ ?YS] ] =>
+--   rewrite <- app_comm_cons
+-- end.
+
+
+
+
+
+elab "try" t:tactic : tactic => do
+  let t' ← `(tactic| first | $t:tactic | skip);
+  Lean.Elab.Tactic.evalTactic t'
+
+elab "runtactic" t:tactic : tactic => do
+  let t' ← `(tactic| $t:tactic);
+  Lean.Elab.Tactic.evalTactic t'
+
+open Nat
+theorem nat_succ_eq_plus_one : succ n = n + 1 := by
+  runtactic simp
+
+elab t1:tactic " ⟨|⟩ " t2:tactic : tactic =>
+   try Lean.Elab.Tactic.evalTactic t1
+   catch err => Lean.Elab.Tactic.evalTactic t2
+
+-- Local Ltac list_empty :=
+-- match goal with
+-- | [ |- [] <> ?X ++ (?Y :: ?YS) ] =>
+--   apply app_cons_not_nil
+-- end.
+
+-- newTactic do
+--   let goal ← getGoalProp
+--   match goal with
+--   | ~q([] ≠ $x :: $xs) =>
+--     run `(tactic| apply list_cons_nil_ne )
+
+-- macro "meh" : tactic =>
+--   `(getGoalProp >>= (fun goal => match goal with
+--     | ~q([] ≠ $x :: $xs) => apply list_cons_nil_ne
+--     | _ => return ()))
+
+macro pattern:term "=>" t:tactic : term =>
+  `( $pattern * (<- `(tactic| $t)) )
+
+macro "Ltac" ":=" "matchy" "|" tuple:term* "end." : term =>
+  `(getGoalProp >>= (fun goal => match goal with
+    | ~q($pattern) => Lean.Elab.Tactic.evalTactic (<- `(tactic| $t))
+    | _ => return ()))
+
+elab "mytactic" : tactic =>
+  Ltac := matchy
+  | (succ $n = $n + 1) => simp
+  end.
+
+theorem nat_succ_eq_plus_one' : succ n = n + 1 := by
+  mytactic
+
+  -- t:tactic : tactic => do
+  -- let t' ← `(tactic| $t:tactic);
+  -- Lean.Elab.Tactic.evalTactic t'
 
 
 
@@ -198,7 +318,33 @@ example (P: (A -> B) /\ A): B := by
 
 
 
+-- ## It also works
+
+-- macro "Ltac" ":=" "matchy" "|" pattern:term "=>" t:tactic "end." : term =>
+--   `(getGoalProp >>= (fun goal => match goal with
+--     | ~q($pattern) => Lean.Elab.Tactic.evalTactic (<- `(tactic| $t))
+--     | _ => return ()))
+
+-- elab "mytactic" : tactic =>
+--   Ltac := matchy
+--   | (succ $n = $n + 1) => simp
+--   end.
+
+-- theorem nat_succ_eq_plus_one' : succ n = n + 1 := by
+--   mytactic
 
 
 
 
+-- ## It Works
+
+-- macro "Ltac" ":=" "matchy" "|" pattern:term "=>" t:term "end." : term =>
+--   `(getGoalProp >>= (fun goal => match goal with
+--     | ~q($pattern) => Lean.Elab.Tactic.evalTactic $t
+--     | _ => return ()))
+
+-- elab "mytactic" : tactic =>
+--   Ltac := matchy | (succ $n = $n + 1) => (<- `(tactic| simp)) end.
+
+-- theorem nat_succ_eq_plus_one' : succ n = n + 1 := by
+--   mytactic
