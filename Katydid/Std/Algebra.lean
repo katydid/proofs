@@ -4,15 +4,15 @@ class Magma (α : Type u) where
 infixl:65 " ∘ " => Magma.op
 
 class Semigroup (G : Type u) extends Magma G where
-  is_assoc : ∀ a b c : G, op (op a b) c = op a (op b c)
+  is_assoc : ∀ a b c : G, (a ∘ b) ∘ c = a ∘ (b ∘ c)
   -- is_assoc a b c : op (op a b) c = op a (op b c)
   -- is_assoc (a b c: α) : op (op a b) c = op a (op b c)
   -- is_assoc : op (op a b) c = op a (op b c)
 
 class Monoid (M : Type u) extends Semigroup M where
-  empty: M -- alternative names: identity or unit or ε
-  left_identity: ∀ (a: M), op empty a = a
-  right_identity: ∀ (a: M), op a empty = a
+  id: M -- alternative names: identity or unit or ε
+  left_identity: ∀ (a: M), id ∘ a = a
+  right_identity: ∀ (a: M), a ∘ id = a
 
 namespace algebra_using_structure'
 
