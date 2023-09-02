@@ -75,7 +75,7 @@ instance : Semigroup Ordering where
   is_assoc := Ordering.lex_assoc
 
 instance : Monoid Ordering where
-  empty := Ordering.eq
+  id := Ordering.eq
   left_identity := Ordering.lex_left_identity
   right_identity := Ordering.lex_right_identity
 

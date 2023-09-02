@@ -47,7 +47,7 @@ instance : Semigroup (Thunk Ordering) where
   is_assoc := ThunkOrdering.lex_assoc
 
 instance : Monoid (Thunk Ordering) where
-  empty := Ordering.eq
+  id := Ordering.eq
   left_identity := ThunkOrdering.lex_left_identity
   right_identity := ThunkOrdering.lex_right_identity
 
