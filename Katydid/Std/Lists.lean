@@ -7,6 +7,8 @@
 -- List of Lean Tactics
 -- https://github.com/leanprover/lean4/blob/master/src/Init/Tactics.lean
 
+import Mathlib.Tactic.Linarith
+
 open Nat
 open List
 
@@ -19,7 +21,7 @@ theorem nat_succ_le_succ_iff (x y: Nat):
     apply Nat.succ_le_succ
 
 theorem nat_succ_eq_plus_one : succ n = n + 1 := by
-  simp
+  simp only
 
 theorem nat_pred_le_succ : {n m : Nat} -> Nat.le n (succ m) -> Nat.le (pred n) m
   | zero, zero, _ => Nat.le.refl
@@ -35,10 +37,10 @@ theorem nat_pred_le_succ' : {n m : Nat} -> Nat.le n (succ m) -> Nat.le (pred n) 
   | step h =>
     cases n with
     | zero =>
-      dsimp
+      dsimp only [zero_eq, Nat.pred_zero, le_eq]
       exact h
     | succ n =>
-      dsimp
+      dsimp only [Nat.pred_succ, le_eq]
       have h_n_le_succ_n := Nat.le_succ n
       exact (Nat.le_trans h_n_le_succ_n h)
 
@@ -51,18 +53,18 @@ theorem nat_min_zero {n: Nat}: min 0 n = 0 := by
 theorem nat_zero_min {n: Nat}: min n 0 = 0 := by
   cases n with
   | zero =>
-    simp
+    simp only
   | succ n =>
     unfold min
     unfold instMinNat
     unfold minOfLe
-    simp
+    simp only [nonpos_iff_eq_zero, ite_false]
 
 theorem nat_add_succ_is_succ_add (n m: Nat): succ n + m = succ (n + m) := by
   cases n with
   | zero =>
     rewrite [Nat.add_comm]
-    simp
+    simp only [zero_eq, zero_add]
   | succ n =>
     rewrite [Nat.add_comm]
     rewrite [Nat.add_comm (succ n)]
@@ -114,8 +116,7 @@ theorem list_length_zero_is_empty (xs: List α):
   · intro _
     rfl
   · intro h'
-    simp [length] at h'
-    contradiction
+    simp only [length, add_eq_zero_iff, and_false] at h'
 
 theorem list_app_nil_l (xs: List α):
   [] ++ xs = xs := by
@@ -166,9 +167,7 @@ theorem list_app_nil_nil (xs ys: List α):
   case mp =>
     cases xs with
     | nil =>
-      simp
-      intro h'
-      assumption
+      simp only [nil_append, true_and, imp_self]
     | cons head tail =>
       intro h'
       contradiction
@@ -184,20 +183,19 @@ theorem list_app_eq_unit {a: α} {xs ys: List α}:
   cases xs with
   | nil =>
     intro hy
-    simp at hy
+    simp only [nil_append] at hy
     apply Or.intro_left
     apply And.intro
     case left => rfl
     case right => assumption
   | cons head tail =>
     intro hy
-    simp at hy
+    simp only [cons_append, cons.injEq, append_eq_nil] at hy
     apply Or.intro_right
     cases hy with
     | intro h1 h2 =>
       rw [h1]
-      have h3: tail = [] /\ ys = [] := (Iff.mp (list_app_nil_nil tail ys)) h2
-      cases h3 with
+      cases h2 with
       | intro h4 h5 =>
         rw [h4, h5]
         apply And.intro <;> rfl
@@ -215,13 +213,13 @@ theorem list_app_inj_tail {xs ys: List α} {x y: α}:
   induction xs with
   | nil =>
     intro ys h'
-    simp at h'
+    simp only [nil_append] at h'
     have h3: (ys = [] /\ [y] = [x]) \/ (ys = [x] /\ [y] = []) := list_app_eq_unit (Eq.symm h')
     cases h3 with -- Or
     | inl left =>
       cases left with
       | intro empty xy =>
-        simp at xy
+        simp only [cons.injEq, and_true] at xy
         rw [empty, xy]
         apply And.intro <;> rfl
     | inr right =>
@@ -233,15 +231,10 @@ theorem list_app_inj_tail {xs ys: List α} {x y: α}:
     cases ys with
     | nil =>
       intro h'
-      simp at h'
-      cases h' with
-      | intro _ hfalse =>
-        simp [List.append] at hfalse
-        have h: tailx ++ [x] ≠ [] := list_append_nil_ne x tailx
-        contradiction
+      simp only [cons_append, nil_append, cons.injEq, append_eq_nil, and_false] at h'
     | cons heady taily =>
       intro h'
-      simp at h'
+      simp only [cons_append, cons.injEq] at h'
       cases h' with
       | intro heads tails =>
         rw [heads]
@@ -263,13 +256,13 @@ theorem list_app_nil_end (xs: List α):
   xs = xs ++ [] := by
   cases xs with
   | nil => rfl
-  | cons head tail => simp [List.append]
+  | cons head tail => simp only [append_nil]
 
 theorem list_app_length (xs ys: List α):
   length (xs ++ ys) = length xs + length ys := by
-  induction xs with
-  | nil => simp
-  | cons _ tailx ih => simp [ih, Nat.succ_add]
+  cases xs with
+  | nil => simp only [nil_append, length_nil, zero_add]
+  | cons _ tailx => simp only [cons_append, length_cons, length_append, succ_add]
 
 theorem list_last_length (xs: List α):
   length (xs ++ x :: nil) = (length xs) + 1 := by
@@ -322,11 +315,11 @@ theorem list_take_zero (xs : List α) :
 theorem list_rev_empty (xs : List α) :
   reverse xs = [] -> xs = [] := by
   cases xs with
-  | nil => simp
+  | nil => simp only [reverse_nil, forall_true_left]
   | cons head tail =>
     intro h
     have h' : (reverse (reverse (head :: tail)) = []) := congrArg reverse h
-    simp at h'
+    simp only [reverse_cons, reverse_append, reverse_nil, nil_append, reverse_reverse, singleton_append] at h'
 
 theorem list_rev_empty2 :
   reverse ([] : List α) = [] := by trivial
@@ -336,7 +329,7 @@ theorem list_rev_eq (n : Nat) (xs ys : List α) :
   intro h
   have h' : reverse (reverse xs) = reverse (reverse ys) :=
     congrArg reverse h
-  simp at h'
+  simp only [reverse_reverse] at h'
   assumption
 
 theorem take_one_nil : take 1 ([] : List α) = [] := by
@@ -384,7 +377,7 @@ theorem list_take_le_length (n: Nat) (xs: List α):
     cases n with
     | zero  =>
       rw [take]
-      simp
+      simp only [length_nil, zero_eq, le_refl]
     | succ k =>
       rw [take]
       rw [length]
@@ -426,10 +419,10 @@ theorem list_take_length_le (n: Nat) (xs: List α):
     cases n with
     | zero => rw [list_take_zero, length]
     | succ n' =>
-      simp at h₂
+      simp only [Nat.pred_succ, length_take, ge_iff_le, min_eq_left_iff] at h₂
       rw [list_take_cons, list_length_cons_succ]
-      have h₃ : _ := congrArg succ h₂
-      exact h₃
+      simp only [length_take, ge_iff_le, succ.injEq, min_eq_left_iff]
+      exact h₂
 
 theorem list_take_app (n: Nat) (xs ys: List α):
   take n (xs ++ ys) = (take n xs) ++ (take (n - length xs) ys) := by
@@ -439,13 +432,13 @@ theorem list_take_app (n: Nat) (xs ys: List α):
     intro xs ys
     rw [Nat.zero_sub]
     repeat rw [take]
-    simp
+    simp only [append_nil]
   | succ n ih =>
     intro xs ys
     cases xs with
     | nil =>
       repeat rw [take]
-      simp
+      simp only [nil_append, length_nil, ge_iff_le, nonpos_iff_eq_zero, tsub_zero]
     | cons x xs =>
       rw [take]
       rw [length]
@@ -459,7 +452,7 @@ theorem list_take_app_2 (n: Nat) (xs ys: List α):
   take ((length xs) + n) (xs ++ ys) = xs ++ take n ys := by
   induction xs with
   | nil =>
-    simp
+    simp only [length_nil, zero_add, nil_append]
   | cons x xs ih =>
     rw [<- list_app_comm_cons]
     rw [length]
@@ -488,14 +481,12 @@ theorem list_take_take (n n: Nat) (xs: List α):
       unfold instMinNat
       unfold minOfLe
       rw [take]
-      simp
-      rw [take]
-      apply list_take_nil
+      simp only [take]
     | succ m =>
       unfold min
       unfold instMinNat
       unfold minOfLe
-      simp
+      simp only
       split
       case succ.succ.inl h =>
         rw [nat_succ_le_succ_iff] at h
@@ -509,10 +500,9 @@ theorem list_take_take (n n: Nat) (xs: List α):
             unfold min
             unfold instMinNat
             unfold minOfLe
-            simp
-            split
-            · rfl
-            · contradiction
+            simp only [ite_eq_left_iff, not_le]
+            intro hless
+            linarith
           have ihn' : _ := @ihn m xs
           rw [hmin] at ihn'
           exact ihn'
@@ -529,10 +519,9 @@ theorem list_take_take (n n: Nat) (xs: List α):
             unfold min
             unfold instMinNat
             unfold minOfLe
-            simp
-            split
-            · contradiction
-            · rfl
+            simp only [ite_eq_right_iff]
+            intro hless
+            linarith
           have ihn' : _ := @ihn m xs
           rw [hmin] at ihn'
           exact ihn'
@@ -649,7 +638,7 @@ theorem list_take_drop (n: Nat) (xs: List α):
     cases xs with
     | nil =>
       rw [take, drop]
-      simp
+      simp only [append_nil]
     | cons x xs =>
       rw [take, drop]
       apply (congrArg (cons x))
@@ -696,15 +685,19 @@ theorem list_take_length (n: Nat) (xs: List α):
   unfold min
   unfold instMinNat
   unfold minOfLe
-  simp
+  simp only [length_take, ge_iff_le]
   split
   case inl =>
     rename_i c
-    apply (list_take_length_le _ _ c)
+    unfold min; unfold instMinNat; unfold minOfLe; simp only [ite_eq_left_iff, not_le]
+    intro c'
+    linarith
   case inr =>
     rename_i c
     have c' := gt_of_not_le c
-    exact (list_take_large_length c')
+    unfold min; unfold instMinNat; unfold minOfLe; simp only [ite_eq_right_iff]
+    intro c''
+    linarith
 
 theorem list_drop_length (n: Nat) (xs: List α):
   length (drop n xs) = length xs - n := by
@@ -727,19 +720,12 @@ theorem list_drop_length (n: Nat) (xs: List α):
       rw [Nat.succ_sub_succ]
       apply ih
 
-theorem list_drop_app (n: Nat) (xs ys: List α):
-  drop n (xs ++ ys) = (drop n xs) ++ (drop (n - length xs) ys) := by
-  -- TODO
-  sorry
-
 theorem list_take_app_length (xs ys: List α):
   take (length xs) (xs ++ ys) = xs := by
   revert ys
   induction xs with
   | nil =>
-    intro ys
-    simp
-    apply list_take_zero
+    simp only [take, forall_const]
   | cons x xs ih =>
     intro ys
     rw [length]
@@ -747,11 +733,6 @@ theorem list_take_app_length (xs ys: List α):
     rw [take]
     apply (congrArg (cons x))
     apply ih
-
-theorem list_drop_app_length (xs ys: List α):
-  drop (length xs) (xs ++ ys) = ys := by
-  -- TODO
-  sorry
 
 theorem list_split_list (xs: List α) (n : Nat): ∀ (ys zs: List α),
   length ys = n ->
@@ -790,9 +771,9 @@ theorem list_split_list (xs: List α) (n : Nat): ∀ (ys zs: List α),
         rw [length] at hl
         contradiction
       | cons y ys =>
-        simp at hl
+        simp only [length_cons, succ.injEq] at hl
         have hzs : y :: ys ++ zs = y :: (ys ++ zs) := by
-          simp
+          simp only [cons_append]
         rw [hzs] at ha
         rw [list_cons_eq] at ha
         cases ha with
@@ -803,27 +784,56 @@ theorem list_split_list (xs: List α) (n : Nat): ∀ (ys zs: List α),
           | intro hys hzs =>
             rw [<- hys]
             rw [<- hzs]
-            simp
+            simp only [and_self]
+
+theorem list_length_split (xs ys: List α):
+  length (xs ++ ys) = length xs + length ys := by
+  simp only [length_append]
 
 theorem list_prefix_leq_length (xs ys zs: List α):
   xs = ys ++ zs -> length ys <= length xs := by
-  -- TODO
-  sorry
+  intro xsyszs
+  have h := list_split_list xs (length ys) ys zs rfl xsyszs
+  cases h with
+  | intro hys hzs =>
+    rw [hzs] at xsyszs
+    rw [xsyszs]
+    rw [list_length_split]
+    linarith
 
 theorem list_drop_length_prefix_is_suffix (xs ys: List α):
   drop (length xs) (xs ++ ys) = ys := by
+  induction xs with
+  | nil =>
+    simp only [drop, nil_append]
+  | cons x xs ih =>
+    simp only [drop, add_eq, add_zero, append_eq]
+    exact ih
+
+theorem list_drop_app_length (xs ys: List α):
+  drop (length xs) (xs ++ ys) = ys := by
+  apply list_drop_length_prefix_is_suffix
+
+theorem list_drop_app (n: Nat) (xs ys: List α):
+  drop n (xs ++ ys) = (drop n xs) ++ (drop (n - length xs) ys) := by
   -- TODO
   sorry
 
 theorem list_take_length_prefix_is_prefix (xs ys: List α):
   take (length xs) (xs ++ ys) = xs := by
-  -- TODO
-  sorry
+  induction xs with
+  | nil =>
+    simp only [take]
+  | cons x xs ih =>
+    simp only [take, add_eq, add_zero, append_eq, cons.injEq, true_and]
+    exact ih
 
 theorem list_prefix_length_leq: ∀ (xs ys zs: List α),
   xs ++ ys = zs -> length xs <= length zs := by
-  -- TODO
-  sorry
+  intro xs ys zs xsyszs
+  apply (list_prefix_leq_length zs xs ys)
+  apply Eq.symm
+  exact xsyszs
 
 theorem list_length_gt_zero: ∀ (xs: List α),
   xs ≠ [] -> 0 < length xs := by
@@ -863,9 +873,20 @@ theorem list_prefix_is_gt_zero_and_leq: ∀ (xs ys zs: List α),
 
 theorem list_prefix_is_not_empty_with_index_gt_zero: ∀ (xs: List α) (n: Nat)
   (range: 0 < n /\ n <= length xs),
-  take index xs ≠ [] :=
-  -- TODO
-  sorry
+  take n xs ≠ [] := by
+  intro xs n range h
+  cases range with
+  | intro notzero max =>
+    cases n with
+    | zero =>
+      contradiction
+    | succ n =>
+      simp only at *
+      cases xs with
+      | nil =>
+        contradiction
+      | cons x xs =>
+        simp only [succ_pos', take] at *
 
 theorem list_app_uncons: ∀ {x: α} {xs ys zs: List α},
   ys ++ zs = x :: xs ->
@@ -881,7 +902,7 @@ theorem list_app_uncons: ∀ {x: α} {xs ys zs: List α},
     apply Or.inl
     apply And.intro
     · rfl
-    · simp at H
+    · simp only [nil_append] at H
       assumption
   | cons y_ ys_ =>
     -- ys = y_ :: ys_
@@ -900,23 +921,23 @@ theorem list_app_uncons: ∀ {x: α} {xs ys zs: List α},
 theorem list_app_inv_head: ∀ {xs ys zs: List α},
   xs ++ ys = xs ++ zs -> ys = zs := by
   intro xs ys zs H
-  simp at H
+  simp only [append_cancel_left_eq] at H
   assumption
 
 theorem list_app_inv_head_reverse: ∀ {xs ys zs: List α},
   ys = zs -> xs ++ ys = xs ++ zs := by
   intro xs ys zs H
-  simp
+  simp only [append_cancel_left_eq]
   assumption
 
 theorem list_app_inv_tail: ∀ {xs ys zs: List α},
   xs ++ zs = ys ++ zs -> xs = ys := by
   intro xs ys zs H
-  simp at H
+  simp only [append_cancel_right_eq] at H
   assumption
 
 theorem list_app_inv_tail_reverse: ∀ {xs ys zs: List α},
   xs = ys -> xs ++ zs = ys ++ zs := by
   intro xs ys zs H
-  simp
+  simp only [append_cancel_right_eq]
   assumption
