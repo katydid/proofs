@@ -47,7 +47,7 @@ We have pair programming sessions on some Thursdays 18:00 - 20:00 UK time, which
 This is just a quick overview of the steps towards our goal.
 
 - Create Symbolic Predicates
-  + Create expression language as described in the post: Derivatives of Symbolic Automata explained
+  + Create expression language as described in the post: [Derivatives of Symbolic Automata explained](https://medium.com/@awalterschulze/derivatives-of-symbolic-automata-explained-4673dee6af82)
   + Prove simplification rules for `or`, `and`, `false`, etc.
   + Prove that non-reader functions can be pre-computed before evaluating time
   + Prove that the optimized comparison method using a hash is comparable (transitive, associative, etc.)
