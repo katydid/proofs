@@ -881,7 +881,6 @@ theorem list_prefix_is_not_empty_with_index_gt_zero: ∀ (xs: List α) (n: Nat)
     | zero =>
       contradiction
     | succ n =>
-      simp only at *
       cases xs with
       | nil =>
         contradiction
