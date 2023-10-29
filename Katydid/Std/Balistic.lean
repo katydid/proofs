@@ -395,11 +395,11 @@ local elab "balistic" : tactic => newTactic do
     | list_single
     | list_app_uncons
     | wreck_conj
-  ) <;> try simp
-    <;> try assumption
-    <;> try exact ⟨rfl, rfl⟩
+  ) <;> (try assumption)
     <;> subst_vars
-    <;> try contradiction
+    <;> (try simp)
+    <;> (try exact ⟨rfl, rfl⟩)
+    <;> (try contradiction)
   )
 
 example: ∀ (x y: List α) (a: α),
@@ -467,6 +467,7 @@ example: ∀ (x y z: α),
 intro x y z
 balistic
 
+
 example: ∀ (x y: α) (xs ys zs xs': List α),
   x ≠ y ->
   xs ++ ys ++ zs = xs' ++ [x] ->
@@ -486,8 +487,6 @@ example:
   xs ++ [x] ++ [y] ≠ [y] ++ [x] := by
 intro x y xy xs H
 balistic
-have xy' := Eq.symm HRight -- TODO: contradiction should be smarter
-contradiction
 
 example:
   ∀ (x y: α) (xy: x ≠ y) (xs: List α),
