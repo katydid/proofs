@@ -17,6 +17,7 @@ inductive TEq {α : Type u} (x : α) : α -> Type u where
 -- the abbreviation ≡ is typed with `slash = =`
 infixl:65 " ≡ " => TEq
 
+-- attribute [refl] allows us to use the rfl tactic on TEq, see the example below.
 attribute [refl] TEq.rrefl
 
 example : 1 ≡ 1 := by rfl
