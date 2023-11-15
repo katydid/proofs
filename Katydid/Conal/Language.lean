@@ -1,16 +1,6 @@
+import Katydid.Std.Tipe
+
 open List
-
-/--
-The equality relation. We use this instead of Lean's `Eq` because
-we need it to be defined on Type instead of Prop.
--/
-inductive REq {α : Type u} (x : α) : α -> Type u where
-  | rrefl : REq x x
-
--- open import Data.List.Relation.Unary.All
-inductive All {α: Type u} (P : α -> Type u) : (List α -> Type u)  where
-  | nil : All P []
-  | cons : ∀ {x xs} (_px : P x) (_pxs : All P xs), All P (x :: xs)
 
 -- Lang : Set (suc ℓ)
 -- Lang = A ✶ → Set ℓ
@@ -30,12 +20,12 @@ def universal : Lang α :=
 -- 𝟏 : Lang
 -- 𝟏 w = w ≡ []
 def emptyStr : Lang α :=
-  fun w => REq w []
+  fun w => w ≡ []
 
 -- ` : A → Lang
 -- ` c w = w ≡ [ c ]
 def char (a : α) :=
-  fun w => REq w [a]
+  fun w => w ≡ [a]
 
 -- infixl 7 _·_
 -- _·_ : Set ℓ → Op₁ Lang
@@ -58,13 +48,16 @@ def and_ (P : Lang α) (Q : Lang α) : Lang α :=
 -- infixl 7 _⋆_
 -- _⋆_ : Op₂ Lang
 -- (P ⋆ Q) w = ∃⇃ λ (u ,  v) → (w ≡ u ⊙ v) × P u × Q v
-def concat (P : Lang α) (Q : Lang α) : Lang α :=
+def concat_ (P : Lang α) (Q : Lang α) : Lang α :=
   fun (w : List α) =>
-    Σ (x : List α) (y : List α), (REq w (x ++ y)) × P x × Q y
+    Σ (x : List α) (y : List α), (w ≡ (x ++ y)) × P x × Q y
 
 -- infixl 10 _☆
 -- _☆ : Op₁ Lang
 -- (P ☆) w = ∃ λ ws → (w ≡ concat ws) × All P ws
-def star (P : Lang α) : Lang α :=
+def star_ (P : Lang α) : Lang α :=
   fun (w : List α) =>
-    Σ (ws : List (List α)), (REq w (List.join ws)) × All P ws
+    Σ (ws : List (List α)), (w ≡ (List.join ws)) × All P ws
+
+-- attribute [simp] allows these definitions to be unfolded when using the simp tactic.
+attribute [simp] universal emptySet emptyStr char scalar or_ and_ concat_ star_
