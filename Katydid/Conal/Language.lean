@@ -7,6 +7,9 @@ open List
 def Lang (α : Type u) : Type (u + 1) :=
   List α -> Type u
 
+-- namespace Lang is required to avoid ambiguities with or, and, concat and star.
+namespace Lang
+
 -- ∅ : Lang
 -- ∅ w = ⊥
 def emptySet : Lang α :=
@@ -36,28 +39,30 @@ def scalar (s : Type u) (P : Lang α) : Lang α :=
 -- infixr 6 _∪_
 -- _∪_ : Op₂ Lang
 -- (P ∪ Q) w = P w ⊎ Q w
-def or_ (P : Lang α) (Q : Lang α) : Lang α :=
+def or (P : Lang α) (Q : Lang α) : Lang α :=
   fun w => P w ⊕ Q w
 
 -- infixr 6 _∩_
 -- _∩_ : Op₂ Lang
 -- (P ∩ Q) w = P w × Q w
-def and_ (P : Lang α) (Q : Lang α) : Lang α :=
+def and (P : Lang α) (Q : Lang α) : Lang α :=
   fun w => P w × Q w
 
 -- infixl 7 _⋆_
 -- _⋆_ : Op₂ Lang
 -- (P ⋆ Q) w = ∃⇃ λ (u ,  v) → (w ≡ u ⊙ v) × P u × Q v
-def concat_ (P : Lang α) (Q : Lang α) : Lang α :=
+def concat (P : Lang α) (Q : Lang α) : Lang α :=
   fun (w : List α) =>
     Σ (x : List α) (y : List α), (w ≡ (x ++ y)) × P x × Q y
 
 -- infixl 10 _☆
 -- _☆ : Op₁ Lang
 -- (P ☆) w = ∃ λ ws → (w ≡ concat ws) × All P ws
-def star_ (P : Lang α) : Lang α :=
+def star (P : Lang α) : Lang α :=
   fun (w : List α) =>
     Σ (ws : List (List α)), (w ≡ (List.join ws)) × All P ws
 
 -- attribute [simp] allows these definitions to be unfolded when using the simp tactic.
-attribute [simp] universal emptySet emptyStr char scalar or_ and_ concat_ star_
+attribute [simp] universal emptySet emptyStr char scalar or and concat star
+
+end Lang
