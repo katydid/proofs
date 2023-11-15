@@ -68,14 +68,3 @@ def concat (P : Lang α) (Q : Lang α) : Lang α :=
 def star (P : Lang α) : Lang α :=
   fun (w : List α) =>
     Σ (ws : List (List α)), (REq w (List.join ws)) × All P ws
-
-def ν (P : Lang α) : Type u := P []
-
-def δ (P : Lang α) (a : α) : Lang α := fun (w : List α) => P (a :: w)
-
-example : (or_ (char 'a') (char 'b')) ['a'] :=
-  Sum.inl REq.rrefl
-
-example : (or_ (char 'a') (char 'b')) ['a'] := by
-  apply Sum.inl
-  constructor
