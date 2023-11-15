@@ -21,6 +21,8 @@ attribute [refl] TEq.rrefl
 
 example : 1 ≡ 1 := by rfl
 
+-- Only the Prop version is available in mathlib https://leanprover-community.github.io/mathlib4_docs/Mathlib/Data/List/Defs.html#List.Forall
+-- so we have to create our own version for Type
 inductive All {α: Type u} (P : α -> Type u) : (List α -> Type u)  where
   | nil : All P []
   | cons : ∀ {x xs} (_px : P x) (_pxs : All P xs), All P (x :: xs)
