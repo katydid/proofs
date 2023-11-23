@@ -13,5 +13,5 @@ The goals of this project are to:
   - [Agda code](https://github.com/conal/paper-2021-language-derivatives)
   - [Slides](http://conal.net/talks/language-derivatives.pdf)
   - [Paper](http://conal.net/papers/language-derivatives/paper.pdf)
-  - [Collobration with Conal Elliott](https://github.com/conal/Collaboration)
+  - [Collaboration with Conal Elliott](https://github.com/conal/Collaboration)
 
