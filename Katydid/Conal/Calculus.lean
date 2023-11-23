@@ -2,7 +2,7 @@ import Katydid.Conal.Language
 
 -- ν⇃ : Lang → Set ℓ      -- “nullable”
 -- ν⇃ P = P []
-def ν (P : Lang.{u} α) : Type u :=
+def ν (P : Lang α) : Type u :=
   P []
 
 -- δ⇃ : Lang → A → Lang   -- “derivative”

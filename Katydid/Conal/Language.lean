@@ -2,9 +2,11 @@ import Katydid.Std.Tipe
 
 open List
 
+universe u
+
 -- Lang : Set (suc ℓ)
 -- Lang = A ✶ → Set ℓ
-def Lang (α : Type u) : Type (u + 1) :=
+def Lang (α: Type u): Type (u + 1) :=
   List α -> Type u
 
 -- namespace Lang is required to avoid ambiguities with or, and, concat and star.
@@ -13,12 +15,16 @@ namespace Lang
 -- ∅ : Lang
 -- ∅ w = ⊥
 def emptySet : Lang α :=
-  fun _ => Empty
+  -- PEmpty is Empty, but allows specifying the universe
+  -- PEmpty is a Sort, which works for both Prop and Type
+  fun _ => PEmpty
 
 -- 𝒰 : Lang
 -- 𝒰 w = ⊤
 def universal : Lang α :=
-  fun _ => Unit
+  -- PUnit is Empty, but allows specifying the universe
+  -- PUnit is a Sort, which works for both Prop and Type
+  fun _ => PUnit
 
 -- 𝟏 : Lang
 -- 𝟏 w = w ≡ []
@@ -27,7 +33,7 @@ def emptyStr : Lang α :=
 
 -- ` : A → Lang
 -- ` c w = w ≡ [ c ]
-def char (a : α) :=
+def char (a : α): Lang α :=
   fun w => w ≡ [a]
 
 -- infixl 7 _·_
