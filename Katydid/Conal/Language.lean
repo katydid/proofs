@@ -3,14 +3,18 @@ import Katydid.Std.Tipe
 open List
 
 universe u
+variable (α : Type u)
 
 -- Lang : Set (suc ℓ)
 -- Lang = A ✶ → Set ℓ
-def Lang (α: Type u): Type (u + 1) :=
+def Lang: Type (u + 1) :=
   List α -> Type u
 
 -- namespace Lang is required to avoid ambiguities with or, and, concat and star.
 namespace Lang
+
+-- variable α should be implicit to make sure examples do not need to also provide the parameter of α when constructing char, or, concat, since it usually can be inferred to be Char.
+variable {α : Type u}
 
 -- ∅ : Lang
 -- ∅ w = ⊥
