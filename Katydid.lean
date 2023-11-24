@@ -5,6 +5,7 @@ import Katydid.Std.TDecidable
 import Katydid.Std.Tipe
 
 import Katydid.Conal.Language
+import Katydid.Conal.LanguageNotation
 import Katydid.Conal.RegexNotation
 import Katydid.Conal.Calculus
 import Katydid.Conal.Examples

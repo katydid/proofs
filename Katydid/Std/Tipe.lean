@@ -1,11 +1,9 @@
--- required for `attribute [refl]`
-import Mathlib.Init.Algebra.Classes
-
 -- Tipe is a collection of standard types and functions associated with Type,
 -- that we would expect to be in the Lean standard library at some point in future.
 -- The file is named Tipe, since it is Afrikaans for Type and common way to avoid using the keyword Type, since it has the same pronounciation as type.
 
--- Discussion where we got the tips for this library: https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/is.20there.20a.20refl.20for.20Type
+-- required for `attribute [refl]`
+import Mathlib.Init.Algebra.Classes
 
 /--
 The equality relation. We use this instead of Lean's `Eq` because
@@ -18,6 +16,7 @@ inductive TEq {α : Type u} (x : α) : α -> Type u where
 infixl:65 " ≡ " => TEq
 
 -- attribute [refl] allows us to use the rfl tactic on TEq, see the example below.
+-- Discussion where we got the tips for this library: https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/is.20there.20a.20refl.20for.20Type
 attribute [refl] TEq.refl
 
 example : 1 ≡ 1 := by rfl
@@ -37,4 +36,17 @@ inductive All {α: Type u} (P : α -> Type u) : (List α -> Type u)  where
 -- def All {α: Type u} (P : α -> Type u) (xs: List α): Type u :=
 --   ∀ x ∈ xs, P x
 
+-- TNot is the Type version to replace the Prop version of Not
 def TNot (a : Type u) : Type u := a → Empty
+
+-- TIff is the Type version to replace the Prop version of Iff
+structure TIff (a b : Type) : Type where
+  /-- If `a → b` and `b → a` then `a` and `b` are equivalent. -/
+  intro ::
+  /-- Modus ponens for if and only if. If `a ↔ b` and `a`, then `b`. -/
+  mp : a → b
+  /-- Modus ponens for if and only if, reversed. If `a ↔ b` and `b`, then `a`. -/
+  mpr : b → a
+
+infix:19 " <-> " => TIff
+infix:19 " ↔ "   => TIff
