@@ -15,3 +15,14 @@ The goals of this project are to:
   - [Paper](http://conal.net/papers/language-derivatives/paper.pdf)
   - [Collaboration with Conal Elliott](https://github.com/conal/Collaboration)
 
+## Differences with Agda implementation
+
+Simply renamings:
+
+  - `Set` in Agda is `Type` in Lean.
+  - universe levels is `ℓ` in Agda and `u` in Lean.
+  - parametric types in Agda is `A` and `\alpha` in Lean.
+
+Not just a renaming, but still a difference with little consequence:
+
+  - `Lang` in Agda is defined as `Lang \alpha` in Lean. The `A` parameter for `Lang` is lifted to the module level in Agda, but there doesn't seem to be a way to hide this in Lean.

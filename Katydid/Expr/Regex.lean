@@ -25,6 +25,7 @@ syntax "∅" : regex -- \ emptyset
 syntax "ε" : regex -- \ eps
 syntax char : regex -- char
 syntax ident : regex -- string
+syntax str : regex -- string
 syntax regex " | " regex : regex -- or
 syntax regex regex : regex -- concat
 syntax regex "*" : regex -- star
@@ -35,6 +36,7 @@ partial def elabRegex : Lean.Syntax → Lean.Meta.MetaM Lean.Expr
   | `(regex| ε) => Lean.Meta.mkAppM ``Regex.emptystr #[]
   | `(regex| $c:char) => Lean.Meta.mkAppM ``regexFromString #[Lean.mkStrLit c.getChar.toString]
   | `(regex| $i:ident) => Lean.Meta.mkAppM ``regexFromString #[Lean.mkStrLit i.getId.toString]
+  | `(regex| $s:str) => Lean.Meta.mkAppM ``regexFromString #[Lean.mkStrLit s.getString]
   | `(regex| $x | $y) => do
     let x ← elabRegex x
     let y ← elabRegex y
@@ -53,17 +55,31 @@ elab " {{ " e:regex " }} " : term => elabRegex e
 
 #check {{ ∅ }}
 
+#check {{ 'a' }}
+
 #check {{ a }}
 
 #check {{ abc }}
 
+#check {{ 'a''b''c' }}
+
+#eval {{ "" }}
+
 #eval {{ a }}
+
+#eval {{ "a" }}
 
 #eval {{ ab }}
 
+#eval {{ "ab" }}
+
 #eval {{ abc }}
 
+#eval {{ "abc" }}
+
 #check {{ abc }}
+
+#check {{ "abc" }}
 
 #check {{ ε }}
 
@@ -83,8 +99,10 @@ elab " {{ " e:regex " }} " : term => elabRegex e
 
 #eval {{ (a)* }}
 
+#eval {{ "a"* }}
+
+#eval {{ ("a")* }}
+
 #eval {{ (a)(b) }}
 
 #eval {{ (a | b)* }}
-
-
