@@ -42,7 +42,7 @@ example : (regex| a* ≈ "a") := by
   refine ⟨[['a']], ?a ⟩
   refine ⟨ trifle, ?b ⟩
   apply All.cons
-  · rfl
+  · simp; rfl
   · apply All.nil
 
 example : (regex| a* ≈ "a") := by
@@ -64,13 +64,13 @@ example : (regex| (a⋃b)* ≈ "aba") := by
   refine ⟨ trifle, ?b ⟩
   apply All.cons
   · apply Sum.inl
-    rfl
+    simp; rfl
   · apply All.cons
     · apply Sum.inr
-      rfl
+      simp; rfl
     · apply All.cons
       · apply Sum.inl
-        rfl
+        simp; rfl
       · apply All.nil
 
 example : (regex| (a⋃b)* ≈ "aba") := by

@@ -53,7 +53,7 @@ theorem nat_min_zero {n: Nat}: min 0 n = 0 := by
 theorem nat_zero_min {n: Nat}: min n 0 = 0 := by
   cases n with
   | zero =>
-    simp only
+    simp
   | succ n =>
     unfold min
     unfold instMinNat
