@@ -1,7 +1,11 @@
+-- A translation to Lean from Agda
+-- https://github.com/conal/paper-2021-language-derivatives/blob/main/Language.lagda
+
 import Katydid.Std.Tipe
 
 open List
 
+-- module Language {ℓ} (A : Set ℓ) where
 universe u
 variable (α : Type u)
 

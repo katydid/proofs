@@ -1,24 +1,84 @@
-import Katydid.Conal.Language
+-- A translation to Lean from Agda
+-- https://github.com/conal/paper-2021-language-derivatives/blob/main/Examples.lagda
 
--- open Lang is used to avoid qualifications for Lang.or, Lang.char etc.
-open Lang
+import Katydid.Conal.RegexNotation
+
+example: (Lang.char 'a') ['a'] := by
+  simp
+  rfl
 
 -- a∪b : Lang
 -- a∪b = ` 'a' ∪ ` 'b'
 
 -- _ : a∪b [ 'b' ]
 -- _ = inj₂ refl
-example : (or (char 'a') (char 'b')) ['a'] :=
-  Sum.inl TEq.rrefl
+example : (regex| a⋃b) ['b'] :=
+  Sum.inr trifle
 
-example : (or (char 'a') (char 'b')) ['a'] := by
-  apply Sum.inl
+example : (regex| a⋃b ≈ "b") := by
+  apply Sum.inr
   constructor
 
 -- an example showing:
 --   - how to use `simp` for `char`
 --   - how to use `rfl` for `TEq`
-example : (or (char 'a') (char 'b')) ['a'] := by
-  apply Sum.inl
+example : (regex| a⋃b ≈ "b") := by
+  apply Sum.inr
   simp
   rfl
+
+-- a⋆b : Lang
+-- a⋆b = ` 'a' ⋆ ` 'b'
+
+-- _ : a⋆b ('a' ∷ 'b' ∷ [])
+-- _ = ([ 'a' ] , [ 'b' ]) , refl , refl , refl
+example : (regex| ab ≈ "ab") := by
+  simp
+  exact ⟨ ['a'], ['b'], trifle, trifle, trifle ⟩
+
+
+example : (regex| a* ≈ "a") := by
+  simp
+  refine ⟨[['a']], ?a ⟩
+  refine ⟨ trifle, ?b ⟩
+  apply All.cons
+  · rfl
+  · apply All.nil
+
+example : (regex| a* ≈ "a") := by
+  simp
+  refine ⟨[['a']], ?a ⟩
+  refine ⟨ trifle, ?b ⟩
+  exact All.cons trifle All.nil
+
+-- a∪b☆ : Lang
+-- a∪b☆ = a∪b ☆
+
+-- _ : a∪b☆ ('a' ∷ 'b' ∷ 'a' ∷ [])
+-- _ = [ 'a' ] ∷ [ 'b' ] ∷ [ 'a' ] ∷ []
+--   , refl
+--   , inj₁ refl ∷ inj₂ refl ∷ inj₁ refl ∷ []
+example : (regex| (a⋃b)* ≈ "aba") := by
+  simp
+  refine ⟨ [['a'], ['b'], ['a']] , ?a ⟩
+  refine ⟨ trifle, ?b ⟩
+  apply All.cons
+  · apply Sum.inl
+    rfl
+  · apply All.cons
+    · apply Sum.inr
+      rfl
+    · apply All.cons
+      · apply Sum.inl
+        rfl
+      · apply All.nil
+
+example : (regex| (a⋃b)* ≈ "aba") := by
+  simp
+  exact ⟨
+    [['a'], ['b'], ['a']],
+    trifle,
+    All.cons (Sum.inl trifle)
+    (All.cons (Sum.inr trifle)
+    (All.cons (Sum.inl trifle)
+    All.nil))⟩
