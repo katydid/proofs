@@ -15,6 +15,8 @@ def ν (P : Lang α) : Type u := -- backslash nu
 def δ (P : Lang α) (a : α) : Lang α := -- backslash delta
   fun (w : List α) => P (a :: w)
 
+attribute [simp] ν δ
+
 -- ν∅  : ν ∅ ≡ ⊥
 -- ν∅ = refl
 theorem nullable_emptySet:
@@ -41,8 +43,16 @@ theorem nullable_emptyStr:
   ∀ (α: Type),
     @ν α ε <-> PUnit := by
   intro α
-  -- TODO
-  sorry
+  refine TIff.intro ?a ?b
+  intro
+  exact PUnit.unit
+  intro
+  exact trifle
+
+theorem nullable_emptyStr':
+  ∀ (α: Type),
+    @ν α ε <-> PUnit :=
+    fun _ => TIff.intro (fun _ => PUnit.unit) (fun _ => trifle)
 
 -- ν`  : ν (` c) ↔ ⊥
 -- ν` = mk↔′ (λ ()) (λ ()) (λ ()) (λ ())
