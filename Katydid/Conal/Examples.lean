@@ -32,10 +32,8 @@ example : (regex| a⋃b ≈ "b") := by
 
 -- _ : a⋆b ('a' ∷ 'b' ∷ [])
 -- _ = ([ 'a' ] , [ 'b' ]) , refl , refl , refl
-example : (regex| ab ≈ "ab") := by
-  simp
-  exact ⟨ ['a'], ['b'], trifle, trifle, trifle ⟩
-
+example : (regex| ab ≈ "ab") :=
+  ⟨ ['a'], ['b'], trifle, trifle, trifle ⟩
 
 example : (regex| a* ≈ "a") := by
   simp
@@ -73,12 +71,7 @@ example : (regex| (a⋃b)* ≈ "aba") := by
         simp; rfl
       · apply All.nil
 
-example : (regex| (a⋃b)* ≈ "aba") := by
-  simp
-  exact ⟨
-    [['a'], ['b'], ['a']],
+example : (regex| (a⋃b)* ≈ "aba") :=
+  ⟨ [['a'], ['b'], ['a']],
     trifle,
-    All.cons (Sum.inl trifle)
-    (All.cons (Sum.inr trifle)
-    (All.cons (Sum.inl trifle)
-    All.nil))⟩
+    Sum.inl trifle ∷ Sum.inr trifle ∷ Sum.inl trifle ∷ ∀[]⟩

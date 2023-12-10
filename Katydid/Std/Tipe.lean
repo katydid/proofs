@@ -34,6 +34,10 @@ inductive All {α: Type u} (P : α -> Type u) : (List α -> Type u)  where
   | nil : All P []
   | cons : ∀ {x xs} (_px : P x) (_pxs : All P xs), All P (x :: xs)
 
+infixr:29 " ∷ " => All.cons
+-- TODO: Find a better notation
+notation (priority:=low) " ∀[] " => All.nil
+
 -- Also note that the following doesn't work, once you start trying to prove things like that are required to be in Type and not in Prop.
 -- def All {α: Type u} (P : α -> Type u) (xs: List α): Type u :=
 --   ∀ x ∈ xs, P x
