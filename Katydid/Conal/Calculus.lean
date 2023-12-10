@@ -60,8 +60,12 @@ theorem nullable_char:
   ∀ (c: α),
     ν (char c) <-> PEmpty := by
   intro α
-  -- TODO
-  sorry
+  simp
+  apply TIff.intro
+  intro
+  contradiction
+  intro
+  contradiction
 
 -- ν∪  : ν (P ∪ Q) ≡ (ν P ⊎ ν Q)
 -- ν∪ = refl
