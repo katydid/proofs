@@ -1,6 +1,6 @@
 # ReProving Agda in Lean
 
-In this subproject we are working on translating the paper [Symbolic and Automatic Differentiation of Languages - Conal Elliott](http://conal.net/papers/language-derivatives/paper.pdf) from Agda to LeanProver.
+In this subproject we are working on translating the paper [Symbolic and Automatic Differentiation of Languages - Conal Elliott](http://conal.net/papers/language-derivatives) from Agda to LeanProver.
 
 The goals of this project are to:
 
@@ -10,9 +10,7 @@ The goals of this project are to:
 
 ## Links
 
-  - [Agda code](https://github.com/conal/paper-2021-language-derivatives)
-  - [Slides](http://conal.net/talks/language-derivatives.pdf)
-  - [Paper](http://conal.net/papers/language-derivatives/paper.pdf)
+  - [Symbolic and Automatic Differentiation of Languages - Conal Elliott](http://conal.net/papers/language-derivatives)
   - [Collaboration with Conal Elliott](https://github.com/conal/Collaboration)
 
 ## Differences with Agda implementation
