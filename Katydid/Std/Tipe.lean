@@ -15,6 +15,8 @@ inductive TEq {α : Type u} (x : α) : α -> Type u where
 -- the abbreviation ≡ is typed with `slash = =`
 infixl:65 " ≡ " => TEq
 
+example : 1 ≡ 1 := TEq.refl
+
 -- attribute [refl] allows us to use the rfl tactic on TEq, see the example below.
 -- Discussion where we got the tips for this library: https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/is.20there.20a.20refl.20for.20Type
 attribute [refl] TEq.refl
