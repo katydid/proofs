@@ -3,7 +3,7 @@ import Katydid.Conal.Language
 -- `(priority := high)` is required to avoid the error: "ambiguous, possible interpretations"
 notation (priority := high) "∅" => Lang.emptySet -- backslash emptyset
 
-notation "μ" => Lang.universal -- backslash mu
+notation "𝒰" => Lang.universal -- backslash McU
 
 notation "ε" => Lang.emptyStr -- backslash epsilon
 
@@ -22,10 +22,10 @@ postfix:6 "*" => Lang.star
 
 -- Tests for notation
 
--- #check μ
+-- #check 𝒰
 -- #check ε
--- #check (ε ⋃ μ)
--- #check (ε ⋂ μ)
+-- #check (ε ⋃ 𝒰)
+-- #check (ε ⋂ 𝒰)
 -- #check ∅
 -- #check (∅*)
 -- #check {'a'}
