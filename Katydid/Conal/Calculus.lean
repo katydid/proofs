@@ -27,7 +27,7 @@ theorem nullable_emptySet:
 -- ν𝒰 = refl
 theorem nullable_universal:
   ∀ (α: Type),
-    @ν α μ ≡ PUnit := by
+    @ν α 𝒰 ≡ PUnit := by
   intro α
   rfl
 
@@ -135,7 +135,7 @@ theorem derivative_emptySet:
 -- δ𝒰 = refl
 theorem derivative_universal:
   ∀ (a: α),
-    (δ μ a) ≡ μ := by
+    (δ 𝒰 a) ≡ 𝒰 := by
   intro a
   rfl
 
