@@ -3,7 +3,9 @@
 
 import Katydid.Std.Tipe
 import Katydid.Conal.LanguageNotation
+import Katydid.Std.TDecidable
 open Lang
+open TDecidable
 
 -- ν⇃ : Lang → Set ℓ      -- “nullable”
 -- ν⇃ P = P []
@@ -72,6 +74,42 @@ theorem nullable_char:
   contradiction
   intro
   contradiction
+
+theorem nullable_char':
+  ∀ (c: α),
+    ν (char c) -> PEmpty := by
+  intro
+  refine (fun x => ?c)
+  simp at x
+  contradiction
+
+-- set_option pp.all true
+-- #print nullable_char'
+
+theorem t : 1 ≡ 2 -> False := by
+  intro
+  contradiction
+
+theorem t'' : 1 = 2 -> False := by
+  intro
+  contradiction
+
+theorem t''' : 1 = 2 → False :=
+fun a => absurd a (of_decide_eq_false (Eq.refl (decide (1 = 2))))
+
+theorem t' : 1 ≡ 2 → False :=
+fun a =>
+  (TEq.casesOn (motive := fun a_1 x => 2 = a_1 → HEq a x → False) a
+      (fun h => Nat.noConfusion h fun n_eq => Nat.noConfusion n_eq) (Eq.refl 2) (HEq.refl a)).elim
+
+theorem nullable_char'''.{u_2, u_1} : {α : Type u_1} → (c : α) → ν.{u_1} (Lang.char.{u_1} c) → PEmpty.{u_2} :=
+fun {α : Type u_1} (c : α) (x : ν.{u_1} (Lang.char.{u_1} c)) =>
+  False.elim.{u_2}
+    (False.elim.{0}
+      (TEq.casesOn.{0, u_1} (motive := fun (a : List.{u_1} α) (x_1 : TEq.{u_1} List.nil.{u_1} a) =>
+        Eq.{u_1 + 1} (List.cons.{u_1} c List.nil.{u_1}) a → HEq.{u_1 + 1} x x_1 → False) x
+        (fun (h : Eq.{u_1 + 1} (List.cons.{u_1} c List.nil.{u_1}) List.nil.{u_1}) => List.noConfusion.{0, u_1} h)
+        (Eq.refl.{u_1 + 1} (List.cons.{u_1} c List.nil.{u_1})) (HEq.refl.{u_1 + 1} x)))
 
 -- ν∪  : ν (P ∪ Q) ≡ (ν P ⊎ ν Q)
 -- ν∪ = refl
