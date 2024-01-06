@@ -177,8 +177,12 @@ theorem derivative_emptyStr:
 theorem derivative_char:
   ∀ (a: α) (c: α),
     (δ (char c) a) ≡ Lang.scalar (a ≡ c) ε := by
-  -- TODO
-  sorry
+    intros a c
+    unfold δ
+    unfold char
+    unfold emptyStr
+    unfold scalar
+    sorry
 
 -- δ∪  : δ (P ∪ Q) a ≡ δ P a ∪ δ Q a
 -- δ∪ = refl
