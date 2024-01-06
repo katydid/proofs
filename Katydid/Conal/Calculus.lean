@@ -41,13 +41,19 @@ theorem nullable_universal:
 --   (λ { refl → refl })
 theorem nullable_emptyStr:
   ∀ (α: Type),
-    @ν α ε <-> PUnit := by
+    @ν α ε <--> PUnit := by
   intro α
-  refine TIff.intro ?a ?b
+  refine Tiso.intro ?a ?b ?c ?d
   intro
   exact PUnit.unit
   intro
   exact trifle
+  intro
+  exact trifle
+  simp
+  intro x
+  cases x with
+  | _ => exact trifle
 
 theorem nullable_emptyStr':
   ∀ (α: Type),
