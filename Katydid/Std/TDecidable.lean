@@ -79,6 +79,33 @@ theorem of_tdecide_eq_self_eq_true [inst : TDecidableEq α] (a : α) : TEq (tdec
 @[inline] instance : TDecidableEq Bool :=
    Bool.tdecEq
 
+theorem Nat_inj': ∀ x y, Nat.succ x = Nat.succ y -> x = y := by
+  simp only [Nat.succ.injEq, imp_self, forall_const]
+
+theorem Nat_inj: ∀ x y, Nat.succ x ≡ Nat.succ y -> x ≡ y := by
+  intro x y H
+  have H' := eq_of_teq H
+  apply teq_of_eq
+  exact (Nat_inj' _ _ H')
+
+/-- Decidable equality for Bool -/
+@[inline] def Nat.tdecEq (a b : Nat) : TDecidable (TEq a b) :=
+   match a, b with
+   | 0, 0 => tisTrue trifle
+   | 0, succ b'  => tisFalse (fun h => by contradiction)
+   | succ a', 0  => tisFalse (fun h => by contradiction)
+   | succ a', succ b' => match Nat.tdecEq a' b' with
+    | tisTrue (TEq.refl _) => tisTrue (TEq.refl (succ a'))
+    | tisFalse h' => tisFalse (fun h => by
+        apply h'
+        have hp := eq_of_teq h
+        apply teq_of_eq
+        exact (Nat_inj' _ _ hp)
+      )
+
+@[inline] instance : TDecidableEq Nat :=
+   Nat.tdecEq
+
 open BEq (beq)
 
 instance [TDecidableEq α] : BEq α where

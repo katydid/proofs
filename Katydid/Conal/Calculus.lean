@@ -43,7 +43,7 @@ theorem nullable_universal:
 --   (λ { refl → refl })
 theorem nullable_emptyStr:
   ∀ (α: Type),
-    @ν α ε <--> PUnit := by
+    @ν α ε ↔ PUnit := by
   intro α
   refine Tiso.intro ?a ?b ?c ?d
   intro
@@ -59,21 +59,27 @@ theorem nullable_emptyStr:
 
 theorem nullable_emptyStr':
   ∀ (α: Type),
-    @ν α ε <-> PUnit :=
-    fun _ => TIff.intro (fun _ => PUnit.unit) (fun _ => trifle)
+    @ν α ε ↔ PUnit :=
+    fun _ => Tiso.intro
+      (fun _ => PUnit.unit)
+      (fun _ => trifle)
+      (sorry)
+      (sorry)
 
 -- ν`  : ν (` c) ↔ ⊥
 -- ν` = mk↔′ (λ ()) (λ ()) (λ ()) (λ ())
 theorem nullable_char:
   ∀ (c: α),
-    ν (char c) <-> PEmpty := by
+    ν (char c) ↔ PEmpty := by
   intro α
   simp
-  apply TIff.intro
+  apply Tiso.intro
   intro
   contradiction
   intro
   contradiction
+  sorry
+  sorry
 
 theorem nullable_char':
   ∀ (c: α),
@@ -143,7 +149,7 @@ theorem nullable_scalar:
 --   (λ { (([] , []) , refl , νP , νQ) → refl})
 theorem nullable_concat:
   ∀ (P Q: Lang α),
-    ν (P, Q) <-> (Prod (ν Q) (ν P)) := by
+    ν (P, Q) ↔ (Prod (ν Q) (ν P)) := by
   -- TODO
   sorry
 
@@ -177,7 +183,7 @@ theorem nullable_concat:
 --   ∎ where open ↔R
 theorem nullable_star:
   ∀ (P: Lang α),
-    ν (P *) <-> List (ν P) := by
+    ν (P *) ↔ List (ν P) := by
   -- TODO
   sorry
 
@@ -212,6 +218,7 @@ theorem derivative_emptyStr:
 --   (λ { (refl , refl) → refl })
 --   (λ { (refl , refl) → refl })
 --   (λ { refl → refl })
+-- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
 theorem derivative_char:
   ∀ (a: α) (c: α),
     (δ (char c) a) ≡ Lang.scalar (a ≡ c) ε := by
@@ -256,6 +263,7 @@ theorem derivative_scalar:
 --      ; (inj₂ ((u , v) , refl , Pu , Qv)) → refl })
 --   (λ { (([] , .(a ∷ w)) , refl , νP , Qaw) → refl
 --      ; ((.a ∷ u , v) , refl , Pu , Qv) → refl })
+-- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
 theorem derivative_concat:
   ∀ (a: α) (P Q: Lang α),
   -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
@@ -295,6 +303,7 @@ theorem derivative_concat:
 --   ≈⟨ ×-congˡ (⋆-congˡ ✪↔☆) ⟩
 --     ((ν P) ✶ · (δ P a ⋆ P ☆)) w
 --   ∎ where open ↔R
+-- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
 theorem derivative_star:
   ∀ (a: α) (P: Lang α),
   -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
