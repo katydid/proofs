@@ -31,6 +31,41 @@ attribute [simp] trifle
 
 example : 1 ≡ 1 := trifle
 
+def eq_of_teq {α : Type u} {a a' : α} (h : TEq a a') : Eq a a' :=
+  have : (α β : Type u) → (a b: α) → TEq a b → (h : Eq α β) → Eq a b :=
+    fun _ _ _ _ h₁ =>
+      h₁.rec (fun _ => rfl)
+  this α α a a' h rfl
+
+-- TODO: Find out if this is legal
+def teq_of_eq {α : Type u} {a a' : α} (h : Eq a a') : TEq a a' :=
+  have : (α β : Type u) → (a b: α) → Eq a b → (h : TEq α β) → TEq a b :=
+    fun _ _ _ _ h₁ =>
+      h₁.rec (fun _ => trifle)
+  this α α a a' h trifle
+
+/-- Non-dependent recursor for the Tequality type. -/
+@[simp] abbrev TEq.ndrec.{u1, u2} {α : Type u2} {a : α} {motive : α → Type u1} (m : motive a) {b : α} (h : TEq a b) : motive b := by
+  have h' := eq_of_teq h
+  apply (Eq.ndrec m h')
+
+theorem TEq.subst {α : Type u} {motive : α → Type} {a b : α} (h₁ : TEq a b) (h₂ : motive a) : motive b :=
+  TEq.ndrec h₂ h₁
+
+noncomputable example (α : Type) (a b : α) (p : α → Type)
+        (h1 : a ≡ b) (h2 : p a) : p b :=
+  TEq.subst h1 h2
+
+theorem congrTArg {α : Type u} {β : Type v} {a₁ a₂ : α} (f : α → β) (h : TEq a₁ a₂) : TEq (f a₁) (f a₂) :=
+  teq_of_eq (congrArg f (eq_of_teq h))
+
+example : ¬ 1 = 2 :=
+  fun h => Eq.subst (motive := fun | 1 => True | _ => False) h trivial
+
+example : 1 ≡ 2 -> False :=
+  let motive | 1 => True | _ => False;
+  fun h => TEq.rec (motive := fun n _ => motive n) trivial h
+
 -- Only the Prop version is available in mathlib https://leanprover-community.github.io/mathlib4_docs/Mathlib/Data/List/Defs.html#List.Forall
 -- so we have to create our own version for Type
 inductive All {α: Type u} (P : α -> Type u) : (List α -> Type u)  where
@@ -66,8 +101,8 @@ structure Tiso (a b : Type) : Type where
   ff' : ∀ x, f (f' x) ≡ x
   f'f : ∀ x, f' (f x) ≡ x
 
-infix:19 " <--> " => Tiso
+infix:19 " ↔ " => Tiso -- slash <->
 
 def Teso {w : α} (P : α -> Type) (Q : α -> Type) := Tiso (P w) (Q w)
 
-infix:19 " <---> " => Teso
+infix:19 " ⟷ " => Teso -- slash <-->
