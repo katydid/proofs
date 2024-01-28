@@ -62,9 +62,28 @@ theorem congrTArg {α : Type u} {β : Type v} {a₁ a₂ : α} (f : α → β) (
 example : ¬ 1 = 2 :=
   fun h => Eq.subst (motive := fun | 1 => True | _ => False) h trivial
 
+example : ¬ 1 = 2 := by
+  intro
+  contradiction
+
 example : 1 ≡ 2 -> False :=
   let motive | 1 => True | _ => False;
   fun h => TEq.rec (motive := fun n _ => motive n) trivial h
+
+theorem Eq.all_tequal (p q : Eq x y) : Eq p q := by
+  cases p
+  cases q
+  apply refl
+
+theorem TEq.all_tequal (p q : TEq x y) : TEq p q := by
+  cases p
+  cases q
+  apply refl
+
+theorem TEq.all_equal (p q : TEq x y) : p = q := by
+  cases p
+  cases q
+  rfl
 
 -- Only the Prop version is available in mathlib https://leanprover-community.github.io/mathlib4_docs/Mathlib/Data/List/Defs.html#List.Forall
 -- so we have to create our own version for Type
