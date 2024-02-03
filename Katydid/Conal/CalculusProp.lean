@@ -1,11 +1,8 @@
 -- A translation to Lean from Agda
 -- https://github.com/conal/paper-2021-language-derivatives/blob/main/Calculus.lagda
 
-import Katydid.Std.Tipe
-import Katydid.Conal.LanguageNotation
-import Katydid.Std.TDecidable
+import Katydid.Conal.LanguageNotationProp
 open Lang
-open TDecidable
 
 -- Print Parse
 set_option pp.all true
@@ -42,6 +39,7 @@ theorem nullable_emptySet:
   ∀ (α: Type),
     @ν α ∅ ≡ PEmpty := by
   intro α
+  constructor
   rfl
 
 -- ν𝒰  : ν 𝒰 ≡ ⊤
@@ -50,6 +48,7 @@ theorem nullable_universal:
   ∀ (α: Type),
     @ν α 𝒰 ≡ PUnit := by
   intro α
+  constructor
   rfl
 
 -- ν𝟏  : ν 𝟏 ↔ ⊤

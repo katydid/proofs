@@ -6,8 +6,8 @@
 
 -- import Katydid.Conal.Language
 -- import Katydid.Conal.LanguageNotation
--- import Katydid.Conal.RegexNotation
 -- import Katydid.Conal.Calculus
+-- import Katydid.Conal.RegexNotation
 -- import Katydid.Conal.Examples
 import Katydid.Conal.LanguageHott
 import Katydid.Conal.LanguageNotationHott
