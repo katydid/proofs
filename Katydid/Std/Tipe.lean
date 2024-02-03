@@ -135,3 +135,19 @@ infix:19 " ↔ " => Tiso -- slash <->
 def Teso {w : α} (P : α -> Type) (Q : α -> Type) := Tiso (P w) (Q w)
 
 infix:19 " ⟷ " => Teso -- slash <-->
+
+theorem t : 1 ≡ 2 -> False := by
+  intro x
+  contradiction
+
+theorem t'' : 1 = 2 -> False := by
+  intro
+  contradiction
+
+theorem t''' : 1 = 2 → False :=
+fun a => absurd a (of_decide_eq_false (Eq.refl (decide (1 = 2))))
+
+theorem t' : 1 ≡ 2 → False :=
+fun a =>
+  (TEq.casesOn (motive := fun a_1 x => 2 = a_1 → HEq a x → False) a
+      (fun h => Nat.noConfusion h fun n_eq => Nat.noConfusion n_eq) (Eq.refl 2) (HEq.refl a)).elim
