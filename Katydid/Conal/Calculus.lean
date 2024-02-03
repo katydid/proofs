@@ -1,28 +1,34 @@
 -- A translation to Lean from Agda
 -- https://github.com/conal/paper-2021-language-derivatives/blob/main/Calculus.lagda
 
-import Katydid.Std.Tipe
 import Katydid.Conal.LanguageNotation
-import Katydid.Std.TDecidable
+import Mathlib.Logic.Equiv.Defs -- ≃
 open Lang
-open TDecidable
+open List
+open Char
+open String
 
 -- Print Parse
-set_option pp.all true
+-- set_option pp.all true
 open List
-def a_or_b := ({'a'} ⋃ {'b'})
+def a_or_b := (char 'a' ⋃ char 'b')
 #print a_or_b
-def a_or_b_parse_a := a_or_b ['a']
+def a_or_b_parse_a := a_or_b (toList "a")
 -- #eval a_or_b_parse_a
 
-def p : a_or_b ['a'] -> Nat := by
+def p : a_or_b (toList "a") -> Nat := by
   intro x
   cases x with
   | inl xa =>
     cases xa with
-    | refl => exact 0
+    | mk eq =>
+      cases eq with
+      | refl =>
+        exact 0
   | inr xb =>
-    contradiction
+    cases xb with
+    | mk eq =>
+      contradiction
 
 -- ν⇃ : Lang → Set ℓ      -- “nullable”
 -- ν⇃ P = P []
@@ -42,6 +48,7 @@ theorem nullable_emptySet:
   ∀ (α: Type),
     @ν α ∅ ≡ PEmpty := by
   intro α
+  constructor
   rfl
 
 -- ν𝒰  : ν 𝒰 ≡ ⊤
@@ -50,6 +57,7 @@ theorem nullable_universal:
   ∀ (α: Type),
     @ν α 𝒰 ≡ PUnit := by
   intro α
+  constructor
   rfl
 
 -- ν𝟏  : ν 𝟏 ↔ ⊤
@@ -60,26 +68,26 @@ theorem nullable_universal:
 --   (λ { refl → refl })
 theorem nullable_emptyStr:
   ∀ (α: Type),
-    @ν α ε ↔ PUnit := by
+    @ν α ε ≃ PUnit := by
   intro α
-  refine Tiso.intro ?a ?b ?c ?d
-  intro
+  refine Equiv.mk ?a ?b ?c ?d
+  intro _
   exact PUnit.unit
-  intro
-  exact trifle
-  intro
-  exact trifle
+  intro _
+  constructor
+  rfl
+  intro c
   simp
-  intro x
-  cases x with
-  | _ => exact trifle
+  constructor
+  intro _
+  simp
 
 theorem nullable_emptyStr':
   ∀ (α: Type),
-    @ν α ε ↔ PUnit :=
-    fun _ => Tiso.intro
+    @ν α ε ≃ PUnit :=
+    fun _ => Equiv.mk
       (fun _ => PUnit.unit)
-      (fun _ => trifle)
+      (fun _ => by constructor; rfl)
       (sorry)
       (sorry)
 
@@ -87,12 +95,14 @@ theorem nullable_emptyStr':
 -- ν` = mk↔′ (λ ()) (λ ()) (λ ()) (λ ())
 theorem nullable_char:
   ∀ (c: α),
-    ν (char c) ↔ PEmpty := by
+    ν (char c) ≃ PEmpty := by
   intro α
   simp
-  apply Tiso.intro
-  intro
-  contradiction
+  apply Equiv.mk
+  intro x
+  cases x with
+  | mk x =>
+    contradiction
   intro
   contradiction
   sorry
@@ -104,35 +114,12 @@ theorem nullable_char':
   intro
   refine (fun x => ?c)
   simp at x
-  contradiction
+  cases x with
+  | mk x =>
+    contradiction
 
 -- set_option pp.all true
 -- #print nullable_char'
-
-theorem t : 1 ≡ 2 -> False := by
-  intro
-  contradiction
-
-theorem t'' : 1 = 2 -> False := by
-  intro
-  contradiction
-
-theorem t''' : 1 = 2 → False :=
-fun a => absurd a (of_decide_eq_false (Eq.refl (decide (1 = 2))))
-
-theorem t' : 1 ≡ 2 → False :=
-fun a =>
-  (TEq.casesOn (motive := fun a_1 x => 2 = a_1 → HEq a x → False) a
-      (fun h => Nat.noConfusion h fun n_eq => Nat.noConfusion n_eq) (Eq.refl 2) (HEq.refl a)).elim
-
-theorem nullable_char'''.{u_2, u_1} : {α : Type u_1} → (c : α) → ν.{u_1} (Lang.char.{u_1} c) → PEmpty.{u_2} :=
-fun {α : Type u_1} (c : α) (x : ν.{u_1} (Lang.char.{u_1} c)) =>
-  False.elim.{u_2}
-    (False.elim.{0}
-      (TEq.casesOn.{0, u_1} (motive := fun (a : List.{u_1} α) (x_1 : TEq.{u_1} List.nil.{u_1} a) =>
-        Eq.{u_1 + 1} (List.cons.{u_1} c List.nil.{u_1}) a → HEq.{u_1 + 1} x x_1 → False) x
-        (fun (h : Eq.{u_1 + 1} (List.cons.{u_1} c List.nil.{u_1}) List.nil.{u_1}) => List.noConfusion.{0, u_1} h)
-        (Eq.refl.{u_1 + 1} (List.cons.{u_1} c List.nil.{u_1})) (HEq.refl.{u_1 + 1} x)))
 
 -- ν∪  : ν (P ∪ Q) ≡ (ν P ⊎ ν Q)
 -- ν∪ = refl
@@ -140,6 +127,7 @@ theorem nullable_or:
   ∀ (P Q: Lang α),
     ν (P ⋃ Q) ≡ (Sum (ν P) (ν Q)) := by
   intro P Q
+  constructor
   rfl
 
 -- ν∩  : ν (P ∩ Q) ≡ (ν P × ν Q)
@@ -148,6 +136,7 @@ theorem nullable_and:
   ∀ (P Q: Lang α),
     ν (P ⋂ Q) ≡ (Prod (ν P) (ν Q)) := by
   intro P Q
+  constructor
   rfl
 
 -- ν·  : ν (s · P) ≡ (s × ν P)
@@ -156,6 +145,7 @@ theorem nullable_scalar:
   ∀ (s: Type) (P: Lang α),
     ν (Lang.scalar s P) ≡ (Prod s (ν P)) := by
   intro P Q
+  constructor
   rfl
 
 -- ν⋆  : ν (P ⋆ Q) ↔ (ν P × ν Q)
@@ -166,7 +156,7 @@ theorem nullable_scalar:
 --   (λ { (([] , []) , refl , νP , νQ) → refl})
 theorem nullable_concat:
   ∀ (P Q: Lang α),
-    ν (P, Q) ↔ (Prod (ν Q) (ν P)) := by
+    ν (P, Q) ≃ (Prod (ν Q) (ν P)) := by
   -- TODO
   sorry
 
@@ -200,7 +190,7 @@ theorem nullable_concat:
 --   ∎ where open ↔R
 theorem nullable_star:
   ∀ (P: Lang α),
-    ν (P *) ↔ List (ν P) := by
+    ν (P *) ≃ List (ν P) := by
   -- TODO
   sorry
 
@@ -210,6 +200,7 @@ theorem derivative_emptySet:
   ∀ (a: α),
     (δ ∅ a) ≡ ∅ := by
   intro a
+  constructor
   rfl
 
 -- δ𝒰  : δ 𝒰 a ≡ 𝒰
@@ -218,6 +209,7 @@ theorem derivative_universal:
   ∀ (a: α),
     (δ 𝒰 a) ≡ 𝒰 := by
   intro a
+  constructor
   rfl
 
 -- δ𝟏  : δ 𝟏 a ⟷ ∅
@@ -252,6 +244,7 @@ theorem derivative_or:
   ∀ (a: α) (P Q: Lang α),
     (δ (P ⋃ Q) a) ≡ ((δ P a) ⋃ (δ Q a)) := by
   intro a P Q
+  constructor
   rfl
 
 -- δ∩  : δ (P ∩ Q) a ≡ δ P a ∩ δ Q a
@@ -260,6 +253,7 @@ theorem derivative_and:
   ∀ (a: α) (P Q: Lang α),
     (δ (P ⋂ Q) a) ≡ ((δ P a) ⋂ (δ Q a)) := by
   intro a P Q
+  constructor
   rfl
 
 -- δ·  : δ (s · P) a ≡ s · δ P a
@@ -268,6 +262,7 @@ theorem derivative_scalar:
   ∀ (a: α) (s: Type) (P: Lang α),
     (δ (Lang.scalar s P) a) ≡ (Lang.scalar s (δ P a)) := by
   intro a s P
+  constructor
   rfl
 
 -- δ⋆  : δ (P ⋆ Q) a ⟷ ν P · δ Q a ∪ δ P a ⋆ Q

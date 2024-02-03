@@ -1,7 +1,6 @@
 -- A translation to Lean from Agda
 -- https://github.com/conal/paper-2021-language-derivatives/blob/main/Language.lagda
-
-import Katydid.Std.Tipe
+import Katydid.Std.Tipe2
 
 open List
 
@@ -11,7 +10,7 @@ variable (α : Type u)
 
 -- Lang : Set (suc ℓ)
 -- Lang = A ✶ → Set ℓ
-def Lang: Type (u + 1) :=
+def Lang : Type (u + 1) :=
   List α -> Type u
 
 -- namespace Lang is required to avoid ambiguities with or, and, concat and star.
@@ -67,14 +66,20 @@ def and (P : Lang α) (Q : Lang α) : Lang α :=
 -- (P ⋆ Q) w = ∃⇃ λ (u ,  v) → (w ≡ u ⊙ v) × P u × Q v
 def concat (P : Lang α) (Q : Lang α) : Lang α :=
   fun (w : List α) =>
-    Σ (x : List α) (y : List α), (w ≡ (x ++ y)) × P x × Q y
+    Σ' (x : List α) (y : List α), (_px: P x) ×' (_qy: Q y) ×' w = (x ++ y)
+
+inductive All {α: Type u} (P : α -> Type u) : (List α -> Type u) where
+  | nil : All P []
+  | cons : ∀ {x xs} (_px : P x) (_pxs : All P xs), All P (x :: xs)
 
 -- infixl 10 _☆
 -- _☆ : Op₁ Lang
 -- (P ☆) w = ∃ λ ws → (w ≡ concat ws) × All P ws
 def star (P : Lang α) : Lang α :=
   fun (w : List α) =>
-    Σ (ws : List (List α)), (w ≡ (List.join ws)) × All P ws
+    Σ' (ws : List (List α)), (_pws: All P ws) ×' w = (List.join ws)
+
+#print star
 
 -- attribute [simp] allows these definitions to be unfolded when using the simp tactic.
 attribute [simp] universal emptySet emptyStr char scalar or and concat star

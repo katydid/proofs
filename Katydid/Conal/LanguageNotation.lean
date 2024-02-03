@@ -7,8 +7,6 @@ notation "𝒰" => Lang.universal -- backslash McU
 
 notation "ε" => Lang.emptyStr -- backslash epsilon
 
-notation:6 (priority := high) "{" c "}" => Lang.char c
-
 -- TODO: fix scalar to work in Calculus.lean
 infixl:4 " · " => Lang.scalar -- backslash .
 
@@ -22,16 +20,17 @@ postfix:6 "*" => Lang.star
 
 -- Tests for notation
 
--- #check 𝒰
--- #check ε
--- #check (ε ⋃ 𝒰)
--- #check (ε ⋂ 𝒰)
--- #check ∅
--- #check (∅*)
--- #check {'a'}
--- #check {'b'}
--- #check ({'a'} ⋂ ∅)
--- #check ({'a'} ⋂ {'b'})
--- #check ({1} ⋂ {2})
--- #check (PUnit · {2})
--- #check ({1}, {2})
+open Lang
+#check 𝒰
+#check ε
+#check (ε ⋃ 𝒰)
+#check (ε ⋂ 𝒰)
+#check ∅
+#check (∅*)
+#check char 'a'
+#check char 'b'
+#check (char 'a' ⋂ ∅)
+#check (char 'a' ⋂ char 'b')
+#check (char 1 ⋂ char 2)
+#check (PUnit · char 2)
+#check (char 1, char 2)
