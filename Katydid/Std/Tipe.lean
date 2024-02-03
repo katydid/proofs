@@ -9,7 +9,7 @@ import Mathlib.Init.Algebra.Classes
 The equality relation. We use this instead of Lean's `Eq` because
 we need it to be defined on Type instead of Prop.
 -/
-inductive TEq {α : Type u} : α -> α -> Type u where
+inductive TEq.{u} {α : Type u} : α -> α -> Type u where
   | refl (x : α) : TEq x x
 
 #check TEq.casesOn
@@ -24,6 +24,16 @@ example : 1 ≡ 1 := TEq.refl 1
 attribute [refl] TEq.refl
 
 example : 1 ≡ 1 := by rfl
+
+example {α : Type u} {a b : α} (p q : a = b) : p = q := by
+  cases p
+  cases q
+  rfl
+
+example {α : Type u} {a b : α} (p q : a ≡ b) : p ≡ q := by
+  cases p
+  cases q
+  rfl
 
 -- rfl for Type instead of Prop
 @[match_pattern] def trifle {α : Type u} {a : α} : TEq a a := @TEq.refl α a

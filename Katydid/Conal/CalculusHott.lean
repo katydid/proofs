@@ -7,6 +7,34 @@ import GroundZero.Types.Equiv
 open Lang
 open Id
 
+-- Print Parse
+set_option pp.all true
+open List
+def a_or_b := ({'a'} ⋃ {'b'})
+#print a_or_b
+def a_or_b_parse_a := a_or_b ['a']
+-- #eval a_or_b_parse_a
+
+def p : a_or_b ['a'] -> Nat := by
+  intro x
+  cases x with
+  | inl xa =>
+    cases xa with
+    | idp => exact 0
+  | inr xb =>
+    contradiction
+
+-- fails large elimination
+-- hott def hp : a_or_b ['a'] -> Bool :=
+--   fun _ => true
+  -- intro x
+  -- exact 0
+  -- cases x with
+  -- | inl xa =>
+  --   exact 0
+  -- | inr xb =>
+  --   exact 0
+
 -- ν⇃ : Lang → Set ℓ      -- “nullable”
 -- ν⇃ P = P []
 def ν (P : Lang α) : Type u := -- backslash nu
