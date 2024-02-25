@@ -12,8 +12,8 @@ example : TEq 1 1 := by
   constructor
   rfl
 
--- @[match_pattern] def trfl {α : Type u} {a : α} : TEq a a := @TEq.refl α a
--- attribute [simp] trfl
+@[match_pattern] def trfl {α : Type u} {a : α} : TEq a a := TEq.mk rfl
+attribute [simp] trfl
 
 -- the abbreviation ≡ is typed with `slash = =`
 infixl:65 " ≡ " => TEq

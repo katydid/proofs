@@ -27,8 +27,20 @@ example : (char 'a' ⋃ char 'b') (String.toList "b") := by
 
 -- _ : a⋆b ('a' ∷ 'b' ∷ [])
 -- _ = ([ 'a' ] , [ 'b' ]) , refl , refl , refl
-example : (char 'a', char 'b') (String.toList "ab") := by sorry
-  -- TODO: ⟨ ['a'], ['b'], TEq.mk rfl, TEq.mk rfl, rfl ⟩
+example : (char 'a', char 'b') (String.toList "ab") := by
+  simp
+  exists ['a']
+  exists ['b']
+  exists trfl
+  exists trfl
+
+example : (char 'a', char 'b') (String.toList "ab") := by
+  simp
+  refine PSigma.mk ['a'] ?a
+  refine PSigma.mk ['b'] ?b
+  refine PSigma.mk trfl ?c
+  refine PSigma.mk trfl ?d
+  rfl
 
 example : ((char 'a')*) (String.toList "a") := by sorry
   -- TODO:
