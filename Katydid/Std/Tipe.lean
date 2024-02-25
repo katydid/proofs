@@ -47,7 +47,7 @@ def eq_of_teq {α : Type u} {a a' : α} (h : TEq a a') : Eq a a' :=
       h₁.rec (fun _ => rfl)
   this α α a a' h rfl
 
--- TODO: Find out if this is legal
+-- This is legal because TEq is a sub singleton, it has one of fewer ways to be constructed.
 def teq_of_eq {α : Type u} {a a' : α} (h : Eq a a') : TEq a a' :=
   have : (α β : Type u) → (a b: α) → Eq a b → (h : TEq α β) → TEq a b :=
     fun _ _ _ _ h₁ =>
@@ -120,21 +120,6 @@ structure TIff (a b : Type) : Type where
   mp : a → b
   /-- Modus ponens for if and only if, reversed. If `a ↔ b` and `b`, then `a`. -/
   mpr : b → a
-
-infix:19 " <-> " => TIff
-
-structure Tiso (a b : Type) : Type where
-  intro ::
-  f : a → b
-  f' : b → a
-  ff' : ∀ x, f (f' x) ≡ x
-  f'f : ∀ x, f' (f x) ≡ x
-
-infix:19 " ↔ " => Tiso -- slash <->
-
-def Teso {w : α} (P : α -> Type) (Q : α -> Type) := Tiso (P w) (Q w)
-
-infix:19 " ⟷ " => Teso -- slash <-->
 
 theorem t : 1 ≡ 2 -> False := by
   intro x

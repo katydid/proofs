@@ -19,6 +19,11 @@ namespace Lang
 -- variable α should be implicit to make sure examples do not need to also provide the parameter of α when constructing char, or, concat, since it usually can be inferred to be Char.
 variable {α : Type u}
 
+-- TODO: Why are these definitions open, instead of in an inductive family, like
+-- https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/Proof.20relevance/near/419702213
+-- One reason is that with not operator, which run into the strictly positive limitation, but we don't have the not operator in the Agda paper.
+-- TODO: Ask Conal if there is another reason.
+
 -- ∅ : Lang
 -- ∅ w = ⊥
 def emptySet : Lang α :=
@@ -79,7 +84,10 @@ def star (P : Lang α) : Lang α :=
   fun (w : List α) =>
     Σ' (ws : List (List α)), (_pws: All P ws) ×' w = (List.join ws)
 
-#print star
+-- TODO: What does proof relevance even mean for the `not` operator?
+def not (P: Lang α) : Lang α :=
+  fun (w: List α) =>
+    P w -> Empty
 
 -- attribute [simp] allows these definitions to be unfolded when using the simp tactic.
 attribute [simp] universal emptySet emptyStr char scalar or and concat star
