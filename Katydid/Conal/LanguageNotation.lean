@@ -1,26 +1,26 @@
 import Katydid.Conal.Language
 
 -- `(priority := high)` is required to avoid the error: "ambiguous, possible interpretations"
-notation (priority := high) "∅" => Lang.emptySet -- backslash emptyset
+notation (priority := high) "∅" => dLang.emptySet -- backslash emptyset
 
-notation "𝒰" => Lang.universal -- backslash McU
+notation "𝒰" => dLang.universal -- backslash McU
 
-notation "ε" => Lang.emptyStr -- backslash epsilon
+notation "ε" => dLang.emptyStr -- backslash epsilon
 
 -- TODO: fix scalar to work in Calculus.lean
-infixl:4 " · " => Lang.scalar -- backslash .
+infixl:4 " · " => dLang.scalar -- backslash .
 
-infixl:5 (priority := high) " ⋃ " => Lang.or -- backslash U
+infixl:5 (priority := high) " ⋃ " => dLang.or -- backslash U
 
-infixl:4 " ⋂ " => Lang.and -- backslash I
+infixl:4 " ⋂ " => dLang.and -- backslash I
 
-infixr:5 " , " => Lang.concat
+infixr:5 " , " => dLang.concat
 
-postfix:6 "*" => Lang.star
+postfix:6 "*" => dLang.star
 
 -- Tests for notation
 
-open Lang
+open dLang
 #check 𝒰
 #check ε
 #check (ε ⋃ 𝒰)
