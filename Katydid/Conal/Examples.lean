@@ -2,9 +2,9 @@
 -- https://github.com/conal/paper-2021-language-derivatives/blob/main/Examples.lagda
 
 import Katydid.Conal.LanguageNotation
-open Lang
+open dLang
 
-example: (Lang.char 'a') ['a'] := by
+example: (dLang.char 'a') ['a'] := by
   simp
   constructor
   rfl
@@ -15,7 +15,7 @@ example: (Lang.char 'a') ['a'] := by
 -- _ : a∪b [ 'b' ]
 -- _ = inj₂ refl
 example : (char 'a' ⋃ char 'b') ['b'] :=
-  Sum.inr (TEq.mk rfl)
+  Sum.inr trfl
 
 example : (char 'a' ⋃ char 'b') (String.toList "b") := by
   apply Sum.inr
@@ -41,6 +41,12 @@ example : (char 'a', char 'b') (String.toList "ab") := by
   refine PSigma.mk trfl ?c
   refine PSigma.mk trfl ?d
   rfl
+
+example : (char 'a', char 'b') (String.toList "ab") :=
+  PSigma.mk ['a'] (PSigma.mk ['b'] (PSigma.mk trfl (PSigma.mk trfl rfl)))
+
+example : (char 'a', char 'b') (String.toList "ab") :=
+  PSigma.mk ['a'] (PSigma.mk ['b'] (PSigma.mk trfl (PSigma.mk trfl rfl)))
 
 example : ((char 'a')*) (String.toList "a") := by sorry
   -- TODO:
