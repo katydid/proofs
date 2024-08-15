@@ -816,8 +816,14 @@ theorem list_drop_app_length (xs ys: List α):
 
 theorem list_drop_app (n: Nat) (xs ys: List α):
   drop n (xs ++ ys) = (drop n xs) ++ (drop (n - length xs) ys) := by
-  -- TODO
-  sorry
+  induction xs generalizing n with
+  | nil => simp
+  | cons x xs ih =>
+    cases n with
+    | zero => simp
+    | succ n => 
+      simp
+      rw [ih]
 
 theorem list_take_length_prefix_is_prefix (xs ys: List α):
   take (length xs) (xs ++ ys) = xs := by
