@@ -821,9 +821,9 @@ theorem list_drop_app (n: Nat) (xs ys: List α):
   | cons x xs ih =>
     cases n with
     | zero => simp
-    | succ n => 
+    | succ n =>
       simp
-      rw [ih]
+      exact ih n
 
 theorem list_take_length_prefix_is_prefix (xs ys: List α):
   take (length xs) (xs ++ ys) = xs := by
