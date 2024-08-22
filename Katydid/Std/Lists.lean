@@ -825,6 +825,20 @@ theorem list_drop_app (n: Nat) (xs ys: List α):
       simp
       exact ih n
 
+-- list_drop_app's alternative proof using revert instead of generalizing
+theorem list_drop_app' (n: Nat) (xs ys: List α):
+  drop n (xs ++ ys) = (drop n xs) ++ (drop (n - length xs) ys) := by
+  revert n
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    intro n
+    cases n with
+    | zero => simp
+    | succ n =>
+      simp
+      exact ih n
+
 theorem list_take_length_prefix_is_prefix (xs ys: List α):
   take (length xs) (xs ++ ys) = xs := by
   induction xs with
