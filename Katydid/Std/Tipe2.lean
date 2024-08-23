@@ -19,7 +19,22 @@ attribute [simp] trfl
 infixl:65 " ≡ " => TEq
 
 example : 1 ≡ 1 := by
-  constructor -- TODO: do we need to destruct before we can call rfl
+  constructor -- we need to destruct before we can call rfl
+  rfl
+
+example : 1 ≡ 1 := by
+  apply trfl
+
+example : 1 ≡ 1 := by
+  apply TEq.mk
+  rfl
+
+example {α : Type u} {a b : α} (p q : a ≡ b) : p ≡ q := by
+  cases p
+  next p =>
+  cases q
+  next q =>
+  constructor
   rfl
 
 -- TODO: How can we make rewrite easier, without needing to destruct first?
@@ -37,7 +52,19 @@ def rewrite_test:
     | mk bc =>
       rw [bc]
 
-def rewrite_test':
+def rewrite_test_with_next:
+  ∀ (_: a ≡ b) (_: b ≡ c),
+    a ≡ c := by
+  intro ab bc
+  constructor
+  cases ab
+  next ab =>
+  rw [ab]
+  cases bc
+  next bc =>
+  rw [bc]
+
+def rewrite_test_with_trfl:
   ∀ (_: a ≡ b) (_: b ≡ c),
     a ≡ c := by
   intro ab bc
@@ -47,24 +74,4 @@ def rewrite_test':
     cases bc with
     | mk bc =>
       rw [bc]
-      constructor
-      rfl
-      -- exact trifle
-
-def rewrite_test'' (ab: a ≡ b) (bc: b ≡ c): a ≡ c :=
-  match (ab, bc) with
-  | ⟨ ⟨ ab' ⟩ , ⟨ bc' ⟩ ⟩ => by sorry
-
-def rewrite_test''':
-  ∀ (_: a ≡ b) (_: b ≡ c),
-    a ≡ c := by
-  intro ab bc
-  cases ab with
-  | mk ab =>
-    rw [ab]
-    cases bc with
-    | mk bc =>
-      rw [bc]
-      constructor
-      rfl
-      -- exact trifle
+      exact trfl
