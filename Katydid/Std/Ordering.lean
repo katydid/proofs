@@ -1,5 +1,3 @@
-import Katydid.Std.Algebra
-
 instance : Repr Ordering where
   reprPrec
     | Ordering.lt, _ => "<"
@@ -67,51 +65,3 @@ theorem lex_right_identity'':
   { rfl }
 
 end Ordering
-
-instance : Magma Ordering where
-  op a b := Ordering.lex a b
-
-instance : Semigroup Ordering where
-  is_assoc := Ordering.lex_assoc
-
-instance : Monoid Ordering where
-  id := Ordering.eq
-  left_identity := Ordering.lex_left_identity
-  right_identity := Ordering.lex_right_identity
-
-section instances_using_structure'
-
-  open algebra_using_structure'
-
-  def instanceMagmaLex := Magma'Struct.mk Ordering Ordering.lex
-  def instanceMagmaLex': Magma'Struct := {
-    carrier := Ordering,
-    op := Ordering.lex
-  }
-
-  def instanceSemigroupLex : Semigroup'Struct := {
-    toMagma'Struct := instanceMagmaLex,
-    is_assoc := Ordering.lex_assoc
-  }
-  def instanceSemigroupLex' : Semigroup'Struct := {
-    carrier := Ordering,
-    op := Ordering.lex,
-    is_assoc := Ordering.lex_assoc
-  }
-
-  def instanceMonoidLex : Monoid'Struct := {
-    carrier := Ordering,
-    op := Ordering.lex,
-    is_assoc := Ordering.lex_assoc,
-    e := Ordering.eq,
-    left_identity := Ordering.lex_left_identity,
-    right_identity := Ordering.lex_right_identity,
-  }
-  def instanceMonoidLex' : Monoid'Struct := {
-    toSemigroup'Struct := instanceSemigroupLex,
-    e := Ordering.eq,
-    left_identity := Ordering.lex_left_identity,
-    right_identity := Ordering.lex_right_identity,
-  }
-
-end instances_using_structure'
