@@ -3,7 +3,7 @@
 
 import Katydid.Conal.LanguageNotation
 import Mathlib.Logic.Equiv.Defs -- ≃
-import Katydid.Std.Tipe2
+import Katydid.Std.Tipe
 open dLang
 open List
 open Char
