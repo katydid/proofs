@@ -5,7 +5,7 @@ instance : Repr (Thunk Ordering) where
     | Ordering.gt => ">"
     | Ordering.eq => "="
 
-namespace ThunkOrdering
+namespace OrderingThunk
 
 -- lexicographical ordering
 def lex (x: Thunk Ordering) (y: Thunk Ordering): Thunk Ordering :=
@@ -36,4 +36,4 @@ theorem lex_right_identity (a: Thunk Ordering):
     rw [<-h] <;>
     rfl
 
-end ThunkOrdering
+end OrderingThunk
