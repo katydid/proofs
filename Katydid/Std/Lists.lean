@@ -694,7 +694,6 @@ theorem list_take_length (n: Nat) (xs: List α):
     linarith
   next =>
     rename_i c
-    have c' := gt_of_not_le c
     unfold min; unfold instMinNat; unfold minOfLe; simp only [ite_eq_right_iff]
     intro c''
     linarith
