@@ -36,9 +36,8 @@ elab "print_hypotheses" : tactic => do
   for (name, ty) in hyps do
     Lean.logInfo m!"{name}: {ty}"
 
-example (H1 : x = 5) (_H2 : x > 1): x < 6 := by
+example (_H1: 1 = 1) (_H2: 2 = 2): True := by
   print_hypotheses
-  rw [H1]
   simp
 
 -- a tactic that prints the hypotheses, but only if they match a pattern
