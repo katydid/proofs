@@ -7,6 +7,9 @@ import Katydid.Std.Balistic
 
 import Katydid.Example.SimpLibrary
 
+import Katydid.Expr.Desc
+import Katydid.Expr.Regex
+
 import Katydid.Conal.Language
 import Katydid.Conal.LanguageNotation
 import Katydid.Conal.Calculus

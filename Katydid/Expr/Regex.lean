@@ -1,6 +1,8 @@
 import Lean
 open List
 
+namespace Regex
+
 inductive Regex : Type where
   | emptyset : Regex
   | emptystr : Regex
@@ -53,56 +55,58 @@ partial def elabRegex : Lean.Syntax → Lean.Meta.MetaM Lean.Expr
 
 elab " {{ " e:regex " }} " : term => elabRegex e
 
-#check {{ ∅ }}
+example: Regex := {{ ∅ }}
 
-#check {{ 'a' }}
+example: Regex := {{ 'a' }}
 
-#check {{ a }}
+example: Regex := {{ a }}
 
-#check {{ abc }}
+example: Regex := {{ abc }}
 
-#check {{ 'a''b''c' }}
+example: Regex := {{ 'a''b''c' }}
 
-#eval {{ "" }}
+example: Regex := {{ "" }}
 
-#eval {{ a }}
+example: Regex := {{ a }}
 
-#eval {{ "a" }}
+example: Regex := {{ "a" }}
 
-#eval {{ ab }}
+example: Regex := {{ ab }}
 
-#eval {{ "ab" }}
+example: Regex := {{ "ab" }}
 
-#eval {{ abc }}
+example: Regex := {{ abc }}
 
-#eval {{ "abc" }}
+example: Regex := {{ "abc" }}
 
-#check {{ abc }}
+example: Regex := {{ abc }}
 
-#check {{ "abc" }}
+example: Regex := {{ "abc" }}
 
-#check {{ ε }}
+example: Regex := {{ ε }}
 
-#eval {{ 'a' }}
+example: Regex := {{ 'a' }}
 
-#check {{ a }}
+example: Regex := {{ a }}
 
-#check {{ 'a' | 'b' }}
+example: Regex := {{ 'a' | 'b' }}
 
-#check {{ ab }}
+example: Regex := {{ ab }}
 
-#check {{ a b }}
+example: Regex := {{ a b }}
 
-#check {{ a b c }}
+example: Regex := {{ a b c }}
 
-#eval {{ a* }}
+example: Regex := {{ a* }}
 
-#eval {{ (a)* }}
+example: Regex := {{ (a)* }}
 
-#eval {{ "a"* }}
+example: Regex := {{ "a"* }}
 
-#eval {{ ("a")* }}
+example: Regex := {{ ("a")* }}
 
-#eval {{ (a)(b) }}
+example: Regex := {{ (a)(b) }}
 
-#eval {{ (a | b)* }}
+example: Regex := {{ (a | b)* }}
+
+end Regex

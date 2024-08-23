@@ -1,11 +1,12 @@
-import Std.Data.List.Lemmas
-import Std.Classes.Order
+import Katydid.Std.Lists
 
 /-
 We want to represent some nested function calls for a very restricted language, for example:
   and(lt(3, 5), contains("abcd", "bc"))
 We represent the description (including AST) of the expr, or as we call it the Descriptor here:
 -/
+
+namespace Desc
 
 inductive Desc where
   | intro
@@ -227,5 +228,7 @@ theorem cmp_symm : ∀ (x y : SmartDesc),
   -- TODO
   sorry
 
-instance : Std.OrientedCmp SmartDesc.compare where
+instance : Batteries.OrientedCmp SmartDesc.compare where
   symm x y := cmp_symm x y
+
+end Desc
