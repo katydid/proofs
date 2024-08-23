@@ -1,5 +1,3 @@
-import Katydid.Std.Algebra
-
 instance : Repr (Thunk Ordering) where
   reprPrec thunk _ :=
     match thunk.get with
@@ -39,15 +37,3 @@ theorem lex_right_identity (a: Thunk Ordering):
     rfl
 
 end ThunkOrdering
-
-instance : Magma (Thunk Ordering) where
-  op a b := ThunkOrdering.lex a b
-
-instance : Semigroup (Thunk Ordering) where
-  is_assoc := ThunkOrdering.lex_assoc
-
-instance : Monoid (Thunk Ordering) where
-  id := Ordering.eq
-  left_identity := ThunkOrdering.lex_left_identity
-  right_identity := ThunkOrdering.lex_right_identity
-
