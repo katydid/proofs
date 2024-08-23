@@ -21,16 +21,16 @@ postfix:6 "*" => dLang.star
 -- Tests for notation
 
 open dLang
-#check 𝒰
-#check ε
-#check (ε ⋃ 𝒰)
-#check (ε ⋂ 𝒰)
-#check ∅
-#check (∅*)
-#check char 'a'
-#check char 'b'
-#check (char 'a' ⋂ ∅)
-#check (char 'a' ⋂ char 'b')
-#check (char 1 ⋂ char 2)
-#check (PUnit · char 2)
-#check (char 1, char 2)
+example: dLang α := 𝒰
+example: dLang α := ε
+example: dLang α := (ε ⋃ 𝒰)
+example: dLang α := (ε ⋂ 𝒰)
+example: dLang α := ∅
+example: dLang α := (∅*)
+example: dLang Char := char 'a'
+example: dLang Char := char 'b'
+example: dLang Char := (char 'a' ⋂ ∅)
+example: dLang Char := (char 'a' ⋂ char 'b')
+example: dLang Nat := (char 1 ⋂ char 2)
+example: (_t: Type) -> dLang Nat := (PUnit · char 2)
+example: dLang Nat := (char 1, char 2)

@@ -25,7 +25,7 @@ example : 1 ≡ 1 := by
 -- TODO: How can we make rewrite easier, without needing to destruct first?
 --   TODO: if all else fails, write a tactic
 
-theorem rewrite_test:
+def rewrite_test:
   ∀ (_: a ≡ b) (_: b ≡ c),
     a ≡ c := by
   intro ab bc
@@ -37,7 +37,7 @@ theorem rewrite_test:
     | mk bc =>
       rw [bc]
 
-theorem rewrite_test':
+def rewrite_test':
   ∀ (_: a ≡ b) (_: b ≡ c),
     a ≡ c := by
   intro ab bc
@@ -55,7 +55,7 @@ def rewrite_test'' (ab: a ≡ b) (bc: b ≡ c): a ≡ c :=
   match (ab, bc) with
   | ⟨ ⟨ ab' ⟩ , ⟨ bc' ⟩ ⟩ => by sorry
 
-theorem rewrite_test''':
+def rewrite_test''':
   ∀ (_: a ≡ b) (_: b ≡ c),
     a ≡ c := by
   intro ab bc

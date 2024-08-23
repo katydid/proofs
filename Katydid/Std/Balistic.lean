@@ -477,13 +477,13 @@ intro x y xs ys zs xs' xy H
 sorry
 
 example:
-  ∀ (x y: α) (nxy: x ≠ y) (xy: y = x), False := by
+  ∀ (x y: α) (_nxy: x ≠ y) (_xy: y = x), False := by
 intro x y nxy xy
 have xy' := Eq.symm xy -- TODO: contradiction should be smarter
 contradiction
 
 example:
-  ∀ (x y: α) (xy: x ≠ y) (xs: List α),
+  ∀ (x y: α) (_xy: x ≠ y) (xs: List α),
   xs ++ [x] ++ [y] ≠ [y] ++ [x] := by
 intro x y xy xs H
 balistic

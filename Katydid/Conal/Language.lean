@@ -161,12 +161,10 @@ inductive Lang : (List α -> Type u) -> Type (u + 1) where
   -- | concat : Lang P -> Lang Q -> Lang (dLang.concat P Q)
   -- | star : Lang P -> Lang (dLang.star P)
 
-#check @Lang.casesOn
-
--- 𝜈 : Lang P → Dec (⋄.𝜈 P)
-theorem ν {α: Type u} {P: dLang α} (f: Lang P): Dec (dLang.ν P) := by
-  induction f with
-  | universal => exact unit?
+-- TODO: 𝜈 : Lang P → Dec (⋄.𝜈 P)
+-- theorem ν {α: Type u} {P: dLang α} (f: Lang P): Dec (dLang.ν P) := by
+--   induction f with
+--   | universal => exact unit?
 
 -- TODO: rewrite ν using casesOn
 -- def ν' {α: Type u} {P: dLang α} (f: Lang P): Dec (dLang.ν P) := by
