@@ -59,14 +59,14 @@ def teq_of_eq {α : Type u} {a a' : α} (h : Eq a a') : TEq a a' :=
   have h' := eq_of_teq h
   apply (Eq.ndrec m h')
 
-theorem TEq.subst {α : Type u} {motive : α → Type} {a b : α} (h₁ : TEq a b) (h₂ : motive a) : motive b :=
+def TEq.subst {α : Type u} {motive : α → Type} {a b : α} (h₁ : TEq a b) (h₂ : motive a) : motive b :=
   TEq.ndrec h₂ h₁
 
 noncomputable example (α : Type) (a b : α) (p : α → Type)
         (h1 : a ≡ b) (h2 : p a) : p b :=
   TEq.subst h1 h2
 
-theorem congrTArg {α : Type u} {β : Type v} {a₁ a₂ : α} (f : α → β) (h : TEq a₁ a₂) : TEq (f a₁) (f a₂) :=
+def congrTArg {α : Type u} {β : Type v} {a₁ a₂ : α} (f : α → β) (h : TEq a₁ a₂) : TEq (f a₁) (f a₂) :=
   teq_of_eq (congrArg f (eq_of_teq h))
 
 example : ¬ 1 = 2 :=
@@ -85,7 +85,7 @@ theorem Eq.all_tequal (p q : Eq x y) : Eq p q := by
   cases q
   apply refl
 
-theorem TEq.all_tequal (p q : TEq x y) : TEq p q := by
+def TEq.all_tequal (p q : TEq x y) : TEq p q := by
   cases p
   cases q
   apply refl
