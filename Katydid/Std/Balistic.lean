@@ -276,6 +276,7 @@ example (xs ys zs: List α):
   ys = zs -> ys ++ xs = zs ++ xs := by
   list_app
 
+-- set_option linter.constructorNameAsVariable false in
 local elab "wreck_exists" : tactic => newTactic do
   let hyps ← getHypotheses
   for (name, ty) in hyps do

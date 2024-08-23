@@ -66,7 +66,7 @@ attribute [simp] ν' δ'
 
 -- ν∅  : ν ∅ ≡ ⊥
 -- ν∅ = refl
-theorem nullable_emptySet:
+def nullable_emptySet:
   ∀ (α: Type),
     @ν' α ∅ ≡ PEmpty := by
   intro α
@@ -75,7 +75,7 @@ theorem nullable_emptySet:
 
 -- ν𝒰  : ν 𝒰 ≡ ⊤
 -- ν𝒰 = refl
-theorem nullable_universal:
+def nullable_universal:
   ∀ (α: Type),
     @ν' α 𝒰 ≡ PUnit := by
   intro α
@@ -88,7 +88,7 @@ theorem nullable_universal:
 --   (λ { tt → refl })
 --   (λ { tt → refl })
 --   (λ { refl → refl })
-theorem nullable_emptyStr:
+def nullable_emptyStr:
   ∀ (α: Type),
     @ν' α ε ≃ PUnit := by
   intro α
@@ -104,7 +104,7 @@ theorem nullable_emptyStr:
   intro _
   simp
 
-theorem nullable_emptyStr':
+def nullable_emptyStr':
   ∀ (α: Type),
     @ν' α ε ≃ PUnit :=
     fun _ => Equiv.mk
@@ -115,7 +115,7 @@ theorem nullable_emptyStr':
 
 -- ν`  : ν (` c) ↔ ⊥
 -- ν` = mk↔′ (λ ()) (λ ()) (λ ()) (λ ())
-theorem nullable_char:
+def nullable_char:
   ∀ (c: α),
     ν' (char c) ≃ PEmpty := by
   intro α
@@ -130,7 +130,7 @@ theorem nullable_char:
   sorry
   sorry
 
-theorem nullable_char':
+def nullable_char':
   ∀ (c: α),
     ν' (char c) -> PEmpty := by
   intro
@@ -145,7 +145,7 @@ theorem nullable_char':
 
 -- ν∪  : ν (P ∪ Q) ≡ (ν P ⊎ ν Q)
 -- ν∪ = refl
-theorem nullable_or:
+def nullable_or:
   ∀ (P Q: dLang α),
     ν' (P ⋃ Q) ≡ (Sum (ν' P) (ν' Q)) := by
   intro P Q
@@ -154,7 +154,7 @@ theorem nullable_or:
 
 -- ν∩  : ν (P ∩ Q) ≡ (ν P × ν Q)
 -- ν∩ = refl
-theorem nullable_and:
+def nullable_and:
   ∀ (P Q: dLang α),
     ν' (P ⋂ Q) ≡ (Prod (ν' P) (ν' Q)) := by
   intro P Q
@@ -163,7 +163,7 @@ theorem nullable_and:
 
 -- ν·  : ν (s · P) ≡ (s × ν P)
 -- ν· = refl
-theorem nullable_scalar:
+def nullable_scalar:
   ∀ (s: Type) (P: dLang α),
     ν' (dLang.scalar s P) ≡ (Prod s (ν' P)) := by
   intro P Q
@@ -176,7 +176,7 @@ theorem nullable_scalar:
 --   (λ { (νP , νQ) → ([] , []) , refl , νP , νQ })
 --   (λ { (νP , νQ) → refl } )
 --   (λ { (([] , []) , refl , νP , νQ) → refl})
-theorem nullable_concat:
+def nullable_concat:
   ∀ (P Q: dLang α),
     ν' (P, Q) ≃ (Prod (ν' Q) (ν' P)) := by
   -- TODO
@@ -210,7 +210,7 @@ theorem nullable_concat:
 --   ≈⟨ ν✪ ⟩
 --     (ν P) ✶
 --   ∎ where open ↔R
-theorem nullable_star:
+def nullable_star:
   ∀ (P: dLang α),
     ν' (P *) ≃ List (ν' P) := by
   -- TODO
@@ -218,7 +218,7 @@ theorem nullable_star:
 
 -- δ∅  : δ ∅ a ≡ ∅
 -- δ∅ = refl
-theorem derivative_emptySet:
+def derivative_emptySet:
   ∀ (a: α),
     (δ' ∅ a) ≡ ∅ := by
   intro a
@@ -227,7 +227,7 @@ theorem derivative_emptySet:
 
 -- δ𝒰  : δ 𝒰 a ≡ 𝒰
 -- δ𝒰 = refl
-theorem derivative_universal:
+def derivative_universal:
   ∀ (a: α),
     (δ' 𝒰 a) ≡ 𝒰 := by
   intro a
@@ -237,7 +237,7 @@ theorem derivative_universal:
 -- δ𝟏  : δ 𝟏 a ⟷ ∅
 -- δ𝟏 = mk↔′ (λ ()) (λ ()) (λ ()) (λ ())
 -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
-theorem derivative_emptyStr:
+def derivative_emptyStr:
   ∀ (a: α),
     (δ' ε a) ≡ ∅ := by
   -- TODO
@@ -250,7 +250,7 @@ theorem derivative_emptyStr:
 --   (λ { (refl , refl) → refl })
 --   (λ { refl → refl })
 -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
-theorem derivative_char:
+def derivative_char:
   ∀ (a: α) (c: α),
     (δ' (char c) a) ≡ dLang.scalar (a ≡ c) ε := by
     intros a c
@@ -262,7 +262,7 @@ theorem derivative_char:
 
 -- δ∪  : δ (P ∪ Q) a ≡ δ P a ∪ δ Q a
 -- δ∪ = refl
-theorem derivative_or:
+def derivative_or:
   ∀ (a: α) (P Q: dLang α),
     (δ' (P ⋃ Q) a) ≡ ((δ' P a) ⋃ (δ' Q a)) := by
   intro a P Q
@@ -271,7 +271,7 @@ theorem derivative_or:
 
 -- δ∩  : δ (P ∩ Q) a ≡ δ P a ∩ δ Q a
 -- δ∩ = refl
-theorem derivative_and:
+def derivative_and:
   ∀ (a: α) (P Q: dLang α),
     (δ' (P ⋂ Q) a) ≡ ((δ' P a) ⋂ (δ' Q a)) := by
   intro a P Q
@@ -280,7 +280,7 @@ theorem derivative_and:
 
 -- δ·  : δ (s · P) a ≡ s · δ P a
 -- δ· = refl
-theorem derivative_scalar:
+def derivative_scalar:
   ∀ (a: α) (s: Type) (P: dLang α),
     (δ (dLang.scalar s P) a) ≡ (dLang.scalar s (δ' P a)) := by
   intro a s P
@@ -298,7 +298,7 @@ theorem derivative_scalar:
 --   (λ { (([] , .(a ∷ w)) , refl , νP , Qaw) → refl
 --      ; ((.a ∷ u , v) , refl , Pu , Qv) → refl })
 -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
-theorem derivative_concat:
+def derivative_concat:
   ∀ (a: α) (P Q: dLang α),
   -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
     (δ' (P , Q) a) ≡ dLang.scalar (ν' P) ((δ' Q a) ⋃ ((δ' P a), Q)) := by
@@ -338,7 +338,7 @@ theorem derivative_concat:
 --     ((ν P) ✶ · (δ P a ⋆ P ☆)) w
 --   ∎ where open ↔R
 -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
-theorem derivative_star:
+def derivative_star:
   ∀ (a: α) (P: dLang α),
   -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
     (δ' (P *) a) ≡ dLang.scalar (List (ν' P)) (δ' P a, P *) := by

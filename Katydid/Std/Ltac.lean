@@ -1,4 +1,4 @@
-import Std.Lean.Meta.UnusedNames
+import Lean.Meta.Tactic.Util
 import Qq
 open Qq
 
@@ -108,8 +108,9 @@ example (H: x): x /\ x := by
   example_assumption_tactic
 
 -- Creates a fresh variable with the suggested name.
-def fresh [Monad m] [Lean.MonadLCtx m] (suggestion : Lean.Name) : m Lean.Syntax.Ident := do
-  let name ← Lean.Meta.getUnusedUserName suggestion
+def fresh [Monad m] [Lean.MonadLCtx m] (suggestion : String) : m Lean.Syntax.Ident := do
+  let lctx ← Lean.MonadLCtx.getLCtx
+  let name := lctx.getUnusedName (Lean.Name.mkSimple suggestion)
   return Lean.mkIdent name
 
 -- Removes quotes from the start of a string
@@ -186,19 +187,3 @@ example (P: (A -> B) /\ A): B := by
 --  - https://github.com/leanprover-community/mathlib4/blob/2d97a156aa63b50456ed3e5a7d6af3096ac7958e/Mathlib/Tactic/Tauto.lean
 --  - https://github.com/leanprover-community/mathlib4/blob/bac7310cc18d6ed292606d26ccb5fb9ffc697c7a/Mathlib/Tactic/Slice.lean
 --  - https://github.com/siddhartha-gadgil/LeanAide
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

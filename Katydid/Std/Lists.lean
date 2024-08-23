@@ -488,7 +488,7 @@ theorem list_take_take (n n: Nat) (xs: List α):
       unfold minOfLe
       simp only
       split
-      case succ.succ.inl h =>
+      next h =>
         rw [nat_succ_le_succ_iff] at h
         cases xs with
         | nil =>
@@ -506,7 +506,7 @@ theorem list_take_take (n n: Nat) (xs: List α):
           have ihn' : _ := @ihn m xs
           rw [hmin] at ihn'
           exact ihn'
-      case succ.succ.inr h =>
+      next h =>
         rw [nat_succ_le_succ_iff] at h
         cases xs with
         | nil =>
@@ -687,14 +687,13 @@ theorem list_take_length (n: Nat) (xs: List α):
   unfold minOfLe
   simp only [length_take, ge_iff_le]
   split
-  case inl =>
+  next =>
     rename_i c
     unfold min; unfold instMinNat; unfold minOfLe; simp only [ite_eq_left_iff, not_le]
     intro c'
     linarith
-  case inr =>
+  next =>
     rename_i c
-    have c' := gt_of_not_le c
     unfold min; unfold instMinNat; unfold minOfLe; simp only [ite_eq_right_iff]
     intro c''
     linarith
