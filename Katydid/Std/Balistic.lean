@@ -6,6 +6,10 @@ open Qq
 
 -- balistic is a tactic that tries to solve simple theorems about lists
 
+-- This temporarily fixes matching exists using quote4 in wreck_exists
+-- see https://github.com/leanprover-community/quote4/issues/52
+set_option linter.constructorNameAsVariable false
+
 -- TODO: incorporate ac_rfl into balistic
 -- ac_rfl uses IsAssociative to prove associativity of operators
 example (xs ys zs: List α): (xs ++ ys ++ zs) = (xs ++ ys) ++ zs := by
@@ -276,7 +280,6 @@ example (xs ys zs: List α):
   ys = zs -> ys ++ xs = zs ++ xs := by
   list_app
 
--- set_option linter.constructorNameAsVariable false in
 local elab "wreck_exists" : tactic => newTactic do
   let hyps ← getHypotheses
   for (name, ty) in hyps do
