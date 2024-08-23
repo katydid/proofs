@@ -116,7 +116,7 @@ theorem list_length_zero_is_empty (xs: List α):
   · intro _
     rfl
   · intro h'
-    simp only [length, add_eq_zero_iff, and_false] at h'
+    simp only [length, add_eq_zero, and_false] at h'
 
 theorem list_app_nil_l (xs: List α):
   [] ++ xs = xs := by
@@ -324,7 +324,7 @@ theorem list_rev_empty (xs : List α) :
 theorem list_rev_empty2 :
   reverse ([] : List α) = [] := by trivial
 
-theorem list_rev_eq (n : Nat) (xs ys : List α) :
+theorem list_rev_eq (_n : Nat) (xs ys : List α) :
   reverse xs = reverse ys -> xs = ys := by
   intro h
   have h' : reverse (reverse xs) = reverse (reverse ys) :=
@@ -465,7 +465,7 @@ theorem list_take_app_2 (n: Nat) (xs ys: List α):
     apply (congrArg (cons x))
     apply ih
 
-theorem list_take_take (n n: Nat) (xs: List α):
+theorem list_take_take (n: Nat) (xs: List α):
   take n (take m xs) = take (min n m) xs := by
   revert m xs
   induction n with
@@ -891,7 +891,7 @@ theorem list_prefix_is_gt_zero_and_leq: ∀ (xs ys zs: List α),
       apply Nat.le_add_right
 
 theorem list_prefix_is_not_empty_with_index_gt_zero: ∀ (xs: List α) (n: Nat)
-  (range: 0 < n /\ n <= length xs),
+  (_range: 0 < n /\ n <= length xs),
   take n xs ≠ [] := by
   intro xs n range h
   cases range with
