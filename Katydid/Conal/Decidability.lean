@@ -64,12 +64,10 @@ def map' (ab: A -> B) (ba: B -> A) (deca: Dec A): Dec B :=
   | Dec.no nota =>
     Dec.no (nota ∘ ba)
 
--- The following defintions are only so simple because of our approximation of <=> in Function.lean
-
 -- map‽⇔ : A ⇔ B → Dec A → Dec B
 -- map‽⇔ A⇔B = map′ (to ⟨$⟩_) (from ⟨$⟩_) where open Equivalence A⇔B
 def map? (ab: A <=> B) (deca: Dec A): Dec B :=
-  map' ab.mp ab.mpr deca
+  map' ab.toFun ab.invFun deca
 
 -- _▹_ : A ↔ B → Dec A → Dec B
 -- f ▹ a? = map‽⇔ (↔→⇔ f) a?

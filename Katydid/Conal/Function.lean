@@ -1,10 +1,9 @@
 -- An approximation of the Function module in the Agda standard library.
 
 import Katydid.Std.Tipe
+import Mathlib.Logic.Equiv.Defs
 
 -- A ↔ B = Inverse A B
-
--- mk↔′ : ∀ (f : A → B) (f⁻¹ : B → A) → Inverseˡ f f⁻¹ → Inverseʳ f f⁻¹ → A ↔ B
 
 -- record Inverse : Set (a ⊔ b ⊔ ℓ₁ ⊔ ℓ₂) where
 --   field
@@ -35,49 +34,29 @@ import Katydid.Std.Tipe
 -- REL : Set a → Set b → (ℓ : Level) → Set (a ⊔ b ⊔ suc ℓ)
 -- REL A B ℓ = A → B → Set ℓ
 
-def Congruent (f: A -> B): Type :=
-  ∀ {x y}, x ≡ y -> f x ≡ f y
+-- mk↔′ : ∀ (f : A → B) (f⁻¹ : B → A) → Inverseˡ f f⁻¹ → Inverseʳ f f⁻¹ → A ↔ B
 
-def Inverse (f: A -> B) (g: B -> A): Type :=
-  ∀ {x y}, y ≡ g x -> f y ≡ x
+-- If we look closely at mk↔′ it matches the Mathlib.Logic.Equiv.Defs
+-- structure Equiv (α : Sort*) (β : Sort _) where
+--   protected toFun : α → β
+--   protected invFun : β → α
+--   protected left_inv : LeftInverse invFun toFun
+--   protected right_inv : RightInverse invFun toFun
 
-inductive Inverses (f: A -> B) (g: B -> A): Type (u + 1) where
-  | mk
-    (congF : Congruent f)
-    (congG : Congruent g)
-    (inverseL : Inverse f g)
-    (inverseR : Inverse g f): Inverses f g
+-- We consider the two definitions of equivalent to be equivalent
 
--- Lean has Bi-implication
--- If and only if, or logical bi-implication. `a ↔ b` means that `a` implies `b` and vice versa. By `propext`, this implies that `a` and `b` are equal and hence any expression involving `a` is equivalent to the corresponding expression with `b` instead.
--- structure Iff (a b : Prop) : Prop where
-  -- If `a → b` and `b → a` then `a` and `b` are equivalent. -/
-  -- intro ::
-  -- Modus ponens for if and only if. If `a ↔ b` and `a`, then `b`. -/
-  -- mp : a → b
-  -- Modus ponens for if and only if, reversed. If `a ↔ b` and `b`, then `a`. -/
-  -- mpr : b → a
-
--- We use this weaker form of Inverses, but redefined Iff to work Type instead of Prop
-
-structure TIff (a b: Type u): Type (u + 1) where
-  intro ::
-    mp : a → b
-    mpr : b → a
-
-infixr:100 " <=> " => TIff
+@[inherit_doc]
+infixr:25 " <=> " => Equiv
 
 -- ↔Eq.sym
-def TIff.sym (tiff: A <=> B): B <=> A :=
-  match tiff with
-  | TIff.intro mp mpr => TIff.intro mpr mp
+def Equiv.sym (e: A <=> B): B <=> A :=
+  ⟨e.invFun, e.toFun, e.right_inv, e.left_inv⟩
 
 -- Extensional (or “pointwise”) isomorphism relates predicates isomorphic on every argument: P ←→ Q = ∀ {w} → P w ↔ Q w
-
-def EIff {w: List α} (a b: List α -> Type u) := (a w) <=> (b w)
+def EEquiv {w: List α} (a b: List α -> Type u) := (a w) <=> (b w)
 
 -- blackslash <-->
-infixr:100 " ⟷ " => EIff
+infixr:100 " ⟷ " => EEquiv
 
 -- Note: We see that proofs that need ⟷ are typically proven using mk↔′
 -- δ𝟏  : δ 𝟏 a ⟷ ∅

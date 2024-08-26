@@ -265,6 +265,13 @@ def derivative_emptyStr: ∀ (w: List α), (derive' emptystr a) w <=> emptyset w
     contradiction
   · intro E
     contradiction
+  · intro D
+    simp at D
+    cases D
+    next D =>
+    contradiction
+  · intro E
+    contradiction
 
 -- δ`  : δ (` c) a ⟷ (a ≡ c) · 𝟏
 -- δ` = mk↔′
