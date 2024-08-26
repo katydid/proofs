@@ -14,10 +14,10 @@ example: (dLang.char 'a') ['a'] := by
 
 -- _ : a∪b [ 'b' ]
 -- _ = inj₂ refl
-example : (char 'a' ⋃ char 'b') ['b'] :=
+example : (or (char 'a') (char 'b')) ['b'] :=
   Sum.inr trfl
 
-example : (char 'a' ⋃ char 'b') (String.toList "b") := by
+example : (or (char 'a') (char 'b')) (String.toList "b") := by
   apply Sum.inr
   constructor
   rfl
@@ -48,7 +48,7 @@ example : (concat (char 'a') (char 'b')) (String.toList "ab") :=
 example : (concat (char 'a') (char 'b')) (String.toList "ab") :=
   PSigma.mk ['a'] (PSigma.mk ['b'] (PSigma.mk trfl (PSigma.mk trfl rfl)))
 
-example : ((char 'a')*) (String.toList "a") := by sorry
+example : (star (char 'a')) (String.toList "a") := by sorry
   -- TODO:
   -- simp
   -- refine ⟨[['a']], ?a ⟩
@@ -57,7 +57,7 @@ example : ((char 'a')*) (String.toList "a") := by sorry
   -- · simp; rfl
   -- · apply All.nil
 
-example : ((char 'a')*) (String.toList "a") := by sorry
+example : (star (char 'a')) (String.toList "a") := by sorry
   -- TODO:
   -- simp
   -- refine ⟨[['a']], ?a ⟩
@@ -71,7 +71,7 @@ example : ((char 'a')*) (String.toList "a") := by sorry
 -- _ = [ 'a' ] ∷ [ 'b' ] ∷ [ 'a' ] ∷ []
 --   , refl
 --   , inj₁ refl ∷ inj₂ refl ∷ inj₁ refl ∷ []
-example : ((char 'a' ⋃ char 'b')*) (String.toList "aba") := by sorry
+example : (star (or (char 'a') (char 'b'))) (String.toList "aba") := by sorry
   -- TODO:
   -- simp
   -- refine ⟨ [['a'], ['b'], ['a']] , ?a ⟩
@@ -87,7 +87,7 @@ example : ((char 'a' ⋃ char 'b')*) (String.toList "aba") := by sorry
   --       simp; rfl
   --     · apply All.nil
 
-example : ((char 'a' ⋃ char 'b')*) (String.toList "aba") := by sorry
+example : (star (or (char 'a') (char 'b'))) (String.toList "aba") := by sorry
   -- TODO:
   -- ⟨ [['a'], ['b'], ['a']],
   --   trifle,

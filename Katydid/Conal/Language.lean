@@ -17,20 +17,12 @@ namespace dLang
 -- variable α should be implicit to make sure examples do not need to also provide the parameter of α when constructing char, or, concat, since it usually can be inferred to be Char.
 variable {α : Type u}
 
--- TODO: Why are these definitions open, instead of in an inductive family, like
--- https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/Proof.20relevance/near/419702213
--- One reason is that with not operator, which run into the strictly positive limitation, but we don't have the not operator in the Agda paper.
--- TODO: Ask Conal if there is another reason.
-
 -- ∅ : Lang
 -- ∅ w = ⊥
 def emptyset : dLang α :=
   -- PEmpty is Empty, but allows specifying the universe
   -- PEmpty is a Sort, which works for both Prop and Type
   fun _ => PEmpty
-
--- `(priority := high)` is required to avoid the error: "ambiguous, possible interpretations"
-notation (priority := high) "∅" => dLang.emptyset -- backslash emptyset
 
 -- 𝒰 : Lang
 -- 𝒰 w = ⊤
@@ -39,14 +31,10 @@ def universal : dLang α :=
   -- PUnit is a Sort, which works for both Prop and Type
   fun _ => PUnit
 
-notation "𝒰" => dLang.universal -- backslash McU
-
 -- 𝟏 : Lang
 -- 𝟏 w = w ≡ []
 def emptystr : dLang α :=
   fun w => w ≡ []
-
-notation "ε" => dLang.emptystr -- backslash epsilon
 
 -- ` : A → Lang
 -- ` c w = w ≡ [ c ]
@@ -59,23 +47,17 @@ def char (a : α): dLang α :=
 def scalar (s : Type u) (P : dLang α) : dLang α :=
   fun w => s × P w
 
-infixl:4 " · " => dLang.scalar -- backslash .
-
 -- infixr 6 _∪_
 -- _∪_ : Op₂ Lang
 -- (P ∪ Q) w = P w ⊎ Q w
 def or (P : dLang α) (Q : dLang α) : dLang α :=
   fun w => P w ⊕ Q w
 
-infixl:5 (priority := high) " ⋃ " => dLang.or -- backslash U
-
 -- infixr 6 _∩_
 -- _∩_ : Op₂ Lang
 -- (P ∩ Q) w = P w × Q w
 def and (P : dLang α) (Q : dLang α) : dLang α :=
   fun w => P w × Q w
-
-infixl:4 " ⋂ " => dLang.and -- backslash I
 
 -- infixl 7 _⋆_
 -- _⋆_ : Op₂ Lang
@@ -95,23 +77,21 @@ def star (P : dLang α) : dLang α :=
   fun (w : List α) =>
     Σ' (ws : List (List α)), (_pws: All P ws) ×' w = (List.join ws)
 
-postfix:6 "*" => dLang.star
-
 -- attribute [simp] allows these definitions to be unfolded when using the simp tactic.
 attribute [simp] universal emptyset emptystr char scalar or and concat star
 
-example: dLang α := 𝒰
-example: dLang α := ε
-example: dLang α := (ε ⋃ 𝒰)
-example: dLang α := (ε ⋂ 𝒰)
-example: dLang α := ∅
-example: dLang α := (∅*)
+example: dLang α := universal
+example: dLang α := emptystr
+example: dLang α := (or emptystr universal)
+example: dLang α := (and emptystr universal)
+example: dLang α := emptyset
+example: dLang α := (star emptyset)
 example: dLang Char := char 'a'
 example: dLang Char := char 'b'
-example: dLang Char := (char 'a' ⋂ ∅)
-example: dLang Char := (char 'a' ⋂ char 'b')
-example: dLang Nat := (char 1 ⋂ char 2)
-example: (_t: Type) -> dLang Nat := (PUnit · char 2)
+example: dLang Char := (or (char 'a') emptyset)
+example: dLang Char := (and (char 'a') (char 'b'))
+example: dLang Nat := (and (char 1) (char 2))
+example: dLang Nat := (scalar PUnit (char 2))
 example: dLang Nat := (concat (char 1) (char 2))
 
 -- 𝜈 :(A✶ → B) → B -- “nullable”
@@ -134,36 +114,3 @@ def δ (f: dLang α) (a: α): (dLang α) :=
   𝒟 f [a]
 
 end dLang
-
--- TODO: 𝜈 : Lang P → Dec (⋄.𝜈 P)
--- theorem ν {α: Type u} {P: dLang α} (f: Lang P): Dec (dLang.ν P) := by
---   induction f with
---   | universal => exact unit?
-
--- TODO: rewrite ν using casesOn
--- def ν' {α: Type u} {P: dLang α} (f: Lang P): Dec (dLang.ν P) := by
---   refine (Lang.casesOn ?a ?b ?c ?d ?e)
---   match f with
---   | universal => unit?
-
--- def ν'' {α: Type u} {P: dLang α} (f: Lang P): Dec (dLang.ν P) := by
---   induction f with
---   | universal => exact unit?
-
--- #print ν''
-
-
-
-
-
-
-
-
-
-
-
-
-
-  -- | lang_emptyset (str : List α):
-  --   False ->
-  --   Lang Regex.emptyset str

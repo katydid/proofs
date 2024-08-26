@@ -17,7 +17,7 @@ open String
 -- set_option pp.all true
 open List
 
-def example_of_proof_relevant_parse : (char 'a' ⋃ char 'b') (toList "a") -> Nat := by
+def example_of_proof_relevant_parse : (or (char 'a') (char 'b')) (toList "a") -> Nat := by
   intro x
   cases x with
   | inl xa =>
@@ -31,7 +31,7 @@ def example_of_proof_relevant_parse : (char 'a' ⋃ char 'b') (toList "a") -> Na
     | mk eq =>
       contradiction
 
-def example_of_proof_relevant_parse2 : (concat (char 'a') (char 'b' ⋃ char 'c')) (toList "ab") -> Nat := by
+def example_of_proof_relevant_parse2 : (concat (char 'a') (or (char 'b') (char 'c'))) (toList "ab") -> Nat := by
   intro x1
   simp at x1
   cases x1 with
@@ -87,7 +87,7 @@ attribute [simp] null' derive'
 -- ν∅ = refl
 def nullable_emptySet:
   ∀ (α: Type),
-    @null' α ∅ ≡ PEmpty := by
+    @null' α emptyset ≡ PEmpty := by
   intro α
   constructor
   rfl
@@ -96,7 +96,7 @@ def nullable_emptySet:
 -- ν𝒰 = refl
 def nullable_universal:
   ∀ (α: Type),
-    @null' α 𝒰 ≡ PUnit := by
+    @null' α universal ≡ PUnit := by
   intro α
   constructor
   rfl
@@ -109,7 +109,7 @@ def nullable_universal:
 --   (λ { refl → refl })
 def nullable_emptystr:
   ∀ (α: Type),
-    @null' α ε ≃ PUnit := by
+    @null' α emptystr ≃ PUnit := by
   intro α
   refine Equiv.mk ?a ?b ?c ?d
   intro _
@@ -125,7 +125,7 @@ def nullable_emptystr:
 
 def nullable_emptyStr':
   ∀ (α: Type),
-    @null' α ε ≃ PUnit :=
+    @null' α emptystr ≃ PUnit :=
     fun _ => Equiv.mk
       (fun _ => PUnit.unit)
       (fun _ => by constructor; rfl)
@@ -166,7 +166,7 @@ def nullable_char':
 -- ν∪ = refl
 def nullable_or:
   ∀ (P Q: dLang α),
-    null' (P ⋃ Q) ≡ (Sum (null' P) (null' Q)) := by
+    null' (or P Q) ≡ (Sum (null' P) (null' Q)) := by
   intro P Q
   constructor
   rfl
@@ -175,7 +175,7 @@ def nullable_or:
 -- ν∩ = refl
 def nullable_and:
   ∀ (P Q: dLang α),
-    null' (P ⋂ Q) ≡ (Prod (null' P) (null' Q)) := by
+    null' (and P Q) ≡ (Prod (null' P) (null' Q)) := by
   intro P Q
   constructor
   rfl
@@ -231,7 +231,7 @@ def nullable_concat:
 --   ∎ where open ↔R
 def nullable_star:
   ∀ (P: dLang α),
-    null' (P *) ≃ List (null' P) := by
+    null' (star P) ≃ List (null' P) := by
   -- TODO
   sorry
 
@@ -239,7 +239,7 @@ def nullable_star:
 -- δ∅ = refl
 def derivative_emptySet:
   ∀ (a: α),
-    (derive' ∅ a) ≡ ∅ := by
+    (derive' emptyset a) ≡ emptyset := by
   intro a
   constructor
   rfl
@@ -248,14 +248,14 @@ def derivative_emptySet:
 -- δ𝒰 = refl
 def derivative_universal:
   ∀ (a: α),
-    (derive' 𝒰 a) ≡ 𝒰 := by
+    (derive' universal a) ≡ universal := by
   intro a
   constructor
   rfl
 
 -- δ𝟏  : δ 𝟏 a ⟷ ∅
 -- δ𝟏 = mk↔′ (λ ()) (λ ()) (λ ()) (λ ())
-def derivative_emptyStr: ∀ (w: List α), (derive' ε a) w <=> ∅ w := by
+def derivative_emptyStr: ∀ (w: List α), (derive' emptystr a) w <=> emptyset w := by
   intro w
   constructor
   · intro D
@@ -275,7 +275,7 @@ def derivative_emptyStr: ∀ (w: List α), (derive' ε a) w <=> ∅ w := by
 -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
 def derivative_char:
   ∀ (a: α) (c: α),
-    (derive' (char c) a) ≡ dLang.scalar (a ≡ c) ε := by
+    (derive' (char c) a) ≡ dLang.scalar (a ≡ c) emptystr := by
     intros a c
     unfold derive'
     unfold char
@@ -287,7 +287,7 @@ def derivative_char:
 -- δ∪ = refl
 def derivative_or:
   ∀ (a: α) (P Q: dLang α),
-    (derive' (P ⋃ Q) a) ≡ ((derive' P a) ⋃ (derive' Q a)) := by
+    (derive' (or P Q) a) ≡ (or (derive' P a) (derive' Q a)) := by
   intro a P Q
   constructor
   rfl
@@ -296,7 +296,7 @@ def derivative_or:
 -- δ∩ = refl
 def derivative_and:
   ∀ (a: α) (P Q: dLang α),
-    (derive' (P ⋂ Q) a) ≡ ((derive' P a) ⋂ (derive' Q a)) := by
+    (derive' (and P Q) a) ≡ (and (derive' P a) (derive' Q a)) := by
   intro a P Q
   constructor
   rfl
@@ -324,7 +324,7 @@ def derivative_scalar:
 def derivative_concat:
   ∀ (a: α) (P Q: dLang α),
   -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
-    (derive' (concat P Q) a) ≡ dLang.scalar (null' P) ((derive' Q a) ⋃ (concat (derive' P a) Q)) := by
+    (derive' (concat P Q) a) ≡ dLang.scalar (null' P) (or (derive' Q a) (concat (derive' P a) Q)) := by
   -- TODO
   sorry
 
@@ -364,7 +364,7 @@ def derivative_concat:
 def derivative_star:
   ∀ (a: α) (P: dLang α),
   -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
-    (derive' (P *) a) ≡ dLang.scalar (List (null' P)) (concat (derive' P a) (P *)) := by
+    (derive' (star P) a) ≡ dLang.scalar (List (null' P)) (concat (derive' P a) (star P)) := by
   -- TODO
   sorry
 
