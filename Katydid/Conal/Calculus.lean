@@ -1,6 +1,7 @@
 -- A translation to Lean from Agda
 -- https://github.com/conal/paper-2021-language-derivatives/blob/main/Calculus.lagda
 
+import Katydid.Conal.Function
 import Katydid.Conal.Language
 import Mathlib.Logic.Equiv.Defs -- ≃
 import Katydid.Std.Tipe
@@ -236,12 +237,16 @@ def derivative_universal:
 
 -- δ𝟏  : δ 𝟏 a ⟷ ∅
 -- δ𝟏 = mk↔′ (λ ()) (λ ()) (λ ()) (λ ())
--- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
-def derivative_emptyStr:
-  ∀ (a: α),
-    (δ' ε a) ≡ ∅ := by
-  -- TODO
-  sorry
+def derivative_emptyStr: ∀ (w: List α), (δ' ε a) w <=> ∅ w := by
+  intro w
+  constructor
+  · intro D
+    simp at D
+    cases D
+    next D =>
+    contradiction
+  · intro E
+    contradiction
 
 -- δ`  : δ (` c) a ⟷ (a ≡ c) · 𝟏
 -- δ` = mk↔′
