@@ -5,6 +5,9 @@ import Katydid.Conal.Function
 import Katydid.Conal.Language
 import Mathlib.Logic.Equiv.Defs -- ≃
 import Katydid.Std.Tipe
+
+namespace Calculus
+
 open dLang
 open List
 open Char
@@ -55,21 +58,36 @@ def example_of_proof_relevant_parse2 : (concat (char 'a') (char 'b' ⋃ char 'c'
 
 -- ν⇃ : Lang → Set ℓ      -- “nullable”
 -- ν⇃ P = P []
-def ν' (P : dLang α) : Type u := -- backslash nu
+def null' (P : dLang α) : Type u := -- backslash nu
   P []
 
 -- δ⇃ : Lang → A → Lang   -- “derivative”
 -- δ⇃ P a w = P (a ∷ w)
-def δ' (P : dLang α) (a : α) : dLang α := -- backslash delta
+def derive' (P : dLang α) (a : α) : dLang α := -- backslash delta
   fun (w : List α) => P (a :: w)
 
-attribute [simp] ν' δ'
+-- ν : (A ✶ → B) → B                -- “nullable”
+-- ν f = f []
+def null (f: List α -> β): β :=
+  f []
+
+-- 𝒟 : (A ✶ → B) → A ✶ → (A ✶ → B)  -- “derivative”
+-- 𝒟 f u = λ v → f (u ⊙ v)
+def derives (f: List α -> β) (u: List α): (List α -> β) :=
+  λ v => f (u ++ v)
+
+-- δ : (A ✶ → B) → A → (A ✶ → B)
+-- δ f a = 𝒟 f [ a ]
+def derive (f: List α -> β) (a: α): (List α -> β) :=
+  derives f [a]
+
+attribute [simp] null' derive'
 
 -- ν∅  : ν ∅ ≡ ⊥
 -- ν∅ = refl
 def nullable_emptySet:
   ∀ (α: Type),
-    @ν' α ∅ ≡ PEmpty := by
+    @null' α ∅ ≡ PEmpty := by
   intro α
   constructor
   rfl
@@ -78,7 +96,7 @@ def nullable_emptySet:
 -- ν𝒰 = refl
 def nullable_universal:
   ∀ (α: Type),
-    @ν' α 𝒰 ≡ PUnit := by
+    @null' α 𝒰 ≡ PUnit := by
   intro α
   constructor
   rfl
@@ -89,9 +107,9 @@ def nullable_universal:
 --   (λ { tt → refl })
 --   (λ { tt → refl })
 --   (λ { refl → refl })
-def nullable_emptyStr:
+def nullable_emptystr:
   ∀ (α: Type),
-    @ν' α ε ≃ PUnit := by
+    @null' α ε ≃ PUnit := by
   intro α
   refine Equiv.mk ?a ?b ?c ?d
   intro _
@@ -107,7 +125,7 @@ def nullable_emptyStr:
 
 def nullable_emptyStr':
   ∀ (α: Type),
-    @ν' α ε ≃ PUnit :=
+    @null' α ε ≃ PUnit :=
     fun _ => Equiv.mk
       (fun _ => PUnit.unit)
       (fun _ => by constructor; rfl)
@@ -118,7 +136,7 @@ def nullable_emptyStr':
 -- ν` = mk↔′ (λ ()) (λ ()) (λ ()) (λ ())
 def nullable_char:
   ∀ (c: α),
-    ν' (char c) ≃ PEmpty := by
+    null' (char c) ≃ PEmpty := by
   intro α
   simp
   apply Equiv.mk
@@ -133,7 +151,7 @@ def nullable_char:
 
 def nullable_char':
   ∀ (c: α),
-    ν' (char c) -> PEmpty := by
+    null' (char c) -> PEmpty := by
   intro
   refine (fun x => ?c)
   simp at x
@@ -148,7 +166,7 @@ def nullable_char':
 -- ν∪ = refl
 def nullable_or:
   ∀ (P Q: dLang α),
-    ν' (P ⋃ Q) ≡ (Sum (ν' P) (ν' Q)) := by
+    null' (P ⋃ Q) ≡ (Sum (null' P) (null' Q)) := by
   intro P Q
   constructor
   rfl
@@ -157,7 +175,7 @@ def nullable_or:
 -- ν∩ = refl
 def nullable_and:
   ∀ (P Q: dLang α),
-    ν' (P ⋂ Q) ≡ (Prod (ν' P) (ν' Q)) := by
+    null' (P ⋂ Q) ≡ (Prod (null' P) (null' Q)) := by
   intro P Q
   constructor
   rfl
@@ -166,7 +184,7 @@ def nullable_and:
 -- ν· = refl
 def nullable_scalar:
   ∀ (s: Type) (P: dLang α),
-    ν' (dLang.scalar s P) ≡ (Prod s (ν' P)) := by
+    null' (dLang.scalar s P) ≡ (Prod s (null' P)) := by
   intro P Q
   constructor
   rfl
@@ -179,7 +197,7 @@ def nullable_scalar:
 --   (λ { (([] , []) , refl , νP , νQ) → refl})
 def nullable_concat:
   ∀ (P Q: dLang α),
-    ν' (concat P Q) ≃ (Prod (ν' Q) (ν' P)) := by
+    null' (concat P Q) ≃ (Prod (null' Q) (null' P)) := by
   -- TODO
   sorry
 
@@ -213,7 +231,7 @@ def nullable_concat:
 --   ∎ where open ↔R
 def nullable_star:
   ∀ (P: dLang α),
-    ν' (P *) ≃ List (ν' P) := by
+    null' (P *) ≃ List (null' P) := by
   -- TODO
   sorry
 
@@ -221,7 +239,7 @@ def nullable_star:
 -- δ∅ = refl
 def derivative_emptySet:
   ∀ (a: α),
-    (δ' ∅ a) ≡ ∅ := by
+    (derive' ∅ a) ≡ ∅ := by
   intro a
   constructor
   rfl
@@ -230,14 +248,14 @@ def derivative_emptySet:
 -- δ𝒰 = refl
 def derivative_universal:
   ∀ (a: α),
-    (δ' 𝒰 a) ≡ 𝒰 := by
+    (derive' 𝒰 a) ≡ 𝒰 := by
   intro a
   constructor
   rfl
 
 -- δ𝟏  : δ 𝟏 a ⟷ ∅
 -- δ𝟏 = mk↔′ (λ ()) (λ ()) (λ ()) (λ ())
-def derivative_emptyStr: ∀ (w: List α), (δ' ε a) w <=> ∅ w := by
+def derivative_emptyStr: ∀ (w: List α), (derive' ε a) w <=> ∅ w := by
   intro w
   constructor
   · intro D
@@ -257,9 +275,9 @@ def derivative_emptyStr: ∀ (w: List α), (δ' ε a) w <=> ∅ w := by
 -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
 def derivative_char:
   ∀ (a: α) (c: α),
-    (δ' (char c) a) ≡ dLang.scalar (a ≡ c) ε := by
+    (derive' (char c) a) ≡ dLang.scalar (a ≡ c) ε := by
     intros a c
-    unfold δ'
+    unfold derive'
     unfold char
     unfold emptystr
     unfold scalar
@@ -269,7 +287,7 @@ def derivative_char:
 -- δ∪ = refl
 def derivative_or:
   ∀ (a: α) (P Q: dLang α),
-    (δ' (P ⋃ Q) a) ≡ ((δ' P a) ⋃ (δ' Q a)) := by
+    (derive' (P ⋃ Q) a) ≡ ((derive' P a) ⋃ (derive' Q a)) := by
   intro a P Q
   constructor
   rfl
@@ -278,7 +296,7 @@ def derivative_or:
 -- δ∩ = refl
 def derivative_and:
   ∀ (a: α) (P Q: dLang α),
-    (δ' (P ⋂ Q) a) ≡ ((δ' P a) ⋂ (δ' Q a)) := by
+    (derive' (P ⋂ Q) a) ≡ ((derive' P a) ⋂ (derive' Q a)) := by
   intro a P Q
   constructor
   rfl
@@ -287,7 +305,7 @@ def derivative_and:
 -- δ· = refl
 def derivative_scalar:
   ∀ (a: α) (s: Type) (P: dLang α),
-    (δ (dLang.scalar s P) a) ≡ (dLang.scalar s (δ' P a)) := by
+    (δ (dLang.scalar s P) a) ≡ (dLang.scalar s (derive' P a)) := by
   intro a s P
   constructor
   rfl
@@ -306,7 +324,7 @@ def derivative_scalar:
 def derivative_concat:
   ∀ (a: α) (P Q: dLang α),
   -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
-    (δ' (concat P Q) a) ≡ dLang.scalar (ν' P) ((δ' Q a) ⋃ (concat (δ' P a) Q)) := by
+    (derive' (concat P Q) a) ≡ dLang.scalar (null' P) ((derive' Q a) ⋃ (concat (derive' P a) Q)) := by
   -- TODO
   sorry
 
@@ -346,6 +364,8 @@ def derivative_concat:
 def derivative_star:
   ∀ (a: α) (P: dLang α),
   -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
-    (δ' (P *) a) ≡ dLang.scalar (List (ν' P)) (concat (δ' P a) (P *)) := by
+    (derive' (P *) a) ≡ dLang.scalar (List (null' P)) (concat (derive' P a) (P *)) := by
   -- TODO
   sorry
+
+end Calculus

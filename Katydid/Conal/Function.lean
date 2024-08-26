@@ -58,7 +58,7 @@ inductive Inverses (f: A -> B) (g: B -> A): Type (u + 1) where
   -- Modus ponens for if and only if, reversed. If `a ↔ b` and `b`, then `a`. -/
   -- mpr : b → a
 
--- We use this weaker form of Inverses, but redefine it work Type
+-- We use this weaker form of Inverses, but redefined Iff to work Type instead of Prop
 
 structure TIff (a b: Type u): Type (u + 1) where
   intro ::
@@ -66,6 +66,11 @@ structure TIff (a b: Type u): Type (u + 1) where
     mpr : b → a
 
 infixr:100 " <=> " => TIff
+
+-- ↔Eq.sym
+def TIff.sym (tiff: A <=> B): B <=> A :=
+  match tiff with
+  | TIff.intro mp mpr => TIff.intro mpr mp
 
 -- Extensional (or “pointwise”) isomorphism relates predicates isomorphic on every argument: P ←→ Q = ∀ {w} → P w ↔ Q w
 
