@@ -1,7 +1,7 @@
 -- A translation to Lean from Agda
 -- https://github.com/conal/paper-2021-language-derivatives/blob/main/Examples.lagda
 
-import Katydid.Conal.LanguageNotation
+import Katydid.Conal.Language
 open dLang
 
 example: (dLang.char 'a') ['a'] := by
@@ -27,14 +27,14 @@ example : (char 'a' ⋃ char 'b') (String.toList "b") := by
 
 -- _ : a⋆b ('a' ∷ 'b' ∷ [])
 -- _ = ([ 'a' ] , [ 'b' ]) , refl , refl , refl
-example : (char 'a', char 'b') (String.toList "ab") := by
+example : (concat (char 'a') (char 'b')) (String.toList "ab") := by
   simp
   exists ['a']
   exists ['b']
   exists trfl
   exists trfl
 
-example : (char 'a', char 'b') (String.toList "ab") := by
+example : (concat (char 'a') (char 'b')) (String.toList "ab") := by
   simp
   refine PSigma.mk ['a'] ?a
   refine PSigma.mk ['b'] ?b
@@ -42,10 +42,10 @@ example : (char 'a', char 'b') (String.toList "ab") := by
   refine PSigma.mk trfl ?d
   rfl
 
-example : (char 'a', char 'b') (String.toList "ab") :=
+example : (concat (char 'a') (char 'b')) (String.toList "ab") :=
   PSigma.mk ['a'] (PSigma.mk ['b'] (PSigma.mk trfl (PSigma.mk trfl rfl)))
 
-example : (char 'a', char 'b') (String.toList "ab") :=
+example : (concat (char 'a') (char 'b')) (String.toList "ab") :=
   PSigma.mk ['a'] (PSigma.mk ['b'] (PSigma.mk trfl (PSigma.mk trfl rfl)))
 
 example : ((char 'a')*) (String.toList "a") := by sorry

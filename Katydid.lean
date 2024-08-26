@@ -11,6 +11,5 @@ import Katydid.Expr.Desc
 import Katydid.Expr.Regex
 
 import Katydid.Conal.Language
-import Katydid.Conal.LanguageNotation
 import Katydid.Conal.Calculus
 import Katydid.Conal.Examples
