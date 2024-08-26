@@ -2,9 +2,9 @@
 -- https://github.com/conal/paper-2021-language-derivatives/blob/main/Examples.lagda
 
 import Katydid.Conal.Language
-open dLang
+open Language
 
-example: (dLang.char 'a') ['a'] := by
+example: (char 'a') ['a'] := by
   simp
   constructor
   rfl

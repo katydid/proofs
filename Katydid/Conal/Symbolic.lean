@@ -6,24 +6,24 @@ import Katydid.Conal.Function
 import Katydid.Conal.Language
 import Katydid.Conal.Calculus
 
-inductive Lang {P Q : dLang α}: (List α -> Type u) -> Type (u + 1) where
+inductive Lang {P Q : Language.Lang α}: (List α -> Type u) -> Type (u + 1) where
   -- ∅ : Lang ◇.∅
-  | emptyset : Lang dLang.emptyset
+  | emptyset : Lang Language.emptyset
   -- 𝒰 : Lang ◇.𝒰
-  | universal : Lang dLang.universal
+  | universal : Lang Language.universal
   -- 𝟏 : Lang ◇.𝟏
-  | emptystr : Lang dLang.emptystr
+  | emptystr : Lang Language.emptystr
   -- ` : (a : A) → Lang (◇.` a)
-  | char {a: Type u}: (a: α) -> Lang (dLang.char a)
+  | char {a: Type u}: (a: α) -> Lang (Language.char a)
   -- _∪_ : Lang P → Lang Q → Lang (P ◇.∪ Q)
-  | or : Lang P -> Lang Q -> Lang (dLang.or P Q)
+  | or : Lang P -> Lang Q -> Lang (Language.or P Q)
   -- _∩_ : Lang P → Lang Q → Lang (P ◇.∩ Q)
-  | and : Lang P -> Lang Q -> Lang (dLang.and P Q)
+  | and : Lang P -> Lang Q -> Lang (Language.and P Q)
   -- _·_ : Dec s → Lang P → Lang (s ◇.· P)
-  | scalar {s: Type u}: (Dec s) -> Lang P -> Lang (dLang.scalar s P)
+  | scalar {s: Type u}: (Decidability.Dec s) -> Lang P -> Lang (Language.scalar s P)
   -- _⋆_ : Lang  P → Lang Q → Lang (P ◇.⋆ Q)
-  | concat : Lang P -> Lang Q -> Lang (dLang.concat P Q)
+  | concat : Lang P -> Lang Q -> Lang (Language.concat P Q)
   -- _☆  : Lang P → Lang (P ◇.☆)
-  | star : Lang P -> Lang (dLang.star P)
+  | star : Lang P -> Lang (Language.star P)
   -- _◂_  : (Q ⟷ P) → Lang P → Lang Q
   | iso : (Q ⟷ P) -> Lang P -> Lang Q

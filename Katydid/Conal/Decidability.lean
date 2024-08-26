@@ -3,6 +3,8 @@
 
 import Katydid.Conal.Function
 
+namespace Decidability
+
 -- data Dec (A: Set l):Set l where
 --   yes: A → Dec A
 --   no :¬A → Dec A
@@ -78,3 +80,5 @@ def apply (f: A <=> B) (deca: Dec A): Dec B :=
 -- g ◃ a? = ↔Eq.sym g ▹ a?
 def apply' (f: B <=> A) (deca: Dec A): Dec B :=
   map? f.sym deca
+
+end Decidability

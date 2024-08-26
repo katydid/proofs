@@ -8,7 +8,7 @@ import Katydid.Std.Tipe
 
 namespace Calculus
 
-open dLang
+open Language
 open List
 open Char
 open String
@@ -58,12 +58,12 @@ def example_of_proof_relevant_parse2 : (concat (char 'a') (or (char 'b') (char '
 
 -- ν⇃ : Lang → Set ℓ      -- “nullable”
 -- ν⇃ P = P []
-def null' (P : dLang α) : Type u := -- backslash nu
+def null' (P : Lang α) : Type u := -- backslash nu
   P []
 
 -- δ⇃ : Lang → A → Lang   -- “derivative”
 -- δ⇃ P a w = P (a ∷ w)
-def derive' (P : dLang α) (a : α) : dLang α := -- backslash delta
+def derive' (P : Lang α) (a : α) : Lang α := -- backslash delta
   fun (w : List α) => P (a :: w)
 
 -- ν : (A ✶ → B) → B                -- “nullable”
@@ -165,7 +165,7 @@ def nullable_char':
 -- ν∪  : ν (P ∪ Q) ≡ (ν P ⊎ ν Q)
 -- ν∪ = refl
 def nullable_or:
-  ∀ (P Q: dLang α),
+  ∀ (P Q: Lang α),
     null' (or P Q) ≡ (Sum (null' P) (null' Q)) := by
   intro P Q
   constructor
@@ -174,7 +174,7 @@ def nullable_or:
 -- ν∩  : ν (P ∩ Q) ≡ (ν P × ν Q)
 -- ν∩ = refl
 def nullable_and:
-  ∀ (P Q: dLang α),
+  ∀ (P Q: Lang α),
     null' (and P Q) ≡ (Prod (null' P) (null' Q)) := by
   intro P Q
   constructor
@@ -183,8 +183,8 @@ def nullable_and:
 -- ν·  : ν (s · P) ≡ (s × ν P)
 -- ν· = refl
 def nullable_scalar:
-  ∀ (s: Type) (P: dLang α),
-    null' (dLang.scalar s P) ≡ (Prod s (null' P)) := by
+  ∀ (s: Type) (P: Lang α),
+    null' (scalar s P) ≡ (Prod s (null' P)) := by
   intro P Q
   constructor
   rfl
@@ -196,7 +196,7 @@ def nullable_scalar:
 --   (λ { (νP , νQ) → refl } )
 --   (λ { (([] , []) , refl , νP , νQ) → refl})
 def nullable_concat:
-  ∀ (P Q: dLang α),
+  ∀ (P Q: Lang α),
     null' (concat P Q) ≃ (Prod (null' Q) (null' P)) := by
   -- TODO
   sorry
@@ -230,7 +230,7 @@ def nullable_concat:
 --     (ν P) ✶
 --   ∎ where open ↔R
 def nullable_star:
-  ∀ (P: dLang α),
+  ∀ (P: Lang α),
     null' (star P) ≃ List (null' P) := by
   -- TODO
   sorry
@@ -275,7 +275,7 @@ def derivative_emptyStr: ∀ (w: List α), (derive' emptystr a) w <=> emptyset w
 -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
 def derivative_char:
   ∀ (a: α) (c: α),
-    (derive' (char c) a) ≡ dLang.scalar (a ≡ c) emptystr := by
+    (derive' (char c) a) ≡ scalar (a ≡ c) emptystr := by
     intros a c
     unfold derive'
     unfold char
@@ -286,7 +286,7 @@ def derivative_char:
 -- δ∪  : δ (P ∪ Q) a ≡ δ P a ∪ δ Q a
 -- δ∪ = refl
 def derivative_or:
-  ∀ (a: α) (P Q: dLang α),
+  ∀ (a: α) (P Q: Lang α),
     (derive' (or P Q) a) ≡ (or (derive' P a) (derive' Q a)) := by
   intro a P Q
   constructor
@@ -295,7 +295,7 @@ def derivative_or:
 -- δ∩  : δ (P ∩ Q) a ≡ δ P a ∩ δ Q a
 -- δ∩ = refl
 def derivative_and:
-  ∀ (a: α) (P Q: dLang α),
+  ∀ (a: α) (P Q: Lang α),
     (derive' (and P Q) a) ≡ (and (derive' P a) (derive' Q a)) := by
   intro a P Q
   constructor
@@ -304,8 +304,8 @@ def derivative_and:
 -- δ·  : δ (s · P) a ≡ s · δ P a
 -- δ· = refl
 def derivative_scalar:
-  ∀ (a: α) (s: Type) (P: dLang α),
-    (δ (dLang.scalar s P) a) ≡ (dLang.scalar s (derive' P a)) := by
+  ∀ (a: α) (s: Type) (P: Lang α),
+    (δ (scalar s P) a) ≡ (scalar s (derive' P a)) := by
   intro a s P
   constructor
   rfl
@@ -322,9 +322,9 @@ def derivative_scalar:
 --      ; ((.a ∷ u , v) , refl , Pu , Qv) → refl })
 -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
 def derivative_concat:
-  ∀ (a: α) (P Q: dLang α),
+  ∀ (a: α) (P Q: Lang α),
   -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
-    (derive' (concat P Q) a) ≡ dLang.scalar (null' P) (or (derive' Q a) (concat (derive' P a) Q)) := by
+    (derive' (concat P Q) a) ≡ scalar (null' P) (or (derive' Q a) (concat (derive' P a) Q)) := by
   -- TODO
   sorry
 
@@ -362,9 +362,9 @@ def derivative_concat:
 --   ∎ where open ↔R
 -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
 def derivative_star:
-  ∀ (a: α) (P: dLang α),
+  ∀ (a: α) (P: Lang α),
   -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
-    (derive' (star P) a) ≡ dLang.scalar (List (null' P)) (concat (derive' P a) (star P)) := by
+    (derive' (star P) a) ≡ scalar (List (null' P)) (concat (derive' P a) (star P)) := by
   -- TODO
   sorry
 
