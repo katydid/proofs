@@ -1,7 +1,7 @@
 -- A translation to Lean from Agda
 -- https://github.com/conal/paper-2021-language-derivatives/blob/main/Calculus.lagda
 
-import Katydid.Conal.LanguageNotation
+import Katydid.Conal.Language
 import Mathlib.Logic.Equiv.Defs -- ≃
 import Katydid.Std.Tipe
 open dLang
@@ -27,7 +27,7 @@ def example_of_proof_relevant_parse : (char 'a' ⋃ char 'b') (toList "a") -> Na
     | mk eq =>
       contradiction
 
-def example_of_proof_relevant_parse2 : (char 'a', (char 'b' ⋃ char 'c')) (toList "ab") -> Nat := by
+def example_of_proof_relevant_parse2 : (concat (char 'a') (char 'b' ⋃ char 'c')) (toList "ab") -> Nat := by
   intro x1
   simp at x1
   cases x1 with
@@ -178,7 +178,7 @@ def nullable_scalar:
 --   (λ { (([] , []) , refl , νP , νQ) → refl})
 def nullable_concat:
   ∀ (P Q: dLang α),
-    ν' (P, Q) ≃ (Prod (ν' Q) (ν' P)) := by
+    ν' (concat P Q) ≃ (Prod (ν' Q) (ν' P)) := by
   -- TODO
   sorry
 
@@ -301,7 +301,7 @@ def derivative_scalar:
 def derivative_concat:
   ∀ (a: α) (P Q: dLang α),
   -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
-    (δ' (P , Q) a) ≡ dLang.scalar (ν' P) ((δ' Q a) ⋃ ((δ' P a), Q)) := by
+    (δ' (concat P Q) a) ≡ dLang.scalar (ν' P) ((δ' Q a) ⋃ (concat (δ' P a) Q)) := by
   -- TODO
   sorry
 
@@ -341,6 +341,6 @@ def derivative_concat:
 def derivative_star:
   ∀ (a: α) (P: dLang α),
   -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
-    (δ' (P *) a) ≡ dLang.scalar (List (ν' P)) (δ' P a, P *) := by
+    (δ' (P *) a) ≡ dLang.scalar (List (ν' P)) (concat (δ' P a) (P *)) := by
   -- TODO
   sorry

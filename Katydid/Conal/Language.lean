@@ -30,6 +30,9 @@ def emptySet : dLang α :=
   -- PEmpty is a Sort, which works for both Prop and Type
   fun _ => PEmpty
 
+-- `(priority := high)` is required to avoid the error: "ambiguous, possible interpretations"
+notation (priority := high) "∅" => dLang.emptySet -- backslash emptyset
+
 -- 𝒰 : Lang
 -- 𝒰 w = ⊤
 def universal : dLang α :=
@@ -37,10 +40,14 @@ def universal : dLang α :=
   -- PUnit is a Sort, which works for both Prop and Type
   fun _ => PUnit
 
+notation "𝒰" => dLang.universal -- backslash McU
+
 -- 𝟏 : Lang
 -- 𝟏 w = w ≡ []
 def emptyStr : dLang α :=
   fun w => w ≡ []
+
+notation "ε" => dLang.emptyStr -- backslash epsilon
 
 -- ` : A → Lang
 -- ` c w = w ≡ [ c ]
@@ -53,17 +60,23 @@ def char (a : α): dLang α :=
 def scalar (s : Type u) (P : dLang α) : dLang α :=
   fun w => s × P w
 
+infixl:4 " · " => dLang.scalar -- backslash .
+
 -- infixr 6 _∪_
 -- _∪_ : Op₂ Lang
 -- (P ∪ Q) w = P w ⊎ Q w
 def or (P : dLang α) (Q : dLang α) : dLang α :=
   fun w => P w ⊕ Q w
 
+infixl:5 (priority := high) " ⋃ " => dLang.or -- backslash U
+
 -- infixr 6 _∩_
 -- _∩_ : Op₂ Lang
 -- (P ∩ Q) w = P w × Q w
 def and (P : dLang α) (Q : dLang α) : dLang α :=
   fun w => P w × Q w
+
+infixl:4 " ⋂ " => dLang.and -- backslash I
 
 -- infixl 7 _⋆_
 -- _⋆_ : Op₂ Lang
@@ -83,6 +96,8 @@ def star (P : dLang α) : dLang α :=
   fun (w : List α) =>
     Σ' (ws : List (List α)), (_pws: All P ws) ×' w = (List.join ws)
 
+postfix:6 "*" => dLang.star
+
 -- TODO: What does proof relevance even mean for the `not` operator?
 def not (P: dLang α) : dLang α :=
   fun (w: List α) =>
@@ -90,6 +105,20 @@ def not (P: dLang α) : dLang α :=
 
 -- attribute [simp] allows these definitions to be unfolded when using the simp tactic.
 attribute [simp] universal emptySet emptyStr char scalar or and concat star
+
+example: dLang α := 𝒰
+example: dLang α := ε
+example: dLang α := (ε ⋃ 𝒰)
+example: dLang α := (ε ⋂ 𝒰)
+example: dLang α := ∅
+example: dLang α := (∅*)
+example: dLang Char := char 'a'
+example: dLang Char := char 'b'
+example: dLang Char := (char 'a' ⋂ ∅)
+example: dLang Char := (char 'a' ⋂ char 'b')
+example: dLang Nat := (char 1 ⋂ char 2)
+example: (_t: Type) -> dLang Nat := (PUnit · char 2)
+example: dLang Nat := (concat (char 1) (char 2))
 
 -- 𝜈 :(A✶ → B) → B -- “nullable”
 -- 𝜈 f = f []
