@@ -108,7 +108,7 @@ def nullable_universal:
 --   (λ { tt → refl })
 --   (λ { refl → refl })
 def nullable_emptystr:
-  ∀ (α: Type),
+  ∀ {α: Type},
     @null' α emptystr ≃ PUnit := by
   intro α
   refine Equiv.mk ?a ?b ?c ?d
@@ -135,7 +135,7 @@ def nullable_emptyStr':
 -- ν`  : ν (` c) ↔ ⊥
 -- ν` = mk↔′ (λ ()) (λ ()) (λ ()) (λ ())
 def nullable_char:
-  ∀ (c: α),
+  ∀ {c: α},
     null' (char c) ≃ PEmpty := by
   intro α
   simp
@@ -196,8 +196,8 @@ def nullable_scalar:
 --   (λ { (νP , νQ) → refl } )
 --   (λ { (([] , []) , refl , νP , νQ) → refl})
 def nullable_concat:
-  ∀ (P Q: Lang α),
-    null' (concat P Q) ≃ (Prod (null' Q) (null' P)) := by
+  ∀ {P Q: Lang α},
+    null' (concat P Q) ≃ (Prod (null' P) (null' Q)) := by
   -- TODO
   sorry
 
@@ -230,7 +230,7 @@ def nullable_concat:
 --     (ν P) ✶
 --   ∎ where open ↔R
 def nullable_star:
-  ∀ (P: Lang α),
+  ∀ {P: Lang α},
     null' (star P) ≃ List (null' P) := by
   -- TODO
   sorry

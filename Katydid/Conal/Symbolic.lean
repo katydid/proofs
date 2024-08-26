@@ -6,7 +6,10 @@ import Katydid.Conal.Function
 import Katydid.Conal.Language
 import Katydid.Conal.Calculus
 
-inductive Lang {P Q : Language.Lang α}: (List α -> Type u) -> Type (u + 1) where
+namespace Symbolic
+
+-- data Lang : ◇.Lang → Set (suc ℓ) where
+inductive Lang: Language.Lang.{u} α -> Type (u + 1) where
   -- ∅ : Lang ◇.∅
   | emptyset : Lang Language.emptyset
   -- 𝒰 : Lang ◇.𝒰
@@ -25,5 +28,36 @@ inductive Lang {P Q : Language.Lang α}: (List α -> Type u) -> Type (u + 1) whe
   | concat : Lang P -> Lang Q -> Lang (Language.concat P Q)
   -- _☆  : Lang P → Lang (P ◇.☆)
   | star : Lang P -> Lang (Language.star P)
+  -- TODO: complete definition of Lang by adding the last operator:
   -- _◂_  : (Q ⟷ P) → Lang P → Lang Q
-  | iso : (Q ⟷ P) -> Lang P -> Lang Q
+  -- We tried this definition in Lean:
+  -- | iso {P Q: Language.Lang α}: (Q ⟷ P) -> Lang P -> Lang Q
+  -- But we got the following error:
+  -- "(kernel) declaration has free variables 'Symbolic.Lang.iso'"
+  -- The paper says: "The reason _◀_ must be part of the inductive representation is the same as the other constructors, namely so that the core lemmas (Figure 3) translate into an implementation in terms of that representation."
+
+-- ν  : Lang P → Dec (◇.ν P)
+def null (l: Lang R): Decidability.Dec (Calculus.null R) :=
+  match l with
+  -- ν ∅ = ⊥‽
+  | Lang.emptyset => Decidability.empty?
+  -- ν 𝒰 = ⊤‽
+  | Lang.universal => Decidability.unit?
+  -- ν 𝟏 = ν𝟏 ◃ ⊤‽
+  | Lang.emptystr => Decidability.apply' Calculus.nullable_emptystr Decidability.unit?
+  -- ν (p ∪ q) = ν p ⊎‽ ν q
+  | Lang.or p q => Decidability.sum? (null p) (null q)
+  -- ν (p ∩ q) = ν p ×‽ ν q
+  | Lang.and p q => Decidability.prod? (null p) (null q)
+  -- ν (s · p) = s ×‽ ν p
+  | Lang.scalar s p => Decidability.prod? s (null p)
+  -- ν (p ⋆ q) = ν⋆ ◃ (ν p ×‽ ν q)
+  | Lang.concat p q => Decidability.apply' Calculus.nullable_concat (Decidability.prod? (null p) (null q))
+  -- ν (p ☆) = ν☆ ◃ (ν p ✶‽)
+  | Lang.star p => Decidability.apply' Calculus.nullable_star (Decidability.list? (null p))
+  -- ν (` a) = ν` ◃ ⊥‽
+  | Lang.char a => Decidability.apply' Calculus.nullable_char Decidability.empty?
+  -- ν (f ◂ p) = f ◃ ν p
+  -- | Lang.iso f p => Decidability.apply' f (null p)
+
+end Symbolic
