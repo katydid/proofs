@@ -256,7 +256,7 @@ def derivative_char:
     intros a c
     unfold δ'
     unfold char
-    unfold emptyStr
+    unfold emptystr
     unfold scalar
     sorry
 
