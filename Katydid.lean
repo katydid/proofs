@@ -11,6 +11,7 @@ import Katydid.Expr.Desc
 import Katydid.Expr.Regex
 
 import Katydid.Conal.Decidability
+import Katydid.Conal.Function
 import Katydid.Conal.Language
 import Katydid.Conal.Calculus
 import Katydid.Conal.Examples
