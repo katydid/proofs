@@ -1,8 +1,7 @@
 -- A translation to Lean from Agda
 -- https://github.com/conal/paper-2021-language-derivatives/blob/main/Language.lagda
-import Katydid.Std.Tipe
 
-open List
+import Katydid.Std.Tipe
 
 -- module Language {ℓ} (A : Set ℓ) where
 universe u
@@ -25,13 +24,13 @@ variable {α : Type u}
 
 -- ∅ : Lang
 -- ∅ w = ⊥
-def emptySet : dLang α :=
+def emptyset : dLang α :=
   -- PEmpty is Empty, but allows specifying the universe
   -- PEmpty is a Sort, which works for both Prop and Type
   fun _ => PEmpty
 
 -- `(priority := high)` is required to avoid the error: "ambiguous, possible interpretations"
-notation (priority := high) "∅" => dLang.emptySet -- backslash emptyset
+notation (priority := high) "∅" => dLang.emptyset -- backslash emptyset
 
 -- 𝒰 : Lang
 -- 𝒰 w = ⊤
@@ -44,10 +43,10 @@ notation "𝒰" => dLang.universal -- backslash McU
 
 -- 𝟏 : Lang
 -- 𝟏 w = w ≡ []
-def emptyStr : dLang α :=
+def emptystr : dLang α :=
   fun w => w ≡ []
 
-notation "ε" => dLang.emptyStr -- backslash epsilon
+notation "ε" => dLang.emptystr -- backslash epsilon
 
 -- ` : A → Lang
 -- ` c w = w ≡ [ c ]
@@ -98,13 +97,8 @@ def star (P : dLang α) : dLang α :=
 
 postfix:6 "*" => dLang.star
 
--- TODO: What does proof relevance even mean for the `not` operator?
-def not (P: dLang α) : dLang α :=
-  fun (w: List α) =>
-    P w -> Empty
-
 -- attribute [simp] allows these definitions to be unfolded when using the simp tactic.
-attribute [simp] universal emptySet emptyStr char scalar or and concat star
+attribute [simp] universal emptyset emptystr char scalar or and concat star
 
 example: dLang α := 𝒰
 example: dLang α := ε
@@ -140,55 +134,6 @@ def δ (f: dLang α) (a: α): (dLang α) :=
   𝒟 f [a]
 
 end dLang
-
--- data Dec (A: Set l):Set l where
---   yes: A → Dec A
---   no :¬A → Dec A
-inductive Dec (α: Type u): Type u where
-  | yes: α -> Dec α
-  | no: (α -> PEmpty.{u}) -> Dec α
-
--- ⊥? : Dec ⊥
--- ⊥? =no(𝜆())
-def empty? : Dec PEmpty :=
-  Dec.no (by intro; contradiction)
-
-def unit? : Dec PUnit :=
-  Dec.yes PUnit.unit
-
-def sum? (a: Dec α) (b: Dec β): Dec (α ⊕ β) :=
-  match (a, b) with
-  | (Dec.no a, Dec.no b) =>
-    Dec.no (fun ab =>
-      match ab with
-      | Sum.inl sa => a sa
-      | Sum.inr sb => b sb
-    )
-  | (Dec.yes a, Dec.no _) =>
-    Dec.yes (Sum.inl a)
-  | (_, Dec.yes b) =>
-    Dec.yes (Sum.inr b)
-
-def prod? (a: Dec α) (b: Dec β): Dec (α × β) :=
-  match (a, b) with
-  | (Dec.yes a, Dec.yes b) => Dec.yes (Prod.mk a b)
-  | (Dec.no a, Dec.yes _) => Dec.no (fun ⟨a', _⟩ => a a')
-  | (_, Dec.no b) => Dec.no (fun ⟨_, b'⟩ => b b')
-
-def list?: Dec α -> Dec (List α) := fun _ => Dec.yes []
-
-
-
-inductive Lang : (List α -> Type u) -> Type (u + 1) where
-  -- | emptySet : Lang dLang.emptySet
-  | universal : Lang (fun _ => PUnit)
-  -- | emptyStr : Lang dLang.emptyStr
-  -- | char {a: Type u}: (a: α) -> Lang (dLang.char a)
-  -- | or : Lang P -> Lang Q -> Lang (dLang.or P Q)
-  -- | and : Lang P -> Lang Q -> Lang (dLang.and P Q)
-  -- | scalar {s: Type u}: (Dec s) -> Lang P -> Lang (dLang.scalar s P)
-  -- | concat : Lang P -> Lang Q -> Lang (dLang.concat P Q)
-  -- | star : Lang P -> Lang (dLang.star P)
 
 -- TODO: 𝜈 : Lang P → Dec (⋄.𝜈 P)
 -- theorem ν {α: Type u} {P: dLang α} (f: Lang P): Dec (dLang.ν P) := by
