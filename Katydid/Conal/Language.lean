@@ -97,19 +97,19 @@ example: Lang Nat := (concat (char 1) (char 2))
 -- 𝜈 f = f []
 -- nullable
 -- ν = backslash nu
-def null (f: List α -> β): β :=
+def null {α: Type u} {β: Type v} (f: List α -> β): β :=
   f []
 
 -- 𝒟: (A✶ → B) → A✶ → (A✶ → B) -- “derivative”
 -- 𝒟 f u = 𝜆 v → f (u + v)
 -- 𝒟 = backslash McD
-def derives (f: List α -> β) (u: List α): (List α -> β) :=
+def derives {α: Type u} {β: Type v} (f: List α -> β) (u: List α): (List α -> β) :=
   fun v => f (u ++ v)
 
 -- 𝛿 : (A✶ → B) → A → (A✶ → B)
 -- 𝛿 f a = 𝒟 f [a]
 -- δ = backslash delta or backslash Gd
-def derive (f: List α -> β) (a: α): (List α -> β) :=
+def derive {α: Type u} {β: Type v} (f: List α -> β) (a: α): (List α -> β) :=
   derives f [a]
 
 end Language
