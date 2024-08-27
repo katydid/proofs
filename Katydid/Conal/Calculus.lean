@@ -298,7 +298,7 @@ def derive_and:
 -- δ· = refl
 def derive_scalar:
   ∀ {a: α} {s: Type} {P: Lang α},
-    (δ (scalar s P) a) ≡ (scalar s (derive P a)) := by
+    (derive (scalar s P) a) ≡ (scalar s (derive P a)) := by
   intro a s P
   constructor
   rfl
