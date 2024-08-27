@@ -1,9 +1,6 @@
 -- Tipe is a collection of standard types and functions associated with Type,
 -- that we would expect to be in the Lean standard library at some point in future.
--- The file is named Tipe, since it is Afrikaans for Type and common way to avoid using the keyword Type, since it has the same pronounciation as type.
-
--- required for `attribute [refl]`
-import Mathlib.Init.Algebra.Classes
+-- The file is named Tipe, since it is Afrikaans for Type and common way to avoid using the keyword Type, since in English it has the same pronounciation as type.
 
 example {α : Type u} {a b : α} (p q : a = b) : p = q := by
   cases p
@@ -28,7 +25,7 @@ attribute [simp] trfl
 infixl:65 " ≡ " => TEq
 
 example : 1 ≡ 1 := by
-  constructor -- we need to destruct before we can call rfl
+  constructor -- It is annoying, but we need to destruct before we can call rfl
   rfl
 
 example : 1 ≡ 1 := by

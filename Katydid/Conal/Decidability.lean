@@ -12,15 +12,6 @@ class inductive Dec (P: Type u): Type u where
   | yes: P -> Dec P
   | no: (P -> PEmpty.{u + 1}) -> Dec P
 
-@[inline_if_reduce, nospecialize] def Dec.decide (P : Type) [h : Dec P] : Bool :=
-  h.casesOn (fun _ => false) (fun _ => true)
-
-abbrev DecPred {α : Type u} (r : α → Type) :=
-  (a : α) → Dec (r a)
-
-abbrev DecRel {α : Type u} (r : α → α → Type) :=
-  (a b : α) → Dec (r a b)
-
 abbrev DecEq (α : Type u) :=
   (a b : α) → Dec (a ≡ b)
 
