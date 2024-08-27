@@ -1,10 +1,9 @@
 -- A translation to Lean from Agda
 -- https://github.com/conal/paper-2021-language-derivatives/blob/main/Calculus.lagda
 
+import Katydid.Std.Tipe
 import Katydid.Conal.Function
 import Katydid.Conal.Language
-import Mathlib.Logic.Equiv.Defs -- ≃
-import Katydid.Std.Tipe
 
 namespace Calculus
 
