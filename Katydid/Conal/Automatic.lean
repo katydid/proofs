@@ -137,7 +137,7 @@ def char {α: Type u} [Decidability.DecEq α] (c: α): Lang (Language.char c) :=
   (null := Decidability.apply' Calculus.null_char Decidability.empty?)
   -- δ (` c) a = δ` ◂ ((a ≟ c) · 𝟏)
   (derive := fun (a: α) =>
-     let cmp: Decidability.Dec (a ≡ c) := Decidability.decEq a c
+    let cmp: Decidability.Dec (a ≡ c) := Decidability.decEq a c
     (iso Calculus.derive_char
       (scalar cmp emptystr)
     )
