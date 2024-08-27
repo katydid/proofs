@@ -262,7 +262,7 @@ def derive_emptystr {α: Type u} {a: α}:
 --   (λ { (refl , refl) → refl })
 --   (λ { refl → refl })
 def derive_char {α: Type u}:
-  ∀ {w: List α} {a: α} {c: α},
+  ∀ {a: α} {c: α} {w: List α},
     (derive (char c) a) w <=> (scalar (a ≡ c) emptystr) w := by
     intros a c
     unfold derive
@@ -309,7 +309,7 @@ def derive_scalar {α: Type u}:
 --   (λ { (([] , .(a ∷ w)) , refl , νP , Qaw) → refl
 --      ; ((.a ∷ u , v) , refl , Pu , Qv) → refl })
 def derive_concat {α: Type u}:
-  ∀ {w: List α} {a: α} {P Q: Lang α},
+  ∀ {a: α} {P Q: Lang α} {w: List α},
     (derive (concat P Q) a) w <=> (scalar (null P) (or (derive Q a) (concat (derive P a) Q))) w := by
   -- TODO
   sorry
@@ -347,7 +347,7 @@ def derive_concat {α: Type u}:
 --     ((ν P) ✶ · (δ P a ⋆ P ☆)) w
 --   ∎ where open ↔R
 def derive_star {α: Type u}:
-  ∀ {w: List α} {a: α} {P: Lang α},
+  ∀ {a: α} {P: Lang α} {w: List α},
     (derive (star P) a) w <=> (scalar (List (null P)) (concat (derive P a) (star P))) w := by
   -- TODO
   sorry

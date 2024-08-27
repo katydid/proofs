@@ -11,8 +11,9 @@ namespace Automatic
 --     ν : Dec (◇.ν P)
 --     δ : (a : A) → Lang (◇.δ P a)
 
--- we need "unsafe" otherwise we get the following error: (kernel) arg #4 of 'Automatic.Lang.mk' contains a non valid occurrence of the datatypes being declaredLean 4
 unsafe
+-- we need "unsafe" otherwise we get the following error:
+-- "(kernel) arg #4 of 'Automatic.Lang.mk' contains a non valid occurrence of the datatypes being declared"
 inductive Lang {α: Type u} (R: Language.Lang α): Type (u) where
   | mk
    (null: Decidability.Dec (Calculus.null R))

@@ -1,7 +1,6 @@
 -- An approximation of the Function module in the Agda standard library.
 
 import Katydid.Conal.Tipe
-import Mathlib.Logic.Equiv.Defs
 
 -- A ↔ B = Inverse A B
 
@@ -55,9 +54,8 @@ structure TEquiv (α : Type u) (β : Type u) where
   leftInv : leftInverse invFun toFun
   rightInv : rightInverse invFun toFun
 
--- We consider the two definitions of equivalent to be equivalent
+-- We consider the three definitions of equivalent (Equiv, TEquiv and Agda's Inverse) to be equivalent
 
-@[inherit_doc]
 infixr:25 " <=> " => TEquiv
 
 -- ↔Eq.sym
@@ -65,7 +63,9 @@ def TEquiv.sym (e: A <=> B): B <=> A :=
   ⟨e.invFun, e.toFun, e.rightInv, e.leftInv⟩
 
 -- Extensional (or “pointwise”) isomorphism relates predicates isomorphic on every argument: P ←→ Q = ∀ {w} → P w ↔ Q w
-def ETEquiv {w: List α} (a b: List α -> Type u) := (a w) <=> (b w)
+def ETEquiv (a b: List α -> Type u) := ∀ {w: List α}, (a w) <=> (b w)
+
+infixr:25 " ⟷ " => ETEquiv
 
 -- Note: We see that proofs that need ⟷ are typically proven using mk↔′
 -- δ𝟏  : δ 𝟏 a ⟷ ∅
