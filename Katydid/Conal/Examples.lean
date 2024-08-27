@@ -48,21 +48,15 @@ example : (concat (char 'a') (char 'b')) (String.toList "ab") :=
 example : (concat (char 'a') (char 'b')) (String.toList "ab") :=
   PSigma.mk ['a'] (PSigma.mk ['b'] (PSigma.mk trfl (PSigma.mk trfl rfl)))
 
-example : (star (char 'a')) (String.toList "a") := by sorry
-  -- TODO:
-  -- simp
-  -- refine ⟨[['a']], ?a ⟩
-  -- refine ⟨ by simp; , ?b ⟩
-  -- apply All.cons
-  -- · simp; rfl
-  -- · apply All.nil
+example : (star (char 'a')) (String.toList "a") := by
+  refine ⟨[['a']], ?a⟩
+  refine ⟨?b, rfl⟩
+  apply All.cons
+  · exact trfl
+  · apply All.nil
 
-example : (star (char 'a')) (String.toList "a") := by sorry
-  -- TODO:
-  -- simp
-  -- refine ⟨[['a']], ?a ⟩
-  -- refine ⟨ trifle, ?b ⟩
-  -- exact All.cons trifle All.nil
+example : (star (char 'a')) (String.toList "a") := by
+  exact ⟨_, All.cons trfl All.nil, rfl⟩
 
 -- a∪b☆ : Lang
 -- a∪b☆ = a∪b ☆
@@ -71,24 +65,16 @@ example : (star (char 'a')) (String.toList "a") := by sorry
 -- _ = [ 'a' ] ∷ [ 'b' ] ∷ [ 'a' ] ∷ []
 --   , refl
 --   , inj₁ refl ∷ inj₂ refl ∷ inj₁ refl ∷ []
-example : (star (or (char 'a') (char 'b'))) (String.toList "aba") := by sorry
-  -- TODO:
-  -- simp
-  -- refine ⟨ [['a'], ['b'], ['a']] , ?a ⟩
-  -- refine ⟨ trifle, ?b ⟩
-  -- apply All.cons
-  -- · apply Sum.inl
-  --   simp; rfl
-  -- · apply All.cons
-  --   · apply Sum.inr
-  --     simp; rfl
-  --   · apply All.cons
-  --     · apply Sum.inl
-  --       simp; rfl
-  --     · apply All.nil
+example : (star (or (char 'a') (char 'b'))) (String.toList "aba") := by
+  refine ⟨[['a'], ['b'], ['a']], ?a⟩
+  refine ⟨?b, rfl⟩
+  apply All.cons
+  · exact Sum.inl trfl
+  · apply All.cons
+    · exact Sum.inr trfl
+    · apply All.cons
+      · exact Sum.inl trfl
+      · apply All.nil
 
-example : (star (or (char 'a') (char 'b'))) (String.toList "aba") := by sorry
-  -- TODO:
-  -- ⟨ [['a'], ['b'], ['a']],
-  --   trifle,
-  --   Sum.inl trifle ∷ Sum.inr trifle ∷ Sum.inl trifle ∷ ∀[]⟩
+example : (star (or (char 'a') (char 'b'))) (String.toList "aba") := by
+  exact ⟨_, All.cons (Sum.inl trfl) (All.cons (Sum.inr trfl) (All.cons (Sum.inl trfl) All.nil)), rfl⟩
