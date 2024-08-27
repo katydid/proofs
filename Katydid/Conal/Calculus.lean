@@ -78,25 +78,25 @@ def derives (f: List α -> β) (u: List α): (List α -> β) :=
 
 -- δ : (A ✶ → B) → A → (A ✶ → B)
 -- δ f a = 𝒟 f [ a ]
-def derive (f: List α -> β) (a: α): (List α -> β) :=
+def derive (f: Lang α) (a: α): (Lang α) :=
   derives f [a]
 
 attribute [simp] null' derive'
 
 -- ν∅  : ν ∅ ≡ ⊥
 -- ν∅ = refl
-def nullable_emptySet:
-  ∀ (α: Type),
-    @null' α emptyset ≡ PEmpty := by
+def null_emptyset:
+  ∀ {α: Type},
+    @null α _ emptyset ≡ PEmpty := by
   intro α
   constructor
   rfl
 
 -- ν𝒰  : ν 𝒰 ≡ ⊤
 -- ν𝒰 = refl
-def nullable_universal:
-  ∀ (α: Type),
-    @null' α universal ≡ PUnit := by
+def null_universal:
+  ∀ {α: Type},
+    @null α _ universal ≡ PUnit := by
   intro α
   constructor
   rfl
@@ -107,9 +107,9 @@ def nullable_universal:
 --   (λ { tt → refl })
 --   (λ { tt → refl })
 --   (λ { refl → refl })
-def nullable_emptystr:
+def null_emptystr:
   ∀ {α: Type},
-    @null' α emptystr ≃ PUnit := by
+    @null α _ emptystr <=> PUnit := by
   intro α
   refine Equiv.mk ?a ?b ?c ?d
   intro _
@@ -123,10 +123,11 @@ def nullable_emptystr:
   intro _
   simp
 
-def nullable_emptyStr':
-  ∀ (α: Type),
-    @null' α emptystr ≃ PUnit :=
-    fun _ => Equiv.mk
+-- An alternative "proof" of null_emptystr not using tactics
+def null_emptystr':
+  ∀ {α: Type},
+    @null α _ emptystr <=> PUnit :=
+    Equiv.mk
       (fun _ => PUnit.unit)
       (fun _ => by constructor; rfl)
       (sorry)
@@ -134,11 +135,10 @@ def nullable_emptyStr':
 
 -- ν`  : ν (` c) ↔ ⊥
 -- ν` = mk↔′ (λ ()) (λ ()) (λ ()) (λ ())
-def nullable_char:
+def null_char:
   ∀ {c: α},
-    null' (char c) ≃ PEmpty := by
-  intro α
-  simp
+    null (char c) <=> PEmpty := by
+  intro c
   apply Equiv.mk
   intro x
   cases x with
@@ -149,42 +149,29 @@ def nullable_char:
   sorry
   sorry
 
-def nullable_char':
-  ∀ (c: α),
-    null' (char c) -> PEmpty := by
-  intro
-  refine (fun x => ?c)
-  simp at x
-  cases x with
-  | mk x =>
-    contradiction
-
--- set_option pp.all true
--- #print nullable_char'
-
 -- ν∪  : ν (P ∪ Q) ≡ (ν P ⊎ ν Q)
 -- ν∪ = refl
-def nullable_or:
-  ∀ (P Q: Lang α),
-    null' (or P Q) ≡ (Sum (null' P) (null' Q)) := by
+def null_or:
+  ∀ {P Q: Lang α},
+    null (or P Q) ≡ (Sum (null P) (null Q)) := by
   intro P Q
   constructor
   rfl
 
 -- ν∩  : ν (P ∩ Q) ≡ (ν P × ν Q)
 -- ν∩ = refl
-def nullable_and:
-  ∀ (P Q: Lang α),
-    null' (and P Q) ≡ (Prod (null' P) (null' Q)) := by
+def null_and:
+  ∀ {P Q: Lang α},
+    null (and P Q) ≡ (Prod (null P) (null Q)) := by
   intro P Q
   constructor
   rfl
 
 -- ν·  : ν (s · P) ≡ (s × ν P)
 -- ν· = refl
-def nullable_scalar:
-  ∀ (s: Type) (P: Lang α),
-    null' (scalar s P) ≡ (Prod s (null' P)) := by
+def null_scalar:
+  ∀ {s: Type} {P: Lang α},
+    null (scalar s P) ≡ (Prod s (null P)) := by
   intro P Q
   constructor
   rfl
@@ -195,9 +182,9 @@ def nullable_scalar:
 --   (λ { (νP , νQ) → ([] , []) , refl , νP , νQ })
 --   (λ { (νP , νQ) → refl } )
 --   (λ { (([] , []) , refl , νP , νQ) → refl})
-def nullable_concat:
+def null_concat:
   ∀ {P Q: Lang α},
-    null' (concat P Q) ≃ (Prod (null' P) (null' Q)) := by
+    null (concat P Q) <=> (Prod (null P) (null Q)) := by
   -- TODO
   sorry
 
@@ -229,37 +216,38 @@ def nullable_concat:
 --   ≈⟨ ν✪ ⟩
 --     (ν P) ✶
 --   ∎ where open ↔R
-def nullable_star:
+def null_star:
   ∀ {P: Lang α},
-    null' (star P) ≃ List (null' P) := by
+    null (star P) ≃ List (null P) := by
   -- TODO
   sorry
 
 -- δ∅  : δ ∅ a ≡ ∅
 -- δ∅ = refl
-def derivative_emptySet:
-  ∀ (a: α),
-    (derive' emptyset a) ≡ emptyset := by
+def derive_emptyset:
+  ∀ {a: α},
+    (derive emptyset a) ≡ emptyset := by
   intro a
   constructor
   rfl
 
 -- δ𝒰  : δ 𝒰 a ≡ 𝒰
 -- δ𝒰 = refl
-def derivative_universal:
-  ∀ (a: α),
-    (derive' universal a) ≡ universal := by
+def derive_universal:
+  ∀ {a: α},
+    (derive universal a) ≡ universal := by
   intro a
   constructor
   rfl
 
 -- δ𝟏  : δ 𝟏 a ⟷ ∅
 -- δ𝟏 = mk↔′ (λ ()) (λ ()) (λ ()) (λ ())
-def derivative_emptyStr: ∀ (w: List α), (derive' emptystr a) w <=> emptyset w := by
+def derive_emptystr:
+  ∀ {w: List α},
+    (derive emptystr a) w <=> emptyset w := by
   intro w
   constructor
   · intro D
-    simp at D
     cases D
     next D =>
     contradiction
@@ -279,12 +267,11 @@ def derivative_emptyStr: ∀ (w: List α), (derive' emptystr a) w <=> emptyset w
 --   (λ { (refl , refl) → refl })
 --   (λ { (refl , refl) → refl })
 --   (λ { refl → refl })
--- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
-def derivative_char:
-  ∀ (a: α) (c: α),
-    (derive' (char c) a) ≡ scalar (a ≡ c) emptystr := by
+def derive_char:
+  ∀ {w: List α} {a: α} {c: α},
+    (derive (char c) a) w <=> (scalar (a ≡ c) emptystr) w := by
     intros a c
-    unfold derive'
+    unfold derive
     unfold char
     unfold emptystr
     unfold scalar
@@ -292,27 +279,27 @@ def derivative_char:
 
 -- δ∪  : δ (P ∪ Q) a ≡ δ P a ∪ δ Q a
 -- δ∪ = refl
-def derivative_or:
-  ∀ (a: α) (P Q: Lang α),
-    (derive' (or P Q) a) ≡ (or (derive' P a) (derive' Q a)) := by
+def derive_or:
+  ∀ {a: α} {P Q: Lang α},
+    (derive (or P Q) a) ≡ (or (derive P a) (derive Q a)) := by
   intro a P Q
   constructor
   rfl
 
 -- δ∩  : δ (P ∩ Q) a ≡ δ P a ∩ δ Q a
 -- δ∩ = refl
-def derivative_and:
-  ∀ (a: α) (P Q: Lang α),
-    (derive' (and P Q) a) ≡ (and (derive' P a) (derive' Q a)) := by
+def derive_and:
+  ∀ {a: α} {P Q: Lang α},
+    (derive (and P Q) a) ≡ (and (derive P a) (derive Q a)) := by
   intro a P Q
   constructor
   rfl
 
 -- δ·  : δ (s · P) a ≡ s · δ P a
 -- δ· = refl
-def derivative_scalar:
-  ∀ (a: α) (s: Type) (P: Lang α),
-    (δ (scalar s P) a) ≡ (scalar s (derive' P a)) := by
+def derive_scalar:
+  ∀ {a: α} {s: Type} {P: Lang α},
+    (δ (scalar s P) a) ≡ (scalar s (derive P a)) := by
   intro a s P
   constructor
   rfl
@@ -327,11 +314,9 @@ def derivative_scalar:
 --      ; (inj₂ ((u , v) , refl , Pu , Qv)) → refl })
 --   (λ { (([] , .(a ∷ w)) , refl , νP , Qaw) → refl
 --      ; ((.a ∷ u , v) , refl , Pu , Qv) → refl })
--- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
-def derivative_concat:
-  ∀ (a: α) (P Q: Lang α),
-  -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
-    (derive' (concat P Q) a) ≡ scalar (null' P) (or (derive' Q a) (concat (derive' P a) Q)) := by
+def derive_concat:
+  ∀ {w: List α} {a: α} {P Q: Lang α},
+    (derive (concat P Q) a) w <=> (scalar (null P) (or (derive Q a) (concat (derive P a) Q))) w := by
   -- TODO
   sorry
 
@@ -367,11 +352,9 @@ def derivative_concat:
 --   ≈⟨ ×-congˡ (⋆-congˡ ✪↔☆) ⟩
 --     ((ν P) ✶ · (δ P a ⋆ P ☆)) w
 --   ∎ where open ↔R
--- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
-def derivative_star:
-  ∀ (a: α) (P: Lang α),
-  -- TODO: Redo this definition to do extensional isomorphism: `⟷` properly
-    (derive' (star P) a) ≡ scalar (List (null' P)) (concat (derive' P a) (star P)) := by
+def derive_star:
+  ∀ {w: List α} {a: α} {P: Lang α},
+    (derive (star P) a) w <=> (scalar (List (null P)) (concat (derive P a) (star P))) w := by
   -- TODO
   sorry
 

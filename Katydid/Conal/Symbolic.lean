@@ -37,14 +37,14 @@ inductive Lang: Language.Lang.{u} α -> Type (u + 1) where
   -- The paper says: "The reason _◀_ must be part of the inductive representation is the same as the other constructors, namely so that the core lemmas (Figure 3) translate into an implementation in terms of that representation."
 
 -- ν  : Lang P → Dec (◇.ν P)
-def null (l: Lang R): Decidability.Dec (Calculus.null R) :=
+def null (l: Lang P): Decidability.Dec (Calculus.null P) :=
   match l with
   -- ν ∅ = ⊥‽
   | Lang.emptyset => Decidability.empty?
   -- ν 𝒰 = ⊤‽
   | Lang.universal => Decidability.unit?
   -- ν 𝟏 = ν𝟏 ◃ ⊤‽
-  | Lang.emptystr => Decidability.apply' Calculus.nullable_emptystr Decidability.unit?
+  | Lang.emptystr => Decidability.apply' Calculus.null_emptystr Decidability.unit?
   -- ν (p ∪ q) = ν p ⊎‽ ν q
   | Lang.or p q => Decidability.sum? (null p) (null q)
   -- ν (p ∩ q) = ν p ×‽ ν q
@@ -52,12 +52,56 @@ def null (l: Lang R): Decidability.Dec (Calculus.null R) :=
   -- ν (s · p) = s ×‽ ν p
   | Lang.scalar s p => Decidability.prod? s (null p)
   -- ν (p ⋆ q) = ν⋆ ◃ (ν p ×‽ ν q)
-  | Lang.concat p q => Decidability.apply' Calculus.nullable_concat (Decidability.prod? (null p) (null q))
+  | Lang.concat p q => Decidability.apply' Calculus.null_concat (Decidability.prod? (null p) (null q))
   -- ν (p ☆) = ν☆ ◃ (ν p ✶‽)
-  | Lang.star p => Decidability.apply' Calculus.nullable_star (Decidability.list? (null p))
+  | Lang.star p => Decidability.apply' Calculus.null_star (Decidability.list? (null p))
   -- ν (` a) = ν` ◃ ⊥‽
-  | Lang.char a => Decidability.apply' Calculus.nullable_char Decidability.empty?
+  | Lang.char a => Decidability.apply' Calculus.null_char Decidability.empty?
+  -- TODO: Add the case for language iso morphism, once the Lang.iso operator is added:
   -- ν (f ◂ p) = f ◃ ν p
   -- | Lang.iso f p => Decidability.apply' f (null p)
+
+-- δ  : Lang P → (a : A) → Lang (◇.δ P a)
+-- def derive (l: @Lang α P) (a: α): Lang (Calculus.derive P a) :=
+--   match l with
+--   -- δ ∅ a = ∅
+--   | Lang.emptyset => Lang.emptyset
+--   -- δ 𝒰 a = 𝒰
+--   | Lang.universal => Lang.universal
+--   -- δ (p ∪ q) a = δ p a ∪ δ q a
+--   | Lang.or p q => Lang.or (derive p a) (derive q a)
+--   -- δ (p ∩ q) a = δ p a ∩ δ q a
+--   | Lang.and p q => Lang.and (derive p a) (derive q a)
+--   -- δ (s · p) a = s · δ p a
+--   | Lang.scalar s p => Lang.scalar s (derive p a)
+--   -- δ 𝟏 a = δ𝟏 ◂ ∅
+--   | Lang.emptystr => (Lang.iso Calculus.derive_emptystr Lang.emptyset)
+--   -- δ (p ⋆ q) a = δ⋆ ◂ (ν p · δ q a ∪ δ p a ⋆ q)
+--   | Lang.concat p q =>
+--     (Lang.iso Calculus.derive_concat
+--       (Lang.scalar (null p)
+--         (Lang.or
+--           (derive q a)
+--           (Lang.concat (derive p a) q)
+--         )
+--       )
+--     )
+--   -- δ (p ☆) a = δ☆ ◂ (ν p ✶‽ · (δ p a ⋆ p ☆))
+--   | Lang.star p =>
+--     (Lang.iso Calculus.derive_star
+--       (Lang.scalar
+--         (Decidability.list? (null p))
+--         (Lang.concat (derive p a) (Lang.star p))
+--       )
+--     )
+--   -- δ (` c) a = δ` ◂ ((a ≟ c) · 𝟏)
+--   | Lang.char c =>
+--     (Lang.iso Calculus.derive_char
+--       -- TODO: not sure if ≟ is the same as ≡
+--       (Lang.scalar (a ≡ c) Lang.emptystr)
+--     )
+  -- TODO: Add the case for language iso morphism, once the Lang.iso operator is added:
+  -- δ (f ◂ p) a = f ◂ δ p a
+  -- | Lang.iso f p => Lang.iso f (derive p a)
 
 end Symbolic
