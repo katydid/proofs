@@ -5,8 +5,9 @@
 -- The definitions of null and derive for each operator, should look as similar to each other as possible.
 -- Reusing the same definitions in Language.lean and proofs in Calculus.lean.
 
--- Symbolic.lean is defined column based, by have a complete definition for a single function (null and derive)
--- as opposed to Automatic.lean which is defined row based and needs to define both functions for a single operator to complete a definition.
+-- Symbolic.lean is defined column based. This means it has a complete definition for each single function (null and derive),
+-- but we need to complete the definition for each operator to finalize a function, so we only have two definitions.
+-- Whereas Automatic.lean is defined row based and needs to define both functions for each single operator to complete a definition, so we have a definition per operator.
 -- Symbolic.lean has definitions of null and derive that we are familiar with, but it doesn't allow the user of the library the flexibility to add their own operators.
 
 import Katydid.Conal.Decidability

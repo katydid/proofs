@@ -5,7 +5,7 @@
 -- The definitions of null and derive for each operator, should look as similar to each other as possible.
 -- Reusing the same definitions in Language.lean and proofs in Calculus.lean.
 
--- Automatic.lean is defined row based, by have a complete definition for a single operator.
+-- Automatic.lean is defined row based, it has a complete definition for each single operator
 -- as opposed to Symbolic.lean which is defined row based and requires all operators to define a single function.
 -- Automatic.lean gives the flexibility to the user of the library to add their own operators.
 -- It is almost like each operator is a type class, that needs to implement the derive and null functions.
