@@ -43,20 +43,29 @@ import Mathlib.Logic.Equiv.Defs
 --   protected left_inv : LeftInverse invFun toFun
 --   protected right_inv : RightInverse invFun toFun
 
+def leftInverse {α β: Type u} (g : β → α) (f : α → β) : Type u :=
+  ∀ x, g (f x) ≡ x
+
+def rightInverse {α β: Type u} (g : β → α) (f : α → β) : Type u :=
+  leftInverse f g
+
+structure TEquiv (α : Type u) (β : Type u) where
+  toFun : α → β
+  invFun : β → α
+  leftInv : leftInverse invFun toFun
+  rightInv : rightInverse invFun toFun
+
 -- We consider the two definitions of equivalent to be equivalent
 
 @[inherit_doc]
-infixr:25 " <=> " => Equiv
+infixr:25 " <=> " => TEquiv
 
 -- ↔Eq.sym
-def Equiv.sym (e: A <=> B): B <=> A :=
-  ⟨e.invFun, e.toFun, e.right_inv, e.left_inv⟩
+def TEquiv.sym (e: A <=> B): B <=> A :=
+  ⟨e.invFun, e.toFun, e.rightInv, e.leftInv⟩
 
 -- Extensional (or “pointwise”) isomorphism relates predicates isomorphic on every argument: P ←→ Q = ∀ {w} → P w ↔ Q w
-def EEquiv {w: List α} (a b: List α -> Type u) := (a w) <=> (b w)
-
--- blackslash <-->
-infixr:100 " ⟷ " => EEquiv
+def ETEquiv {w: List α} (a b: List α -> Type u) := (a w) <=> (b w)
 
 -- Note: We see that proofs that need ⟷ are typically proven using mk↔′
 -- δ𝟏  : δ 𝟏 a ⟷ ∅

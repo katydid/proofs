@@ -110,23 +110,25 @@ def null_emptystr:
   ∀ {α: Type},
     @null α _ emptystr <=> PUnit := by
   intro α
-  refine Equiv.mk ?a ?b ?c ?d
-  intro _
-  exact PUnit.unit
-  intro _
-  constructor
-  rfl
-  intro c
-  simp
-  constructor
-  intro _
-  simp
+  refine TEquiv.mk ?a ?b ?c ?d
+  · intro _
+    exact PUnit.unit
+  · intro _
+    constructor
+    rfl
+  · intro c
+    simp
+    constructor
+    constructor
+  · intro _
+    constructor
+    simp
 
 -- An alternative "proof" of null_emptystr not using tactics
 def null_emptystr':
   ∀ {α: Type},
     @null α _ emptystr <=> PUnit :=
-    Equiv.mk
+    TEquiv.mk
       (fun _ => PUnit.unit)
       (fun _ => by constructor; rfl)
       (sorry)
@@ -138,7 +140,7 @@ def null_char:
   ∀ {c: α},
     null (char c) <=> PEmpty := by
   intro c
-  apply Equiv.mk
+  apply TEquiv.mk
   intro x
   cases x with
   | mk x =>
@@ -217,7 +219,7 @@ def null_concat:
 --   ∎ where open ↔R
 def null_star:
   ∀ {P: Lang α},
-    null (star P) ≃ List (null P) := by
+    null (star P) <=> List (null P) := by
   -- TODO
   sorry
 

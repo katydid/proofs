@@ -392,7 +392,7 @@ local elab "garbage_collect_rfl" : tactic => newTactic do
 -- repeat tactic
 -- repeat (first | t1 | ... | tₙ)
 
-local elab "balistic" : tactic => newTactic do
+elab "balistic" : tactic => newTactic do
   run `(tactic| repeat (first
     | garbage_collect_rfl
     | list_empty
