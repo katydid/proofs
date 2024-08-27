@@ -41,70 +41,72 @@ inductive Lang: {α: Type u} -> Language.Lang.{u} α -> Type (u + 1) where
   -- This is also used in the definition derive as the result of various operators.
   | iso {P Q: Language.Lang α}: (∀ {w: List α}, Q w <=> P w) -> Lang P -> Lang Q
 
+export Lang (emptyset universal emptystr char or and scalar concat star iso)
+
 -- ν  : Lang P → Dec (◇.ν P)
 def null (l: Lang R): Decidability.Dec (Calculus.null R) :=
   match l with
   -- ν ∅ = ⊥‽
-  | Lang.emptyset => Decidability.empty?
+  | emptyset => Decidability.empty?
   -- ν 𝒰 = ⊤‽
-  | Lang.universal => Decidability.unit?
+  | universal => Decidability.unit?
   -- ν 𝟏 = ν𝟏 ◃ ⊤‽
-  | Lang.emptystr => Decidability.apply' Calculus.null_emptystr Decidability.unit?
+  | emptystr => Decidability.apply' Calculus.null_emptystr Decidability.unit?
   -- ν (p ∪ q) = ν p ⊎‽ ν q
-  | Lang.or p q => Decidability.sum? (null p) (null q)
+  | or p q => Decidability.sum? (null p) (null q)
   -- ν (p ∩ q) = ν p ×‽ ν q
-  | Lang.and p q => Decidability.prod? (null p) (null q)
+  | and p q => Decidability.prod? (null p) (null q)
   -- ν (s · p) = s ×‽ ν p
-  | Lang.scalar s p => Decidability.prod? s (null p)
+  | scalar s p => Decidability.prod? s (null p)
   -- ν (p ⋆ q) = ν⋆ ◃ (ν p ×‽ ν q)
-  | Lang.concat p q => Decidability.apply' Calculus.null_concat (Decidability.prod? (null p) (null q))
+  | concat p q => Decidability.apply' Calculus.null_concat (Decidability.prod? (null p) (null q))
   -- ν (p ☆) = ν☆ ◃ (ν p ✶‽)
-  | Lang.star p => Decidability.apply' Calculus.null_star (Decidability.list? (null p))
+  | star p => Decidability.apply' Calculus.null_star (Decidability.list? (null p))
   -- ν (` a) = ν` ◃ ⊥‽
-  | Lang.char a => Decidability.apply' Calculus.null_char Decidability.empty?
+  | char a => Decidability.apply' Calculus.null_char Decidability.empty?
   -- ν (f ◂ p) = f ◃ ν p
-  | Lang.iso f p => Decidability.apply' f (null p)
+  | iso f p => Decidability.apply' f (null p)
 
 -- δ  : Lang P → (a : A) → Lang (◇.δ P a)
 def derive [Decidability.DecEq α] (l: Lang P) (a: α): Lang (Calculus.derive P a) :=
   match l with
   -- δ ∅ a = ∅
-  | Lang.emptyset => Lang.emptyset
+  | emptyset => emptyset
   -- δ 𝒰 a = 𝒰
-  | Lang.universal => Lang.universal
+  | universal => universal
   -- δ (p ∪ q) a = δ p a ∪ δ q a
-  | Lang.or p q => Lang.or (derive p a) (derive q a)
+  | or p q => or (derive p a) (derive q a)
   -- δ (p ∩ q) a = δ p a ∩ δ q a
-  | Lang.and p q => Lang.and (derive p a) (derive q a)
+  | and p q => and (derive p a) (derive q a)
   -- δ (s · p) a = s · δ p a
-  | Lang.scalar s p => Lang.scalar s (derive p a)
+  | scalar s p => scalar s (derive p a)
   -- δ 𝟏 a = δ𝟏 ◂ ∅
-  | Lang.emptystr => (Lang.iso Calculus.derive_emptystr Lang.emptyset)
+  | emptystr => (iso Calculus.derive_emptystr emptyset)
   -- δ (p ⋆ q) a = δ⋆ ◂ (ν p · δ q a ∪ δ p a ⋆ q)
-  | Lang.concat p q =>
-    (Lang.iso Calculus.derive_concat
-      (Lang.scalar (null p)
-        (Lang.or
+  | concat p q =>
+    (iso Calculus.derive_concat
+      (scalar (null p)
+        (or
           (derive q a)
-          (Lang.concat (derive p a) q)
+          (concat (derive p a) q)
         )
       )
     )
   -- δ (p ☆) a = δ☆ ◂ (ν p ✶‽ · (δ p a ⋆ p ☆))
-  | Lang.star p =>
-    (Lang.iso Calculus.derive_star
-      (Lang.scalar
+  | star p =>
+    (iso Calculus.derive_star
+      (scalar
         (Decidability.list? (null p))
-        (Lang.concat (derive p a) (Lang.star p))
+        (concat (derive p a) (star p))
       )
     )
   -- δ (` c) a = δ` ◂ ((a ≟ c) · 𝟏)
-  | Lang.char c =>
+  | char c =>
     let cmp: Decidability.Dec (a ≡ c) := Decidability.decEq a c
-    (Lang.iso Calculus.derive_char
-      (Lang.scalar cmp Lang.emptystr)
+    (iso Calculus.derive_char
+      (scalar cmp emptystr)
     )
   -- δ (f ◂ p) a = f ◂ δ p a
-  | Lang.iso f p => Lang.iso f (derive p a)
+  | iso f p => iso f (derive p a)
 
 end Symbolic
