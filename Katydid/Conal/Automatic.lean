@@ -13,11 +13,16 @@ namespace Automatic
 
 -- we need "unsafe" otherwise we get the following error: (kernel) arg #4 of 'Automatic.Lang.mk' contains a non valid occurrence of the datatypes being declaredLean 4
 unsafe
-inductive Lang {α: Type u} (R: List α -> Type u): Type u where
+inductive Lang {α: Type u} (R: Language.Lang α): Type (u + 1) where
   | mk
-   (null: Decidability.Dec (Language.null R))
-   (derive: (a: α) -> Lang (Language.derive R a))
+   (null: Decidability.Dec (Calculus.null R))
+   (derive: (a: α) -> Lang (Calculus.derive R a))
    : Lang R
+
+unsafe -- we need unsafe, since Automatic.Lang requires unsafe
+def null (l: Lang R): Decidability.Dec (Calculus.null R) :=
+  match l with
+  | Lang.mk n _ => n
 
 -- ∅ : Lang ◇.∅
 unsafe -- we need unsafe, since Automatic.Lang requires unsafe
@@ -29,33 +34,33 @@ def emptyset {α: Type u}: Lang (@Language.emptyset.{u} α) := Lang.mk
 
 -- 𝒰    : Lang  ◇.𝒰
 unsafe -- we need unsafe, since Automatic.Lang requires unsafe
-def universal {a: Type u}: Lang (@Language.universal.{u} α) := Lang.mk
+def universal {α: Type u}: Lang (@Language.universal.{u} α) := Lang.mk
   -- ν 𝒰 = ⊤‽
-  (null := by sorry)
+  (null := Decidability.unit?)
   -- δ 𝒰 a = 𝒰
-  (derive := by sorry)
+  (derive := fun _ => universal)
 
 -- _∪_  : Lang  P  → Lang Q  → Lang (P  ◇.∪  Q)
 unsafe -- we need unsafe, since Automatic.Lang requires unsafe
-def or {a: Type u} (p: @Lang α P) (q: @Lang α Q): Lang (@Language.or.{u} α P Q) := Lang.mk
+def or (p: Lang P) (q: Lang Q): Lang (Language.or P Q) := Lang.mk
   -- ν (p ∪ q) = ν p ⊎‽ ν q
-  (null := sorry)
+  (null := Decidability.sum? (null p) (null q))
   -- δ (p ∪ q) a = δ p a ∪ δ q a
   (derive := sorry)
 
 -- _∩_  : Lang  P  → Lang Q  → Lang (P  ◇.∩  Q)
 unsafe -- we need unsafe, since Automatic.Lang requires unsafe
-def and {a: Type u} (p: @Lang α P) (q: @Lang α Q): Lang (@Language.and.{u} α P Q) := Lang.mk
+def and (p: Lang P) (q: Lang Q): Lang (Language.and P Q) := Lang.mk
   -- ν (p ∩ q) = ν p ×‽ ν q
-  (null := sorry)
+  (null := Decidability.prod? (null p) (null q))
   -- δ (p ∩ q) a = δ p a ∩ δ q a
   (derive := sorry)
 
 -- _·_  : Dec   s  → Lang P  → Lang (s  ◇.·  P)
 unsafe -- we need unsafe, since Automatic.Lang requires unsafe
-def scalar {a: Type u} (_: Decidability.Dec s) (p: @Lang α P): Lang (@Language.scalar.{u} α s Q) := Lang.mk
+def scalar (s': Decidability.Dec S) (p: Lang P): Lang (Language.scalar S P) := Lang.mk
   -- ν (s · p) = s ×‽ ν p
-  (null := sorry)
+  (null := Decidability.prod? s' (null p))
   -- δ (s · p) a = s · δ p a
   (derive := sorry)
 
@@ -63,7 +68,7 @@ def scalar {a: Type u} (_: Decidability.Dec s) (p: @Lang α P): Lang (@Language.
 unsafe -- we need unsafe, since Automatic.Lang requires unsafe
 def emptystr {α: Type u}: Lang (@Language.emptystr.{u} α) := Lang.mk
   -- ν 𝟏 = ν𝟏 ◃ ⊤‽
-  (null := sorry)
+  (null := Decidability.apply' Calculus.null_emptystr Decidability.unit?)
   -- δ 𝟏 a = δ𝟏 ◂ ∅
   (derive := sorry)
 

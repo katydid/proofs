@@ -10,7 +10,7 @@ namespace Decidability
 --   no :¬A → Dec A
 class inductive Dec (P: Type u): Type u where
   | yes: P -> Dec P
-  | no: (P -> PEmpty.{u}) -> Dec P
+  | no: (P -> PEmpty.{u + 1}) -> Dec P
 
 @[inline_if_reduce, nospecialize] def Dec.decide (P : Type) [h : Dec P] : Bool :=
   h.casesOn (fun _ => false) (fun _ => true)
@@ -42,7 +42,7 @@ def unit? : Dec PUnit :=
 -- no ¬a  ⊎‽ no ¬b  = no [ ¬a , ¬b ]
 -- yes a  ⊎‽ no ¬b  = yes (inj₁ a)
 -- _      ⊎‽ yes b  = yes (inj₂ b)
-def sum? (a: Dec α) (b: Dec β): Dec (α ⊕ β) :=
+def sum? {α β: Type u} (a: Dec α) (b: Dec β): Dec (α ⊕ β) :=
   match (a, b) with
   | (Dec.no a, Dec.no b) =>
     Dec.no (fun ab =>
@@ -59,7 +59,7 @@ def sum? (a: Dec α) (b: Dec β): Dec (α ⊕ β) :=
 -- yes a  ×‽ yes b  = yes (a , b)
 -- no ¬a  ×‽ yes b  = no (¬a ∘ proj₁)
 -- _      ×‽ no ¬b  = no (¬b ∘ proj₂)
-def prod? (a: Dec α) (b: Dec β): Dec (α × β) :=
+def prod? {α β: Type u} (a: Dec α) (b: Dec β): Dec (α × β) :=
   match (a, b) with
   | (Dec.yes a, Dec.yes b) => Dec.yes (Prod.mk a b)
   | (Dec.no a, Dec.yes _) => Dec.no (fun ⟨a', _⟩ => a a')
@@ -67,13 +67,13 @@ def prod? (a: Dec α) (b: Dec β): Dec (α × β) :=
 
 -- _✶‽ : Dec A → Dec (A ✶)
 -- _ ✶‽ = yes []
-def list?: Dec α -> Dec (List α) :=
+def list? {α: Type u}: Dec α -> Dec (List α) :=
   fun _ => Dec.yes []
 
 -- map′ : (A → B) → (B → A) → Dec A → Dec B
 -- map′ A→B B→A (yes a) = yes (A→B a)
 -- map′ A→B B→A (no ¬a) = no (¬a ∘ B→A)
-def map' (ab: A -> B) (ba: B -> A) (deca: Dec A): Dec B :=
+def map' {α β: Type u} (ab: α -> β) (ba: β -> α) (deca: Dec α): Dec β :=
   match deca with
   | Dec.yes a =>
     Dec.yes (ab a)
@@ -82,17 +82,17 @@ def map' (ab: A -> B) (ba: B -> A) (deca: Dec A): Dec B :=
 
 -- map‽⇔ : A ⇔ B → Dec A → Dec B
 -- map‽⇔ A⇔B = map′ (to ⟨$⟩_) (from ⟨$⟩_) where open Equivalence A⇔B
-def map? (ab: A <=> B) (deca: Dec A): Dec B :=
+def map? {α β: Type u} (ab: α <=> β) (deca: Dec α): Dec β :=
   map' ab.toFun ab.invFun deca
 
 -- _▹_ : A ↔ B → Dec A → Dec B
 -- f ▹ a? = map‽⇔ (↔→⇔ f) a?
-def apply (f: A <=> B) (deca: Dec A): Dec B :=
+def apply {α β: Type u} (f: α <=> β) (deca: Dec α): Dec β :=
   map? f deca
 
 -- _◃_ : B ↔ A → Dec A → Dec B
 -- g ◃ a? = ↔Eq.sym g ▹ a?
-def apply' (f: B <=> A) (deca: Dec A): Dec B :=
+def apply' {α β: Type u} (f: β <=> α) (deca: Dec α): Dec β :=
   map? f.sym deca
 
 end Decidability

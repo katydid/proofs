@@ -93,23 +93,4 @@ example: Lang Nat := (and (char 1) (char 2))
 example: Lang Nat := (scalar PUnit (char 2))
 example: Lang Nat := (concat (char 1) (char 2))
 
--- 𝜈 :(A✶ → B) → B -- “nullable”
--- 𝜈 f = f []
--- nullable
--- ν = backslash nu
-def null {α: Type u} {β: Type v} (f: List α -> β): β :=
-  f []
-
--- 𝒟: (A✶ → B) → A✶ → (A✶ → B) -- “derivative”
--- 𝒟 f u = 𝜆 v → f (u + v)
--- 𝒟 = backslash McD
-def derives {α: Type u} {β: Type v} (f: List α -> β) (u: List α): (List α -> β) :=
-  fun v => f (u ++ v)
-
--- 𝛿 : (A✶ → B) → A → (A✶ → B)
--- 𝛿 f a = 𝒟 f [a]
--- δ = backslash delta or backslash Gd
-def derive {α: Type u} {β: Type v} (f: List α -> β) (a: α): (List α -> β) :=
-  derives f [a]
-
 end Language
