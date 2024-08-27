@@ -58,7 +58,7 @@ def null (l: Lang R): Decidability.Dec (Calculus.null R) :=
   | Lang.iso f p => Decidability.apply' f (null p)
 
 -- δ  : Lang P → (a : A) → Lang (◇.δ P a)
-def derive [Decidability.DecEq α] (l: @Lang α P) (a: α): Lang (Calculus.derive P a) :=
+def derive [Decidability.DecEq α] (l: Lang P) (a: α): Lang (Calculus.derive P a) :=
   match l with
   -- δ ∅ a = ∅
   | Lang.emptyset => Lang.emptyset
