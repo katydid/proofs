@@ -8,9 +8,25 @@ namespace Decidability
 -- data Dec (A: Set l):Set l where
 --   yes: A → Dec A
 --   no :¬A → Dec A
-inductive Dec (α: Type u): Type u where
-  | yes: α -> Dec α
-  | no: (α -> PEmpty.{u}) -> Dec α
+class inductive Dec (P: Type u): Type u where
+  | yes: P -> Dec P
+  | no: (P -> PEmpty.{u}) -> Dec P
+
+@[inline_if_reduce, nospecialize] def Dec.decide (P : Type) [h : Dec P] : Bool :=
+  h.casesOn (fun _ => false) (fun _ => true)
+
+abbrev DecPred {α : Type u} (r : α → Type) :=
+  (a : α) → Dec (r a)
+
+abbrev DecRel {α : Type u} (r : α → α → Type) :=
+  (a b : α) → Dec (r a b)
+
+abbrev DecEq (α : Type u) :=
+  (a b : α) → Dec (a ≡ b)
+
+-- module Symbolic {ℓ} {A : Set ℓ} (_≟_ : Decidable₂ {A = A} _≡_) where
+def decEq {α : Type u} [inst : DecEq α] (a b : α) : Dec (a ≡ b) :=
+  inst a b
 
 -- ⊥? : Dec ⊥
 -- ⊥? = no(𝜆())

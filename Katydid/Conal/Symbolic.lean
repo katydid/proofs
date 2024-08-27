@@ -9,7 +9,7 @@ import Katydid.Conal.Calculus
 namespace Symbolic
 
 -- data Lang : ◇.Lang → Set (suc ℓ) where
-inductive Lang: Language.Lang.{u} α -> Type (u + 1) where
+inductive Lang: {α: Type u} -> Language.Lang.{u} α -> Type (u + 1) where
   -- ∅ : Lang ◇.∅
   | emptyset : Lang Language.emptyset
   -- 𝒰 : Lang ◇.𝒰
@@ -17,7 +17,7 @@ inductive Lang: Language.Lang.{u} α -> Type (u + 1) where
   -- 𝟏 : Lang ◇.𝟏
   | emptystr : Lang Language.emptystr
   -- ` : (a : A) → Lang (◇.` a)
-  | char {a: Type u}: (a: α) -> Lang (Language.char a)
+  | char: (a: α) -> Lang (Language.char a)
   -- _∪_ : Lang P → Lang Q → Lang (P ◇.∪ Q)
   | or : Lang P -> Lang Q -> Lang (Language.or P Q)
   -- _∩_ : Lang P → Lang Q → Lang (P ◇.∩ Q)
@@ -28,16 +28,13 @@ inductive Lang: Language.Lang.{u} α -> Type (u + 1) where
   | concat : Lang P -> Lang Q -> Lang (Language.concat P Q)
   -- _☆  : Lang P → Lang (P ◇.☆)
   | star : Lang P -> Lang (Language.star P)
-  -- TODO: complete definition of Lang by adding the last operator:
   -- _◂_  : (Q ⟷ P) → Lang P → Lang Q
-  -- We tried this definition in Lean:
-  -- | iso {P Q: Language.Lang α}: (Q ⟷ P) -> Lang P -> Lang Q
-  -- But we got the following error:
-  -- "(kernel) declaration has free variables 'Symbolic.Lang.iso'"
-  -- The paper says: "The reason _◀_ must be part of the inductive representation is the same as the other constructors, namely so that the core lemmas (Figure 3) translate into an implementation in terms of that representation."
+  -- "The reason _◀_ must be part of the inductive representation is the same as the other constructors, namely so that the core lemmas (Figure 3) translate into an implementation in terms of that representation."
+  -- This is also used in the definition derive as the result of various operators.
+  | iso {P Q: Language.Lang α}: (∀ {w: List α}, Q w <=> P w) -> Lang P -> Lang Q
 
 -- ν  : Lang P → Dec (◇.ν P)
-def null (l: Lang P): Decidability.Dec (Calculus.null P) :=
+def null (l: Lang R): Decidability.Dec (Calculus.null R) :=
   match l with
   -- ν ∅ = ⊥‽
   | Lang.emptyset => Decidability.empty?
@@ -57,51 +54,49 @@ def null (l: Lang P): Decidability.Dec (Calculus.null P) :=
   | Lang.star p => Decidability.apply' Calculus.null_star (Decidability.list? (null p))
   -- ν (` a) = ν` ◃ ⊥‽
   | Lang.char a => Decidability.apply' Calculus.null_char Decidability.empty?
-  -- TODO: Add the case for language iso morphism, once the Lang.iso operator is added:
   -- ν (f ◂ p) = f ◃ ν p
-  -- | Lang.iso f p => Decidability.apply' f (null p)
+  | Lang.iso f p => Decidability.apply' f (null p)
 
 -- δ  : Lang P → (a : A) → Lang (◇.δ P a)
--- def derive (l: @Lang α P) (a: α): Lang (Calculus.derive P a) :=
---   match l with
---   -- δ ∅ a = ∅
---   | Lang.emptyset => Lang.emptyset
---   -- δ 𝒰 a = 𝒰
---   | Lang.universal => Lang.universal
---   -- δ (p ∪ q) a = δ p a ∪ δ q a
---   | Lang.or p q => Lang.or (derive p a) (derive q a)
---   -- δ (p ∩ q) a = δ p a ∩ δ q a
---   | Lang.and p q => Lang.and (derive p a) (derive q a)
---   -- δ (s · p) a = s · δ p a
---   | Lang.scalar s p => Lang.scalar s (derive p a)
---   -- δ 𝟏 a = δ𝟏 ◂ ∅
---   | Lang.emptystr => (Lang.iso Calculus.derive_emptystr Lang.emptyset)
---   -- δ (p ⋆ q) a = δ⋆ ◂ (ν p · δ q a ∪ δ p a ⋆ q)
---   | Lang.concat p q =>
---     (Lang.iso Calculus.derive_concat
---       (Lang.scalar (null p)
---         (Lang.or
---           (derive q a)
---           (Lang.concat (derive p a) q)
---         )
---       )
---     )
---   -- δ (p ☆) a = δ☆ ◂ (ν p ✶‽ · (δ p a ⋆ p ☆))
---   | Lang.star p =>
---     (Lang.iso Calculus.derive_star
---       (Lang.scalar
---         (Decidability.list? (null p))
---         (Lang.concat (derive p a) (Lang.star p))
---       )
---     )
---   -- δ (` c) a = δ` ◂ ((a ≟ c) · 𝟏)
---   | Lang.char c =>
---     (Lang.iso Calculus.derive_char
---       -- TODO: not sure if ≟ is the same as ≡
---       (Lang.scalar (a ≡ c) Lang.emptystr)
---     )
-  -- TODO: Add the case for language iso morphism, once the Lang.iso operator is added:
+def derive [Decidability.DecEq α] (l: @Lang α P) (a: α): Lang (Calculus.derive P a) :=
+  match l with
+  -- δ ∅ a = ∅
+  | Lang.emptyset => Lang.emptyset
+  -- δ 𝒰 a = 𝒰
+  | Lang.universal => Lang.universal
+  -- δ (p ∪ q) a = δ p a ∪ δ q a
+  | Lang.or p q => Lang.or (derive p a) (derive q a)
+  -- δ (p ∩ q) a = δ p a ∩ δ q a
+  | Lang.and p q => Lang.and (derive p a) (derive q a)
+  -- δ (s · p) a = s · δ p a
+  | Lang.scalar s p => Lang.scalar s (derive p a)
+  -- δ 𝟏 a = δ𝟏 ◂ ∅
+  | Lang.emptystr => (Lang.iso Calculus.derive_emptystr Lang.emptyset)
+  -- δ (p ⋆ q) a = δ⋆ ◂ (ν p · δ q a ∪ δ p a ⋆ q)
+  | Lang.concat p q =>
+    (Lang.iso Calculus.derive_concat
+      (Lang.scalar (null p)
+        (Lang.or
+          (derive q a)
+          (Lang.concat (derive p a) q)
+        )
+      )
+    )
+  -- δ (p ☆) a = δ☆ ◂ (ν p ✶‽ · (δ p a ⋆ p ☆))
+  | Lang.star p =>
+    (Lang.iso Calculus.derive_star
+      (Lang.scalar
+        (Decidability.list? (null p))
+        (Lang.concat (derive p a) (Lang.star p))
+      )
+    )
+  -- δ (` c) a = δ` ◂ ((a ≟ c) · 𝟏)
+  | Lang.char c =>
+    let cmp: Decidability.Dec (a ≡ c) := Decidability.decEq a c
+    (Lang.iso Calculus.derive_char
+      (Lang.scalar cmp Lang.emptystr)
+    )
   -- δ (f ◂ p) a = f ◂ δ p a
-  -- | Lang.iso f p => Lang.iso f (derive p a)
+  | Lang.iso f p => Lang.iso f (derive p a)
 
 end Symbolic
