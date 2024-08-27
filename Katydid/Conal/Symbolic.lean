@@ -1,6 +1,14 @@
 -- A translation to Lean from Agda
 -- https://github.com/conal/paper-2021-language-derivatives/blob/main/Symbolic.lagda
 
+-- The idea is that Symoblic.lean and Automatic.lean are duals of each other.
+-- The definitions of null and derive for each operator, should look as similar to each other as possible.
+-- Reusing the same definitions in Language.lean and proofs in Calculus.lean.
+
+-- Symbolic.lean is defined column based, by have a complete definition for a single function (null and derive)
+-- as opposed to Automatic.lean which is defined row based and needs to define both functions for a single operator to complete a definition.
+-- Symbolic.lean has definitions of null and derive that we are familiar with, but it doesn't allow the user of the library the flexibility to add their own operators.
+
 import Katydid.Conal.Decidability
 import Katydid.Conal.Function
 import Katydid.Conal.Language
