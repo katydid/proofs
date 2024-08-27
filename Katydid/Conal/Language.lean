@@ -1,7 +1,7 @@
 -- A translation to Lean from Agda
 -- https://github.com/conal/paper-2021-language-derivatives/blob/main/Language.lagda
 
-import Katydid.Std.Tipe
+import Katydid.Conal.Tipe
 
 namespace Language
 

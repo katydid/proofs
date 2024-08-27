@@ -1,6 +1,6 @@
 -- An approximation of the Function module in the Agda standard library.
 
-import Katydid.Std.Tipe
+import Katydid.Conal.Tipe
 import Mathlib.Logic.Equiv.Defs
 
 -- A ↔ B = Inverse A B
