@@ -64,7 +64,7 @@ def list? {α: Type u}: Dec α -> Dec (List α) :=
 -- map′ : (A → B) → (B → A) → Dec A → Dec B
 -- map′ A→B B→A (yes a) = yes (A→B a)
 -- map′ A→B B→A (no ¬a) = no (¬a ∘ B→A)
-def map' {α β: Type u} (ab: α -> β) (ba: β -> α) (deca: Dec α): Dec β :=
+private def map' {α β: Type u} (ab: α -> β) (ba: β -> α) (deca: Dec α): Dec β :=
   match deca with
   | Dec.yes a =>
     Dec.yes (ab a)
@@ -73,7 +73,7 @@ def map' {α β: Type u} (ab: α -> β) (ba: β -> α) (deca: Dec α): Dec β :=
 
 -- map‽⇔ : A ⇔ B → Dec A → Dec B
 -- map‽⇔ A⇔B = map′ (to ⟨$⟩_) (from ⟨$⟩_) where open Equivalence A⇔B
-def map? {α β: Type u} (ab: α <=> β) (deca: Dec α): Dec β :=
+private def map? {α β: Type u} (ab: α <=> β) (deca: Dec α): Dec β :=
   map' ab.toFun ab.invFun deca
 
 -- _▹_ : A ↔ B → Dec A → Dec B

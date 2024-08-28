@@ -15,12 +15,56 @@ The goals of this project are to:
 
 ## Differences with Agda implementation
 
-Simply renamings:
+### Simply renamings
 
-  - `Set` in Agda is `Type` in Lean.
-  - universe levels is `ℓ` in Agda and `u` in Lean.
-  - parametric types in Agda is `A` and `\alpha` in Lean.
+Some things we renamed since they are simply called different things in Agda and Lean, while others were renamed to be closer to the Lean convention.
 
-Not just a renaming, but still a difference with little consequence:
+| Description  | Original Agda | Translated Lean |
+| :---         | :---:         | :---:           |
+|              | `Set`         | `Type`          |
+| universe levels  | `ℓ`, `b`  | `u`, `v`        |
+| parametric types | `A`, `B`  | `α`, `β`        |
+| isomorphism      | `↔`       | `<=>`           |
+| extensional isomorphism | `⟷` | `∀ {w: List α}, (P w) <=> (Q w)` |
 
-  - `Lang` in Agda is defined as `Lang \alpha` in Lean. The `A` parameter for `Lang` is lifted to the module level in Agda, but there doesn't seem to be a way to hide this in Lean.
+### Namespaces / Qualified Imports
+
+We use namespaces as much as possible to make dependencies clear to the reader without requiring "Go to Definition" and Lean to be installed.
+
+| Description        | Original Agda | Translated Lean   |
+| :---               | :---:         | :---:             |
+| `List α -> Type u` | `◇.Lang`      | `Language.Lang`   |
+| `List α -> β`      | `◇.ν`         | `Calculus.null`   |
+| `(List α -> β) -> (a: α) -> (List α -> β)` | `◇.δ`     | `Calculus.derive` |
+|                    | `Dec` | `Decidability.Dec` |
+
+### Syntax
+
+We dropped most of the syntax, in favour of `([a-z]|[A-Z]|')` names.
+
+| Description  | Original Agda | Translated Lean |
+| :---         | :---:         | :---:           |
+| nullable     | `ν`           | `null`          |
+| derivative of a string  | `𝒟` | `derives`      |
+| derivative of a character    | `δ`  | `derive` |
+|              | `∅`           | `emptyset`      |
+|              | `𝒰`           | `universal`     |
+| empty string | `𝟏`           | `emptystr`      |
+| character    | ` c           | `char c`        |
+|              | `∪`           | `or`            |
+|              | `∩`           | `and`           |
+| scalar       | `s · P`       | `scalar s P`    |
+|              | `P ⋆ Q`       | `concat P Q`    |
+| zero or more | `P ☆`        | `star P`        |
+| decidable bottom  | `⊥?`     | `Decidability.empty?` |
+| decidable top     | `⊤‽`     | `Decidability.unit?`  |
+| decidable sum     | `_⊎‽_`   | `Decidability.sum?`   |
+| decidable prod    | `_×‽_`   | `Decidability.prod?`   |
+| `Dec α -> Dec (List α)` | `_✶‽` | `Decidability.list?` |
+| `(β <=> α) -> Dec α -> Dec β` | `◃` | `Decidability.apply'` |
+
+All language operators defined in `Language.lagda` are referenced in other modules as `◇.∅`, while in Lean they are references as qualified and non notational names `Language.emptyset`. The exception is `Calculus.lean`, where `Language.lean` is opened, so they are not qualified.
+
+### Explicit parameters.
+
+We use explicit parameters and almost no module level parameters, for example `Lang` in Agda is defined as `Lang α` in Lean. In Agda the `A` parameter for `Lang` is lifted to the module level, but in this translation we make it explicit.
