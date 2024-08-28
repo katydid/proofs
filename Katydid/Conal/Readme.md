@@ -17,38 +17,14 @@ The goals of this project are to:
 
 Simply renamings:
 
-<table>
-  <tr>
-    <td>Description</td>
-    <td>Original Agda</td>
-    <td>Translated Lean</td>
-  </tr>
-  <tr>
-    <td></td>
-    <td>`Set`</td>
-    <td>`Type`</td>
-  </tr>
-  <tr>
-    <td>universe levels</td>
-    <td>`ℓ`, 'b'</td>
-    <td>`u`, 'v'</td>
-  </tr>
-  <tr>
-    <td>parametric types</td>
-    <td>`A`, `B`</td>
-    <td>`α`, `β`</td>
-  </tr>
-  <tr>
-    <td>Isomorphism</td>
-    <td>`↔`</td>
-    <td>`<=>`</td>
-  </tr>
-  <tr>
-    <td>Exetensional Isomorphism</td>
-    <td>`⟷`</td>
-    <td>`∀ {w: List α}, (a w) <=> (b w)`</td>
-  </tr>
-</table>
+| Description  | Original Agda | Translated Lean |
+| :---         | :---:         | :---:           |
+| Content      | Content       | Content         |
+|              | `Set`         | `Type`          |
+| universe levels  | `ℓ`, `b`  | `u`, `v`        |
+| parametric types | `A`, `B`  | `α`, `β`        |
+| isomorphism      | `↔`       | `<=>`           |
+| extensional isomorphism | `⟷` | `∀ {w: List α}, (P w) <=> (Q w)` |
 
 Syntax:
 
