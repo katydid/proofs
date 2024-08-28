@@ -67,21 +67,7 @@ def null_emptystr {α: Type u}:
 -- ν` = mk↔′ (λ ()) (λ ()) (λ ()) (λ ())
 def null_char {α: Type u} {c: α}:
   null (char c) <=> PEmpty := by
-  refine TEquiv.mk ?toFun ?invFun ?leftInv ?rightInv
-  case toFun =>
-    intro x
-    cases x with
-    | mk x =>
-      contradiction
-  case invFun =>
-    intro
-    contradiction
-  case leftInv =>
-    -- TODO
-    sorry
-  case rightInv =>
-    -- TODO
-    sorry
+  constructor <;> (intro x; cases x) <;> contradiction
 
 -- ν∪  : ν (P ∪ Q) ≡ (ν P ⊎ ν Q)
 -- ν∪ = refl
