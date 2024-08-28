@@ -12,22 +12,12 @@ open List
 open Char
 open String
 
--- ν⇃ : Lang → Set ℓ      -- “nullable”
--- ν⇃ P = P []
-def null' (P : Lang α) : Type u := -- backslash nu
-  P []
-
--- δ⇃ : Lang → A → Lang   -- “derivative”
--- δ⇃ P a w = P (a ∷ w)
-def derive' (P : Lang α) (a : α) : Lang α := -- backslash delta
-  fun (w : List α) => P (a :: w)
-
--- ν : (A ✶ → B) → B                -- “nullable”
+-- ν : (A ✶ → B) → B
 -- ν f = f []
 def null {α: Type u} {β: Type v} (f: List α -> β): β :=
   f []
 
--- 𝒟 : (A ✶ → B) → A ✶ → (A ✶ → B)  -- “derivative”
+-- 𝒟 : (A ✶ → B) → A ✶ → (A ✶ → B)
 -- 𝒟 f u = λ v → f (u ⊙ v)
 def derives {α: Type u} {β: Type v} (f: List α -> β) (u: List α): (List α -> β) :=
   λ v => f (u ++ v)
@@ -37,21 +27,19 @@ def derives {α: Type u} {β: Type v} (f: List α -> β) (u: List α): (List α 
 def derive {α: Type u} {β: Type v} (f: List α -> β) (a: α): (List α -> β) :=
   derives f [a]
 
-attribute [simp] null' derive' null derive derives
+attribute [simp] null derive derives
 
 -- ν∅  : ν ∅ ≡ ⊥
 -- ν∅ = refl
 def null_emptyset {α: Type u}:
-  @null α _ emptyset ≡ PEmpty := by
-  constructor
-  rfl
+  @null α _ emptyset ≡ PEmpty :=
+  trfl
 
 -- ν𝒰  : ν 𝒰 ≡ ⊤
 -- ν𝒰 = refl
 def null_universal {α: Type u}:
-  @null α _ universal ≡ PUnit := by
-  constructor
-  rfl
+  @null α _ universal ≡ PUnit :=
+  trfl
 
 -- ν𝟏  : ν 𝟏 ↔ ⊤
 -- ν𝟏 = mk↔′
@@ -61,7 +49,7 @@ def null_universal {α: Type u}:
 --   (λ { refl → refl })
 def null_emptystr {α: Type u}:
   @null α _ emptystr <=> PUnit := by
-  refine TEquiv.mk ?a ?b ?c ?d
+  refine TEquiv.mk ?toFun ?invFun ?leftInv ?rightInv
   · intro _
     exact PUnit.unit
   · intro _
@@ -75,57 +63,43 @@ def null_emptystr {α: Type u}:
     constructor
     simp
 
--- An alternative "proof" of null_emptystr not using tactics
-def null_emptystr' {α: Type u}:
-  @null α _ emptystr <=> PUnit :=
-  TEquiv.mk
-    (fun _ => PUnit.unit)
-    (fun _ => by constructor; rfl)
-    (sorry)
-    (sorry)
-
 -- ν`  : ν (` c) ↔ ⊥
 -- ν` = mk↔′ (λ ()) (λ ()) (λ ()) (λ ())
-def null_char {α: Type u}:
-  ∀ {c: α},
-    null (char c) <=> PEmpty := by
-  intro c
-  apply TEquiv.mk
-  intro x
-  cases x with
-  | mk x =>
+def null_char {α: Type u} {c: α}:
+  null (char c) <=> PEmpty := by
+  refine TEquiv.mk ?toFun ?invFun ?leftInv ?rightInv
+  case toFun =>
+    intro x
+    cases x with
+    | mk x =>
+      contradiction
+  case invFun =>
+    intro
     contradiction
-  intro
-  contradiction
-  sorry
-  sorry
+  case leftInv =>
+    -- TODO
+    sorry
+  case rightInv =>
+    -- TODO
+    sorry
 
 -- ν∪  : ν (P ∪ Q) ≡ (ν P ⊎ ν Q)
 -- ν∪ = refl
-def null_or {α: Type u}:
-  ∀ {P Q: Lang α},
-    null (or P Q) ≡ (Sum (null P) (null Q)) := by
-  intro P Q
-  constructor
-  rfl
+def null_or {α: Type u} {P Q: Lang α}:
+  null (or P Q) ≡ (Sum (null P) (null Q)) :=
+  trfl
 
 -- ν∩  : ν (P ∩ Q) ≡ (ν P × ν Q)
 -- ν∩ = refl
-def null_and {α: Type u}:
-  ∀ {P Q: Lang α},
-    null (and P Q) ≡ (Prod (null P) (null Q)) := by
-  intro P Q
-  constructor
-  rfl
+def null_and {α: Type u} {P Q: Lang α}:
+  null (and P Q) ≡ (Prod (null P) (null Q)) :=
+  trfl
 
 -- ν·  : ν (s · P) ≡ (s × ν P)
 -- ν· = refl
-def null_scalar {α: Type u}:
-  ∀ {s: Type u} {P: Lang α},
-    null (scalar s P) ≡ (Prod s (null P)) := by
-  intro P Q
-  constructor
-  rfl
+def null_scalar {α: Type u} {s: Type u} {P: Lang α}:
+  null (scalar s P) ≡ (Prod s (null P)) :=
+  trfl
 
 -- ν⋆  : ν (P ⋆ Q) ↔ (ν P × ν Q)
 -- ν⋆ = mk↔′
@@ -133,11 +107,21 @@ def null_scalar {α: Type u}:
 --   (λ { (νP , νQ) → ([] , []) , refl , νP , νQ })
 --   (λ { (νP , νQ) → refl } )
 --   (λ { (([] , []) , refl , νP , νQ) → refl})
-def null_concat {α: Type u}:
-  ∀ {P Q: Lang α},
-    null (concat P Q) <=> (Prod (null P) (null Q)) := by
-  -- TODO
-  sorry
+def null_concat {α: Type u} {P Q: Lang α}:
+  null (concat P Q) <=> (Prod (null P) (null Q)) := by
+  refine TEquiv.mk ?toFun ?invFun ?leftInv ?rightInv
+  case toFun =>
+    -- TODO
+    sorry
+  case invFun =>
+    -- TODO
+    sorry
+  case leftInv =>
+    -- TODO
+    sorry
+  case rightInv =>
+    -- TODO
+    sorry
 
 -- ν✪  : ν (P ✪) ↔ (ν P) ✶
 -- ν✪ {P = P} = mk↔′ k k⁻¹ invˡ invʳ
@@ -167,49 +151,55 @@ def null_concat {α: Type u}:
 --   ≈⟨ ν✪ ⟩
 --     (ν P) ✶
 --   ∎ where open ↔R
-def null_star {α: Type u}:
-  ∀ {P: Lang α},
-    null (star P) <=> List (null P) := by
-  -- TODO
-  sorry
+def null_star {α: Type u} {P: Lang α}:
+  null (star P) <=> List (null P) := by
+  refine TEquiv.mk ?toFun ?invFun ?leftInv ?rightInv
+  case toFun =>
+    -- TODO
+    sorry
+  case invFun =>
+    -- TODO
+    sorry
+  case leftInv =>
+    -- TODO
+    sorry
+  case rightInv =>
+    -- TODO
+    sorry
 
 -- δ∅  : δ ∅ a ≡ ∅
 -- δ∅ = refl
-def derive_emptyset {α: Type u}:
-  ∀ {a: α},
-    (derive emptyset a) ≡ emptyset := by
-  intro a
-  constructor
-  rfl
+def derive_emptyset {α: Type u} {a: α}:
+  (derive emptyset a) ≡ emptyset :=
+  trfl
 
 -- δ𝒰  : δ 𝒰 a ≡ 𝒰
 -- δ𝒰 = refl
-def derive_universal {α: Type u}:
-  ∀ {a: α},
-    (derive universal a) ≡ universal := by
-  intro a
-  constructor
-  rfl
+def derive_universal {α: Type u} {a: α}:
+  (derive universal a) ≡ universal :=
+  trfl
 
 -- δ𝟏  : δ 𝟏 a ⟷ ∅
 -- δ𝟏 = mk↔′ (λ ()) (λ ()) (λ ()) (λ ())
-def derive_emptystr {α: Type u} {a: α}:
-  ∀ {w: List α},
-    (derive emptystr a) w <=> emptyset w := by
-  intro w
-  constructor
-  · intro D
+def derive_emptystr {α: Type u} {a: α} {w: List α}:
+  (derive emptystr a) w <=> emptyset w := by
+  refine TEquiv.mk ?toFun ?invFun ?leftInv ?rightInv
+  case toFun =>
+    intro D
     cases D
     next D =>
     contradiction
-  · intro E
+  case invFun =>
+    intro E
     contradiction
-  · intro D
+  case leftInv =>
+    intro D
     simp at D
     cases D
     next D =>
     contradiction
-  · intro E
+  case rightInv =>
+    intro E
     contradiction
 
 -- δ`  : δ (` c) a ⟷ (a ≡ c) · 𝟏
@@ -218,42 +208,39 @@ def derive_emptystr {α: Type u} {a: α}:
 --   (λ { (refl , refl) → refl })
 --   (λ { (refl , refl) → refl })
 --   (λ { refl → refl })
-def derive_char {α: Type u}:
-  ∀ {a: α} {c: α} {w: List α},
-    (derive (char c) a) w <=> (scalar (a ≡ c) emptystr) w := by
-    intros a c
-    unfold derive
-    unfold char
-    unfold emptystr
-    unfold scalar
+def derive_char {α: Type u} {a: α} {c: α} {w: List α}:
+  (derive (char c) a) w <=> (scalar (a ≡ c) emptystr) w := by
+  refine TEquiv.mk ?toFun ?invFun ?leftInv ?rightInv
+  case toFun =>
+    -- TODO
+    sorry
+  case invFun =>
+    -- TODO
+    sorry
+  case leftInv =>
+    -- TODO
+    sorry
+  case rightInv =>
+    -- TODO
     sorry
 
 -- δ∪  : δ (P ∪ Q) a ≡ δ P a ∪ δ Q a
 -- δ∪ = refl
-def derive_or {α: Type u}:
-  ∀ {a: α} {P Q: Lang α},
-    (derive (or P Q) a) ≡ (or (derive P a) (derive Q a)) := by
-  intro a P Q
-  constructor
-  rfl
+def derive_or {α: Type u} {a: α} {P Q: Lang α}:
+  (derive (or P Q) a) ≡ (or (derive P a) (derive Q a)) :=
+  trfl
 
 -- δ∩  : δ (P ∩ Q) a ≡ δ P a ∩ δ Q a
 -- δ∩ = refl
-def derive_and {α: Type u}:
-  ∀ {a: α} {P Q: Lang α},
-    (derive (and P Q) a) ≡ (and (derive P a) (derive Q a)) := by
-  intro a P Q
-  constructor
-  rfl
+def derive_and {α: Type u} {a: α} {P Q: Lang α}:
+  (derive (and P Q) a) ≡ (and (derive P a) (derive Q a)) :=
+  trfl
 
 -- δ·  : δ (s · P) a ≡ s · δ P a
 -- δ· = refl
-def derive_scalar {α: Type u}:
-  ∀ {a: α} {s: Type u} {P: Lang α},
-    (derive (scalar s P) a) ≡ (scalar s (derive P a)) := by
-  intro a s P
-  constructor
-  rfl
+def derive_scalar {α: Type u} {a: α} {s: Type u} {P: Lang α}:
+  (derive (scalar s P) a) ≡ (scalar s (derive P a)) :=
+  trfl
 
 -- δ⋆  : δ (P ⋆ Q) a ⟷ ν P · δ Q a ∪ δ P a ⋆ Q
 -- δ⋆ {a = a} {w = w} = mk↔′
@@ -265,11 +252,21 @@ def derive_scalar {α: Type u}:
 --      ; (inj₂ ((u , v) , refl , Pu , Qv)) → refl })
 --   (λ { (([] , .(a ∷ w)) , refl , νP , Qaw) → refl
 --      ; ((.a ∷ u , v) , refl , Pu , Qv) → refl })
-def derive_concat {α: Type u}:
-  ∀ {a: α} {P Q: Lang α} {w: List α},
-    (derive (concat P Q) a) w <=> (scalar (null P) (or (derive Q a) (concat (derive P a) Q))) w := by
-  -- TODO
-  sorry
+def derive_concat {α: Type u} {a: α} {P Q: Lang α} {w: List α}:
+  (derive (concat P Q) a) w <=> (scalar (null P) (or (derive Q a) (concat (derive P a) Q))) w := by
+  refine TEquiv.mk ?toFun ?invFun ?leftInv ?rightInv
+  case toFun =>
+    -- TODO
+    sorry
+  case invFun =>
+    -- TODO
+    sorry
+  case leftInv =>
+    -- TODO
+    sorry
+  case rightInv =>
+    -- TODO
+    sorry
 
 -- δ✪  : δ (P ✪) a ⟷ (ν P) ✶ · (δ P a ⋆ P ✪)
 -- δ✪ {P}{a} {w} = mk↔′ k k⁻¹ invˡ invʳ
@@ -303,10 +300,20 @@ def derive_concat {α: Type u}:
 --   ≈⟨ ×-congˡ (⋆-congˡ ✪↔☆) ⟩
 --     ((ν P) ✶ · (δ P a ⋆ P ☆)) w
 --   ∎ where open ↔R
-def derive_star {α: Type u}:
-  ∀ {a: α} {P: Lang α} {w: List α},
-    (derive (star P) a) w <=> (scalar (List (null P)) (concat (derive P a) (star P))) w := by
-  -- TODO
-  sorry
+def derive_star {α: Type u} {a: α} {P: Lang α} {w: List α}:
+  (derive (star P) a) w <=> (scalar (List (null P)) (concat (derive P a) (star P))) w := by
+  refine TEquiv.mk ?toFun ?invFun ?leftInv ?rightInv
+  case toFun =>
+    -- TODO
+    sorry
+  case invFun =>
+    -- TODO
+    sorry
+  case leftInv =>
+    -- TODO
+    sorry
+  case rightInv =>
+    -- TODO
+    sorry
 
 end Calculus
