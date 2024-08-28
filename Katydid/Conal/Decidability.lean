@@ -5,9 +5,14 @@ import Katydid.Conal.Function
 
 namespace Decidability
 
--- data Dec (A: Set l):Set l where
---   yes: A → Dec A
---   no :¬A → Dec A
+-- Agda:
+--   data Dec (A: Set l):Set l where
+--     yes: A → Dec A
+--     no :¬A → Dec A
+-- Lean Prop:
+--   class inductive Decidable (p : Prop) where
+--     | isFalse (h : Not p) : Decidable p
+--     | isTrue (h : p) : Decidable p
 class inductive Dec (P: Type u): Type u where
   | yes: P -> Dec P
   | no: (P -> PEmpty.{u + 1}) -> Dec P

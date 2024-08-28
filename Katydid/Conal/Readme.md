@@ -4,9 +4,9 @@ In this subproject we are working on translating the paper [Symbolic and Automat
 
 The goals of this project are to:
 
-  - discover the differences between Agda and Lean
-  - learn of different way to tackle proofs about derivatives of regular expressions
-  - understand proofs and see if it is possible to not use too many tactics
+  - Discover the differences between Agda and Lean
+  - Define proofs on `Type` instead of `Prop`, since each proof represents a different parse of the language.
+  - Avoid tactics if possible, in favour of simple `trfl` (our version of `rfl`).
 
 ## Links
 
@@ -14,6 +14,25 @@ The goals of this project are to:
   - [Collaboration with Conal Elliott](https://github.com/conal/Collaboration)
 
 ## Differences with Agda implementation
+
+### Equality `≡`
+
+Lean has `Prop` and `Type` and Agda has `Set`, which we can think of as `Type` in Lean. We want out proofs to be proof revelant, since each proof represents a different parse of our language. This means the theorems have to be defined on `Type`. For example we have equality redefined in terms of `Type` as `TEq` (using the syntax `≡`) and  we replace `rfl` with `trfl`, but we do not a replacement tactic for `rfl`.
+
+```
+inductive TEq.{tu} {α: Type tu} (a b: α) : Type tu where
+  | mk : a = b -> TEq a b
+
+def trfl {α : Type u} {a : α} : TEq a a := TEq.mk rfl
+```
+
+We needed to redefine the following types and functions to use `Type` instead of `Prop`:
+
+| Description  | Prop  | Type  |
+| :---         | :---: | :---: |
+| equality     | `=`   | `≡` in [Tipe.lean](./Tipe.lean)  |
+| equivalance  | `Mathlib.Logic.Equiv.Defs.Equiv`  | `TEquiv` or `<=>` in [Function.lean](./Function.lean) |
+| decidability | `Decidable`  | `Decidability.Dec` in [Decidability.lean](./Decidability.lean) |
 
 ### Simply renamings
 
@@ -40,7 +59,7 @@ We use namespaces as much as possible to make dependencies clear to the reader w
 
 ### Syntax
 
-We dropped most of the syntax, in favour of `([a-z]|[A-Z]|')` names.
+We dropped most of the syntax, in favour of `([a-z]|[A-Z]|'|?|\.)*` names.
 
 | Description  | Original Agda | Translated Lean |
 | :---         | :---:         | :---:           |
@@ -62,6 +81,7 @@ We dropped most of the syntax, in favour of `([a-z]|[A-Z]|')` names.
 | decidable prod    | `_×‽_`   | `Decidability.prod?`   |
 | `Dec α -> Dec (List α)` | `_✶‽` | `Decidability.list?` |
 | `(β <=> α) -> Dec α -> Dec β` | `◃` | `Decidability.apply'` |
+| decidable equality | `_≟_`   | `Decidability.decEq`
 
 All language operators defined in `Language.lagda` are referenced in other modules as `◇.∅`, while in Lean they are references as qualified and non notational names `Language.emptyset`. The exception is `Calculus.lean`, where `Language.lean` is opened, so they are not qualified.
 
