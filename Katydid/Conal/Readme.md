@@ -44,7 +44,6 @@ We dropped most of the syntax, in favour of `([a-z]|[A-Z]|')` names.
 
 | Description  | Original Agda | Translated Lean |
 | :---         | :---:         | :---:           |
-| Content      | Content       | Content         |
 | nullable     | `ν`           | `null`          |
 | derivative of a string  | `𝒟` | `derives`      |
 | derivative of a character    | `δ`  | `derive` |
