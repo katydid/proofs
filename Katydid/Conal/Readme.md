@@ -17,10 +17,44 @@ The goals of this project are to:
 
 Simply renamings:
 
-  - `Set` in Agda is `Type` in Lean.
-  - universe levels is `ℓ` in Agda and `u` in Lean.
-  - parametric types in Agda is `A` and `\alpha` in Lean.
+<table>
+  <tr>
+    <td>Description</td>
+    <td>Original Agda</td>
+    <td>Translated Lean</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>`Set`</td>
+    <td>`Type`</td>
+  </tr>
+  <tr>
+    <td>universe levels</td>
+    <td>`ℓ`, 'b'</td>
+    <td>`u`, 'v'</td>
+  </tr>
+  <tr>
+    <td>parametric types</td>
+    <td>`A`, `B`</td>
+    <td>`α`, `β`</td>
+  </tr>
+  <tr>
+    <td>Isomorphism</td>
+    <td>`↔`</td>
+    <td>`<=>`</td>
+  </tr>
+  <tr>
+    <td>Exetensional Isomorphism</td>
+    <td>`⟷`</td>
+    <td>`∀ {w: List α}, (a w) <=> (b w)`</td>
+  </tr>
+</table>
+
+Syntax:
+
+  - We dropped most of the syntax, in favour of `([a-z]|[A-Z]|')` names.
+  - We use namespaces as much as possible to make dependencies clear to the reader without requiring "Go to Definition" and Lean to be installed.
 
 Not just a renaming, but still a difference with little consequence:
 
-  - `Lang` in Agda is defined as `Lang \alpha` in Lean. The `A` parameter for `Lang` is lifted to the module level in Agda, but there doesn't seem to be a way to hide this in Lean.
+  - `Lang` in Agda is defined as `Lang α` in Lean. The `A` parameter for `Lang` is lifted to the module level in Agda, but there doesn't seem to be a way to hide this in Lean.
