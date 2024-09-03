@@ -27,7 +27,7 @@ local elab "list_empty_matcher" : tactic => newTactic do
     -- x :: xs ≠ []
     run `(tactic| apply list_cons_ne_nil )
   | _ =>
-    let hyps ← getHypotheses
+    let hyps ← getHypothesesProp
     for (name, ty) in hyps do
       let matched ← match ty with
       | ~q([] = $x :: $xs) =>
@@ -146,7 +146,7 @@ local elab "list_single_matcher" : tactic => newTactic do
     -- x :: xs = y :: ys -> x = y /\ xs = ys
     run `(tactic| apply list_cons_eq.mpr)
   | _ =>
-    let hyps ← getHypotheses
+    let hyps ← getHypothesesProp
     for (name, ty) in hyps do
       let matched ← match ty with
       | ~q($xs ++ $ys = [$a]) =>
@@ -281,7 +281,7 @@ example (xs ys zs: List α):
   list_app
 
 local elab "wreck_exists" : tactic => newTactic do
-  let hyps ← getHypotheses
+  let hyps ← getHypothesesProp
   for (name, ty) in hyps do
     let matched ← match ty with
     | ~q(∃ x _y, $p x) =>
@@ -298,7 +298,7 @@ local elab "wreck_exists" : tactic => newTactic do
   throwError "tactic 'wreck_exists' did not match the goal or any hypotheses"
 
 local elab "wreck_conj": tactic => newTactic do
-  let hyps ← getHypotheses
+  let hyps ← getHypothesesProp
   for (name, ty) in hyps do
     let matched ← match ty with
     | ~q($x /\ $y) =>
@@ -320,7 +320,7 @@ local elab "wreck_conj": tactic => newTactic do
 --  - ys = [] /\ zs = x :: xs
 --  - .
 local elab "list_app_uncons" : tactic => newTactic do
-  let hyps ← getHypotheses
+  let hyps ← getHypothesesProp
   for (name, ty) in hyps do
     let matched ← match ty with
     | ~q($ys ++ $zs = $x :: $xs ) =>
@@ -367,7 +367,7 @@ example (xs ys: List α) (x y: α):
 
 -- garbage_collect_rfl removes hypotheses of the form x = x
 local elab "garbage_collect_rfl" : tactic => newTactic do
-  let hyps ← getHypotheses
+  let hyps ← getHypothesesProp
   for (name, ty) in hyps do
     let matched ← match ty with
     | ~q($x = $y) =>

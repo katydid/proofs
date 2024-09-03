@@ -19,10 +19,10 @@ def newTactic (x : Lean.Elab.Tactic.TacticM α) : Lean.Elab.Tactic.TacticM α :=
 private def castToProp (e: Lean.Expr) : Lean.Elab.Tactic.TacticM (Option Q(Prop)) := do
   Qq.checkTypeQ (u := Lean.levelOne) e q(Prop)
 
--- getHypotheses returns the hypotheses as an array of tuples of (Hypothesis name, Q(Prop))
+-- getHypothesesProp returns the hypotheses as an array of tuples of (Hypothesis name, Q(Prop))
 -- This way the hypothesis Q(Prop) can be used in a pattern match and
 -- the name can be used to refer to the hypothesis in other tactics
-def getHypotheses : Lean.Elab.Tactic.TacticM (Array (Lean.Syntax.Ident × Q(Prop))) := do
+def getHypothesesProp : Lean.Elab.Tactic.TacticM (Array (Lean.Syntax.Ident × Q(Prop))) := do
   let mut res := #[]
   for localDecl in ← Lean.MonadLCtx.getLCtx do
     if let some typ ← castToProp localDecl.type then
@@ -32,7 +32,7 @@ def getHypotheses : Lean.Elab.Tactic.TacticM (Array (Lean.Syntax.Ident × Q(Prop
 
 -- a tactic that prints the hypotheses and their types
 elab "print_hypotheses" : tactic => do
-  let hyps ← getHypotheses
+  let hyps ← getHypothesesProp
   for (name, ty) in hyps do
     Lean.logInfo m!"{name}: {ty}"
 
@@ -41,14 +41,37 @@ example (_H1: 1 = 1) (_H2: 2 = 2): True := by
   simp
 
 -- a tactic that prints the hypotheses, but only if they match a pattern
-local elab "example_print_rfl_hypotheses" : tactic => do
-  let hyps ← getHypotheses
+local elab "example_print_rfl_hypotheses_prop" : tactic => do
+  let hyps ← getHypothesesProp
   for (name, ty) in hyps do
     if let ~q($x = $y) := ty then
       if ← Lean.Meta.isExprDefEq x y then
         Lean.logInfo m!"{name} is rfl"
 
 example (_H1 : x = 5) (_H2 : 2 = 2) (_H3: y = y) (H4: 5 = 4): False := by
+  example_print_rfl_hypotheses_prop
+  contradiction
+
+def getHypotheses : Lean.Elab.Tactic.TacticM (Array (Lean.Syntax.Ident × Lean.Expr)) := do
+  let mut res := #[]
+  for localDecl in ← Lean.MonadLCtx.getLCtx do
+    let name := Lean.mkIdent localDecl.userName
+    res := res.push (name, localDecl.type)
+  return res
+
+-- use match_expr instead of Qq
+-- see examples in https://github.com/leanprover/lean4/blob/a5162ca7489bfdbf1a2851cffd8fdcca9d2b9b56/src/Lean/Elab/Tactic/Omega/Frontend.lean#L431
+local elab "example_print_rfl_hypotheses" : tactic => do
+  let hyps ← getHypotheses
+  for (name, ty) in hyps do
+    match_expr ty with
+    | Eq _ x y =>
+      if ← Lean.Meta.isExprDefEq x y then
+        Lean.logInfo m!"{name} is rfl"
+    | _ =>
+      continue
+
+example (_G1 : x > 5) (_G2 : 2 = 2) (_G3: y = y) (G4: 5 = 4): False := by
   example_print_rfl_hypotheses
   contradiction
 
@@ -59,7 +82,7 @@ def run (t: Lean.Elab.Tactic.TacticM (Lean.TSyntax `tactic)): Lean.Elab.Tactic.T
 
 -- an example tactic that applies a hypothesis to the goal if it matches a pattern
 local elab "example_apply_hypothesis" : tactic => do
-  let hyps ← getHypotheses
+  let hyps ← getHypothesesProp
   for (name, ty) in hyps do
     if let ~q((((($a : Prop)) → $b) : Prop)) := ty then
       run `(tactic| apply $name )
@@ -78,7 +101,7 @@ def getGoalProp : Lean.Elab.Tactic.TacticM Q(Prop) := do
 -- An example to check whether the goal is already an hypothesis
 local elab "example_assumption_tactic" : tactic => do
   let goal ← getGoalProp
-  let hyps ← getHypotheses
+  let hyps ← getHypothesesProp
   for (name, ty) in hyps do
     if ← Lean.Meta.isExprDefEq ty goal then
       run `(tactic| exact $name )
@@ -129,7 +152,7 @@ def mkHyp (suggestion: String) (t: Lean.Elab.Tactic.TacticM (Lean.TSyntax `term)
 -- an example that tries to apply a bunch to tactics to specific patterns
 local elab "example_combo_tactic" : tactic => do
   let goal ← getGoalProp
-  let hyps ← getHypotheses
+  let hyps ← getHypothesesProp
   if let ~q($x /\ $y) := goal then
     if ← Lean.Meta.isExprDefEq x y then
     -- x /\ x -> x
@@ -167,7 +190,7 @@ def applyIn (name: Lean.Ident) (t: Lean.Elab.Tactic.TacticM (Lean.TSyntax `term)
   return ()
 
 local elab "example_applyin_tactic" : tactic => do
-  let hyps ← getHypotheses
+  let hyps ← getHypothesesProp
   for (name, ty) in hyps do
     match ty with
     | ~q((((($a : Prop)) → $b)) /\ ($a')) =>
