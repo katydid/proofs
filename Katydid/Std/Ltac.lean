@@ -80,15 +80,33 @@ def run (t: Lean.Elab.Tactic.TacticM (Lean.TSyntax `tactic)): Lean.Elab.Tactic.T
   let t' ← t
   Lean.Elab.Tactic.evalTactic t'
 
--- an example tactic that applies a hypothesis to the goal if it matches a pattern
-local elab "example_apply_hypothesis" : tactic => do
+-- an example tactic that applies a hypothesis to the goal if it matches a pattern using the Qq library.
+local elab "example_apply_hypothesis_prop" : tactic => do
   let hyps ← getHypothesesProp
   for (name, ty) in hyps do
     if let ~q((((($a : Prop)) → $b) : Prop)) := ty then
       run `(tactic| apply $name )
 
 example {A B: Prop} (P: A -> B) (a: A): B := by
+  example_apply_hypothesis_prop
+  assumption
+
+local elab "example_apply_hypothesis" : tactic => do
+  let hyps ← getHypotheses
+  for (name, ty) in hyps do
+    match ty with
+    | Lean.Expr.forallE _ _ _ _ =>
+      run `(tactic| apply $name )
+      return ()
+    | _ =>
+      continue
+
+example : 1 = 1 :=
+  rfl
+
+theorem example100 {C D: Prop} (Q: C -> D) (a: C): D := by
   example_apply_hypothesis
+  try apply Q
   assumption
 
 -- Returns the main goal as a Q(Prop), such that it can be used in a pattern match.
