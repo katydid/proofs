@@ -6,5 +6,7 @@ import Katydid.Std.Balistic
 
 import Katydid.Example.SimpLibrary
 
+import Katydid.Regex.Regex
+import Katydid.Regex.Language
+
 import Katydid.Expr.Desc
-import Katydid.Expr.Regex
