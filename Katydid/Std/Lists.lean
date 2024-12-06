@@ -44,21 +44,12 @@ theorem nat_pred_le_succ' : {n m : Nat} -> Nat.le n (succ m) -> Nat.le (pred n) 
       have h_n_le_succ_n := Nat.le_succ n
       exact (Nat.le_trans h_n_le_succ_n h)
 
-theorem nat_min_zero {n: Nat}: min 0 n = 0 := by
-  unfold min
-  unfold instMinNat
-  unfold minOfLe
-  simp
 
-theorem nat_zero_min {n: Nat}: min n 0 = 0 := by
-  cases n with
-  | zero =>
-    simp
-  | succ n =>
-    unfold min
-    unfold instMinNat
-    unfold minOfLe
-    simp only [nonpos_iff_eq_zero, ite_false]
+theorem nat_min_zero {n: Nat}: min 0 n = 0 :=
+  Nat.min_eq_left (Nat.zero_le _)
+
+theorem nat_zero_min {n: Nat}: min n 0 = 0 :=
+  Nat.min_eq_right (Nat.zero_le _)
 
 theorem nat_add_succ_is_succ_add (n m: Nat): succ n + m = succ (n + m) := by
   cases n with
@@ -116,7 +107,8 @@ theorem list_length_zero_is_empty (xs: List α):
   · intro _
     rfl
   · intro h'
-    simp only [length, add_eq_zero, and_false] at h'
+    -- simp? at h'
+    simp only [length_cons, AddLeftCancelMonoid.add_eq_zero, length_eq_zero, one_ne_zero, and_false] at h'
 
 theorem list_app_nil_l (xs: List α):
   [] ++ xs = xs := by
@@ -231,7 +223,8 @@ theorem list_app_inj_tail {xs ys: List α} {x y: α}:
     cases ys with
     | nil =>
       intro h'
-      simp only [cons_append, nil_append, cons.injEq, append_eq_nil, and_false] at h'
+      -- simp? at h'
+      simp only [cons_append, nil_append, cons.injEq, append_eq_nil, cons_ne_self, and_false] at h'
     | cons heady taily =>
       intro h'
       simp only [cons_append, cons.injEq] at h'
@@ -319,7 +312,8 @@ theorem list_rev_empty (xs : List α) :
   | cons head tail =>
     intro h
     have h' : (reverse (reverse (head :: tail)) = []) := congrArg reverse h
-    simp only [reverse_cons, reverse_append, reverse_nil, nil_append, reverse_reverse, singleton_append] at h'
+    -- simp? at h'
+    simp only [reverse_cons, reverse_append, reverse_nil, nil_append, reverse_reverse, singleton_append, reduceCtorEq] at h'
 
 theorem list_rev_empty2 :
   reverse ([] : List α) = [] := by trivial
@@ -470,20 +464,22 @@ theorem list_take_take (n: Nat) (xs: List α):
   revert m xs
   induction n with
   | zero =>
-    intro m xs
-    rw [nat_min_zero]
-    repeat rw [take]
-  | succ n ihn =>
+        simp
+      | succ n ihn =>
     intro m xs
     cases m with
     | zero =>
       unfold min
+      unfold instMin_mathlib
+      unfold inferInstance
       unfold instMinNat
       unfold minOfLe
       rw [take]
       simp only [take]
     | succ m =>
       unfold min
+      unfold instMin_mathlib
+      unfold inferInstance
       unfold instMinNat
       unfold minOfLe
       simp only
@@ -498,6 +494,8 @@ theorem list_take_take (n: Nat) (xs: List α):
           apply (congrArg (cons x))
           have hmin : min n m = n := by
             unfold min
+            unfold instMin_mathlib
+            unfold inferInstance
             unfold instMinNat
             unfold minOfLe
             simp only [ite_eq_left_iff, not_le]
@@ -517,6 +515,8 @@ theorem list_take_take (n: Nat) (xs: List α):
           apply (congrArg (cons x))
           have hmin : min n m = m := by
             unfold min
+            unfold instMin_mathlib
+            unfold inferInstance
             unfold instMinNat
             unfold minOfLe
             simp only [ite_eq_right_iff]
@@ -683,6 +683,8 @@ theorem list_take_large_length {n: Nat} {xs: List α}:
 theorem list_take_length (n: Nat) (xs: List α):
   length (take n xs) = min n (length xs) := by
   unfold min
+  unfold instMin_mathlib
+  unfold inferInstance
   unfold instMinNat
   unfold minOfLe
   simp only [length_take, ge_iff_le]
@@ -904,7 +906,8 @@ theorem list_prefix_is_not_empty_with_index_gt_zero: ∀ (xs: List α) (n: Nat)
       | nil =>
         contradiction
       | cons x xs =>
-        simp only [succ_pos', take] at *
+        -- simp? at *
+        simp only [lt_add_iff_pos_left, add_pos_iff, zero_lt_one, or_true, take_succ_cons, reduceCtorEq] at *
 
 theorem list_app_uncons: ∀ {x: α} {xs ys zs: List α},
   ys ++ zs = x :: xs ->
