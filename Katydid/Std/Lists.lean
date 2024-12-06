@@ -469,6 +469,7 @@ theorem list_take_take (n: Nat) (xs: List α):
     intro m xs
     cases m with
     | zero =>
+      -- TODO: redo this proof without such intrusive unfolds
       unfold min
       unfold instMin_mathlib
       unfold inferInstance
@@ -477,6 +478,7 @@ theorem list_take_take (n: Nat) (xs: List α):
       rw [take]
       simp only [take]
     | succ m =>
+      -- TODO: redo this proof without such intrusive unfolds
       unfold min
       unfold instMin_mathlib
       unfold inferInstance
@@ -493,6 +495,7 @@ theorem list_take_take (n: Nat) (xs: List α):
           repeat rw [take]
           apply (congrArg (cons x))
           have hmin : min n m = n := by
+            -- TODO: redo this proof without such intrusive unfolds
             unfold min
             unfold instMin_mathlib
             unfold inferInstance
@@ -514,6 +517,7 @@ theorem list_take_take (n: Nat) (xs: List α):
           repeat rw [take]
           apply (congrArg (cons x))
           have hmin : min n m = m := by
+            -- TODO: redo this proof without such intrusive unfolds
             unfold min
             unfold instMin_mathlib
             unfold inferInstance
@@ -682,6 +686,7 @@ theorem list_take_large_length {n: Nat} {xs: List α}:
 
 theorem list_take_length (n: Nat) (xs: List α):
   length (take n xs) = min n (length xs) := by
+  -- TODO: redo this proof without such intrusive unfolds
   unfold min
   unfold instMin_mathlib
   unfold inferInstance
@@ -691,11 +696,13 @@ theorem list_take_length (n: Nat) (xs: List α):
   split
   next =>
     rename_i c
+    -- TODO: redo this proof without such intrusive unfolds
     unfold min; unfold instMinNat; unfold minOfLe; simp only [ite_eq_left_iff, not_le]
     intro c'
     linarith
   next =>
     rename_i c
+    -- TODO: redo this proof without such intrusive unfolds
     unfold min; unfold instMinNat; unfold minOfLe; simp only [ite_eq_right_iff]
     intro c''
     linarith
