@@ -83,13 +83,20 @@ def null_concat {α: Type} {P Q: Lang α}:
   case invFun =>
     exact fun ⟨x, y⟩ => ⟨[], [], x, y, rfl⟩
 
--- def null_star {α: Type} {P: Lang α}:
---   null (star P) <-> (List (null P)) := by
---   refine Iff.intro ?toFun ?invFun
---   case toFun =>
---     sorry
---   case invFun =>
---     sorry
+def null_star {α: Type} {P: Lang α}:
+  null (star P) <-> True := by
+  refine Iff.intro ?toFun ?invFun
+  case toFun =>
+    exact (fun _ => True.intro)
+  case invFun =>
+    intro t
+    simp
+    exists []
+    apply And.intro
+    · exact All.nil
+    · intro l
+      intro l'
+      cases l'
 
 def derive_emptyset {α: Type} {a: α}:
   (derive emptyset a) = emptyset :=
@@ -129,17 +136,17 @@ def derive_scalar {α: Type} {a: α} {s: Prop} {P: Lang α}:
   rfl
 
 def derive_concat {α: Type} {a: α} {P Q: Lang α} {w: List α}:
-  (derive (concat P Q) a) w <-> (scalar (null P) (or (derive Q a) (concat (derive P a) Q))) w := by
+  (derive (concat P Q) a) w <-> (or (concat (derive P a) Q) (scalar (null P) (derive Q a))) w := by
   refine Iff.intro ?toFun ?invFun
   case toFun =>
     sorry
   case invFun =>
     sorry
 
--- def derive_star {α: Type} {a: α} {P: Lang α} {w: List α}:
---   (derive (star P) a) w <-> (scalar (List (null P)) (concat (derive P a) (star P))) w := by
---   refine Iff.intro ?toFun ?invFun
---   case toFun =>
---     sorry
---   case invFun =>
---     sorry
+def derive_star {α: Type} {a: α} {P: Lang α} {w: List α}:
+  (derive (star P) a) w <-> (concat (derive P a) (star P)) w := by
+  refine Iff.intro ?toFun ?invFun
+  case toFun =>
+    sorry
+  case invFun =>
+    sorry
