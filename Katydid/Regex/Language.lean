@@ -14,6 +14,11 @@ def emptystr {α: Type} : Lang α :=
 def char {α: Type} (a : α): Lang α :=
   fun w => w = [a]
 
+-- scalar is used as an and to make derive char not require an if statement
+-- (derive (char c) a) w <-> (scalar (a = c) emptystr)
+def scalar {α: Type} (s : Prop) (P : Lang α) : Lang α :=
+  fun w => s /\ P w
+
 def or {α: Type} (P : Lang α) (Q : Lang α) : Lang α :=
   fun w => P w \/ Q w
 
@@ -30,7 +35,7 @@ inductive All {α: Type} (P : α -> Prop) : (List α -> Prop) where
 
 def star {α: Type} (P : Lang α) : Lang α :=
   fun (w : List α) =>
-    ∃ (ws : List (List α)), All P ws /\ w = (List.join ws)
+    ∃ (ws : List (List α)), All P ws /\ w = (List.flatten ws)
 
 -- attribute [simp] allows these definitions to be unfolded when using the simp tactic.
 attribute [simp] universal emptyset emptystr char or and concat star
@@ -46,6 +51,7 @@ example: Lang Char := char 'b'
 example: Lang Char := (or (char 'a') emptyset)
 example: Lang Char := (and (char 'a') (char 'b'))
 example: Lang Nat := (and (char 1) (char 2))
+example: Lang Nat := (scalar True (char 2))
 example: Lang Nat := (concat (char 1) (char 2))
 
 end Language
