@@ -1,3 +1,5 @@
+-- Originally based on https://github.com/conal/paper-2021-language-derivatives/blob/main/Calculus.lagda
+
 import Katydid.Regex.Language
 
 namespace Calculus
@@ -35,10 +37,14 @@ def derives_strings (f: List α -> Prop) (u v: List α): derives f (u ++ v) = de
 def null_derives (f: List α -> Prop) (u: List α): (null ∘ derives f) u = f u := by
   simp
 
-def derives_foldl (f: List α -> Prop) (u: List α): (derives f) u = (List.foldl derive f) u :=
-  match u with
-  | [] => rfl
-  | (a :: as) => by sorry
+def derives_foldl (f: List α -> Prop) (u: List α): (derives f) u = (List.foldl derive f) u := by
+  induction u with
+  | nil =>
+    simp
+    unfold derives
+    simp
+  | cons x xs ih =>
+    sorry
 
 def null_emptyset {α: Type}:
   @null α emptyset = False :=
