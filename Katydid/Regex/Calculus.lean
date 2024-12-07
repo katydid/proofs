@@ -83,6 +83,15 @@ def null_concat {α: Type} {P Q: Lang α}:
   case invFun =>
     exact fun ⟨x, y⟩ => ⟨[], [], x, y, rfl⟩
 
+def null_star' {α: Type} {P: Lang α}:
+  null (star P) := by
+  simp
+  exists []
+  apply And.intro
+  · exact All.nil
+  · intro l hl
+    cases hl
+
 def null_star {α: Type} {P: Lang α}:
   null (star P) <-> True := by
   refine Iff.intro ?toFun ?invFun
@@ -90,13 +99,7 @@ def null_star {α: Type} {P: Lang α}:
     exact (fun _ => True.intro)
   case invFun =>
     intro t
-    simp
-    exists []
-    apply And.intro
-    · exact All.nil
-    · intro l
-      intro l'
-      cases l'
+    exact null_star'
 
 def derive_emptyset {α: Type} {a: α}:
   (derive emptyset a) = emptyset :=
