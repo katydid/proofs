@@ -18,8 +18,8 @@ def derive' (P: Lang α) (a: α): Lang α :=
 def null {α: Type} (f: List α -> Prop): Prop :=
   f []
 
-def derives {α: Type} (f: List α -> Prop) (u: List α): (List α -> Prop) :=
-  λ v => f (u ++ v)
+def derives {α: Type} (f: List α -> Prop) (xs: List α): (List α -> Prop) :=
+  λ ys => f (xs ++ ys)
 
 def derive {α: Type} (f: List α -> Prop) (a: α): (List α -> Prop) :=
   derives f [a]
@@ -29,22 +29,28 @@ attribute [simp] null derive derives
 def derives_emptylist : derives f [] = f :=
   rfl
 
-def derives_strings (f: List α -> Prop) (u v: List α): derives f (u ++ v) = derives (derives f u) v :=
-  match u with
+def derives_strings (f: List α -> Prop) (xs ys: List α): derives f (xs ++ ys) = derives (derives f xs) ys :=
+  match xs with
   | [] => rfl
-  | (a :: u') => derives_strings (derive f a) u' v
+  | (x :: xs) => derives_strings (derive f x) xs ys
 
 def null_derives (f: List α -> Prop) (u: List α): (null ∘ derives f) u = f u := by
   simp
 
-def derives_foldl (f: List α -> Prop) (u: List α): (derives f) u = (List.foldl derive f) u := by
-  induction u with
+def derives_foldl (f: List α -> Prop) (xs: List α): (derives f) xs = (List.foldl derive f) xs := by
+  revert f
+  induction xs with
   | nil =>
     simp
     unfold derives
     simp
   | cons x xs ih =>
-    sorry
+    intro f
+    unfold List.foldl
+    have h: x :: xs = [x] ++ xs := by simp
+    rw [h]
+    rw [derives_strings]
+    apply ih
 
 def null_emptyset {α: Type}:
   @null α emptyset = False :=
