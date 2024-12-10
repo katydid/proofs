@@ -1,6 +1,7 @@
 -- Originally based on https://github.com/conal/paper-2021-language-derivatives/blob/main/Calculus.lagda
 
 import Katydid.Regex.Language
+import Katydid.Std.Balistic
 
 namespace Calculus
 
@@ -138,13 +139,74 @@ def derive_scalar {α: Type} {a: α} {s: Prop} {P: Lang α}:
   (derive (scalar s P) a) = (scalar s (derive P a)) :=
   rfl
 
-def derive_concat {α: Type} {a: α} {P Q: Lang α} {w: List α}:
-  (derive (concat P Q) a) w <-> (or (concat (derive P a) Q) (scalar (null P) (derive Q a))) w := by
+def derive_concat {α: Type} {x: α} {P Q: Lang α} {xs: List α}:
+  (derive (concat P Q) x) xs <->
+    (or (concat (derive P x) Q) (scalar (null P) (derive Q x))) xs := by
   refine Iff.intro ?toFun ?invFun
   case toFun =>
-    sorry
+    intro d
+    guard_hyp d: derive (Language.concat P Q) x xs
+    simp at d
+    cases d with
+    | intro xs' d =>
+    cases d with
+    | intro hp d =>
+    cases d with
+    | intro ys' d =>
+    cases d with
+    | intro hq hxs =>
+    guard_hyp hp: P xs'
+    guard_hyp hq: Q ys'
+    guard_hyp hxs: x :: xs = xs' ++ ys'
+    unfold scalar
+    simp
+    balistic
+    · guard_hyp hp: P []
+      guard_hyp hq: Q (x :: xs)
+      right
+      guard_target = P [] ∧ Q (x :: xs)
+      apply And.intro <;> assumption
+    · left
+      exists e
+      apply And.intro
+      exact hp
+      exists ys'
   case invFun =>
-    sorry
+    intro e
+    guard_target = derive (Language.concat P Q) x xs
+    cases e with
+    | inl e =>
+      guard_hyp e: Language.concat (derive P x) Q xs
+      simp at e
+      cases e with
+      | intro xs' e =>
+        cases e with
+        | intro hp e =>
+          cases e with
+          | intro ys' hq =>
+            cases hq with
+            | intro hq hxs =>
+              simp
+              guard_hyp hp: P (x :: xs')
+              guard_hyp hq: Q ys'
+              guard_hyp hxs: xs = xs' ++ ys'
+              exists (x :: xs')
+              apply And.intro
+              · exact hp
+              · exists ys'
+                apply And.intro
+                · exact hq
+                · congr
+    | inr e =>
+      unfold scalar at e
+      guard_hyp e: null P ∧ derive Q x xs
+      cases e with
+      | intro hp hq =>
+        simp
+        exists []
+        apply And.intro
+        · exact hp
+        · exists (x :: xs)
 
 def derive_star {α: Type} {a: α} {P: Lang α} {w: List α}:
   (derive (star P) a) w <-> (concat (derive P a) (star P)) w := by
