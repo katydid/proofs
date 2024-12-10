@@ -328,7 +328,15 @@ local elab "list_app_uncons" : tactic => newTactic do
       run `(tactic| cases $name:ident <;> rename_i $name:ident)
       run `(tactic| any_goals wreck_exists)
       run `(tactic| try all_goals wreck_conj)
-      run `(tactic| all_goals simp [*])
+      run `(tactic| try all_goals simp [*])
+      return true
+    | ~q($x :: $xs = $ys ++ $zs) =>
+      applyIn name `(symm)
+      applyIn name `(list_app_uncons)
+      run `(tactic| cases $name:ident <;> rename_i $name:ident)
+      run `(tactic| any_goals wreck_exists)
+      run `(tactic| try all_goals wreck_conj)
+      run `(tactic| try all_goals simp [*])
       return true
     | _ =>
       return false
