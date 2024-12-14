@@ -144,69 +144,49 @@ def derive_concat {α: Type} {x: α} {P Q: Lang α} {xs: List α}:
     (or (concat (derive P x) Q) (scalar (null P) (derive Q x))) xs := by
   refine Iff.intro ?toFun ?invFun
   case toFun =>
+    simp only [Language.or, Language.concat, derive, derives, null, scalar]
     intro d
-    guard_hyp d: derive (Language.concat P Q) x xs
-    simp at d
-    cases d with
-    | intro xs' d =>
-    cases d with
-    | intro hp d =>
-    cases d with
-    | intro ys' d =>
-    cases d with
-    | intro hq hxs =>
-    guard_hyp hp: P xs'
-    guard_hyp hq: Q ys'
-    guard_hyp hxs: x :: xs = xs' ++ ys'
-    unfold scalar
-    simp
+    guard_hyp d: ∃ x_1 y, P x_1 ∧ Q y ∧ [x] ++ xs = x_1 ++ y
+    guard_target = (∃ x_1 y, P ([x] ++ x_1) ∧ Q y ∧ xs = x_1 ++ y) ∨ P [] ∧ Q ([x] ++ xs)
+    match d with
+    | Exists.intro ps (Exists.intro qs (And.intro hp (And.intro hq hs))) =>
+    guard_hyp hp : P ps
+    guard_hyp hq : Q qs
+    guard_hyp hs : [x] ++ xs = ps ++ qs
     balistic
-    · guard_hyp hp: P []
-      guard_hyp hq: Q (x :: xs)
-      right
+    · guard_hyp hp : P []
+      guard_hyp hq : Q (x :: xs)
+      refine Or.inr ?r
       guard_target = P [] ∧ Q (x :: xs)
-      apply And.intro <;> assumption
-    · left
-      exists e
-      apply And.intro
-      exact hp
-      exists ys'
+      exact And.intro hp hq
+    · guard_hyp hp : P (x :: e)
+      guard_hyp hq : Q qs
+      refine Or.inl ?l
+      guard_target = ∃ x_1, P (x :: x_1) ∧ ∃ x, Q x ∧ e ++ qs = x_1 ++ x
+      exact Exists.intro e (And.intro hp (Exists.intro qs (And.intro hq rfl)))
   case invFun =>
+    simp only [Language.or, Language.concat, derive, derives, null, scalar]
     intro e
-    guard_target = derive (Language.concat P Q) x xs
-    cases e with
-    | inl e =>
-      guard_hyp e: Language.concat (derive P x) Q xs
-      simp at e
-      cases e with
-      | intro xs' e =>
-        cases e with
-        | intro hp e =>
-          cases e with
-          | intro ys' hq =>
-            cases hq with
-            | intro hq hxs =>
-              simp
-              guard_hyp hp: P (x :: xs')
-              guard_hyp hq: Q ys'
-              guard_hyp hxs: xs = xs' ++ ys'
-              exists (x :: xs')
-              apply And.intro
-              · exact hp
-              · exists ys'
-                apply And.intro
-                · exact hq
-                · congr
-    | inr e =>
-      unfold scalar at e
-      guard_hyp e: null P ∧ derive Q x xs
-      cases e with
-      | intro hp hq =>
-        simp
-        exists []
-        apply And.intro
-        · exact hp
-        · exists (x :: xs)
+    guard_hyp e : (∃ x_1 y, P ([x] ++ x_1) ∧ Q y ∧ xs = x_1 ++ y) ∨ P [] ∧ Q ([x] ++ xs)
+    guard_target = ∃ x_1 y, P x_1 ∧ Q y ∧ [x] ++ xs = x_1 ++ y
+    match e with
+    | Or.inl e =>
+      guard_hyp e: ∃ x_1 y, P ([x] ++ x_1) ∧ Q y ∧ xs = x_1 ++ y
+      guard_target = ∃ x_1 y, P x_1 ∧ Q y ∧ [x] ++ xs = x_1 ++ y
+      match e with
+      | Exists.intro ps (Exists.intro qs (And.intro hp (And.intro hq hs))) =>
+        guard_hyp hp: P ([x] ++ ps)
+        guard_hyp hq: Q qs
+        guard_hyp hs: xs = ps ++ qs
+        rw [hs]
+        guard_target = ∃ x_1 y, P x_1 ∧ Q y ∧ [x] ++ (ps ++ qs) = x_1 ++ y
+        exact Exists.intro ([x] ++ ps) (Exists.intro qs (And.intro hp (And.intro hq rfl)))
+    | Or.inr e =>
+      guard_hyp e : P [] ∧ Q ([x] ++ xs)
+      guard_target = ∃ x_1 y, P x_1 ∧ Q y ∧ [x] ++ xs = x_1 ++ y
+      match e with
+      | And.intro hp hq =>
+        exact Exists.intro [] (Exists.intro (x :: xs) (And.intro hp (And.intro hq rfl)))
 
 def derive_star {α: Type} {a: α} {P: Lang α} {w: List α}:
   (derive (star P) a) w <-> (concat (derive P a) (star P)) w := by
