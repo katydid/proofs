@@ -153,17 +153,30 @@ def derive_concat {α: Type} {x: α} {P Q: Lang α} {xs: List α}:
     guard_hyp hp : P ps
     guard_hyp hq : Q qs
     guard_hyp hs : [x] ++ xs = ps ++ qs
-    balistic
-    · guard_hyp hp : P []
-      guard_hyp hq : Q (x :: xs)
-      refine Or.inr ?r
-      guard_target = P [] ∧ Q (x :: xs)
-      exact And.intro hp hq
-    · guard_hyp hp : P (x :: e)
+    match ps with
+    | nil =>
+      guard_hyp hp : P []
       guard_hyp hq : Q qs
+      refine Or.inr ?r
+      guard_target = P [] ∧ Q ([x] ++ xs)
+      rw [nil_append] at hs
+      rw [hs]
+      exact And.intro hp hq
+    | cons p ps =>
+      guard_hyp hp : P (p :: ps)
+      guard_hyp hq : Q qs
+      guard_hyp hs : [x] ++ xs = p :: ps ++ qs
       refine Or.inl ?l
-      guard_target = ∃ x_1, P (x :: x_1) ∧ ∃ x, Q x ∧ e ++ qs = x_1 ++ x
-      exact Exists.intro e (And.intro hp (Exists.intro qs (And.intro hq rfl)))
+      guard_target = ∃ x_1 y, P ([x] ++ x_1) ∧ Q y ∧ xs = x_1 ++ y
+      simp only [cons_append, cons.injEq] at hs
+      match hs with
+      | And.intro hpx hs =>
+        rw [hpx]
+        rw [nil_append] at hs
+        rw [hs]
+        guard_hyp hs : xs = ps ++ qs
+        guard_target = ∃ x y, P ([p] ++ x) ∧ Q y ∧ ps ++ qs = x ++ y
+        exact Exists.intro ps (Exists.intro qs (And.intro hp (And.intro hq rfl)))
   case invFun =>
     simp only [Language.or, Language.concat, derive, derives, null, scalar]
     intro e
