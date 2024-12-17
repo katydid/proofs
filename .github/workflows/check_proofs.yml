@@ -31,6 +31,10 @@ jobs:
           elan --version
           lean --version
 
+      - name: Fetch mathlib cache
+        run: |
+          lake exe cache get
+
       - name: Build
         run: |
           lake build
