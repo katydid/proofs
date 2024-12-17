@@ -969,3 +969,15 @@ theorem list_app_inv_tail_reverse: ∀ {xs ys zs: List α},
   intro xs ys zs H
   simp only [append_cancel_right_eq]
   assumption
+
+theorem list_split_cons {α: Type} (xs: List α):
+  xs = [] \/ ∃ (x: α) (ys zs: List α), xs = ((x::ys) ++ zs) :=
+  match xs with
+  | nil =>
+    Or.inl rfl
+  | cons x ys => by
+    right
+    exists x
+    simp only [cons_append, cons.injEq, true_and]
+    exists []
+    exists ys

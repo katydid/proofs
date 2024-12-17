@@ -1,26 +1,26 @@
 import Lean
 open List
 
-namespace Regex
-
-inductive Regex : Type where
-  | emptyset : Regex
-  | emptystr : Regex
-  | char : Char → Regex
-  | or : Regex → Regex → Regex
-  | concat : Regex → Regex → Regex
-  | star : Regex → Regex
+inductive Regex (α: Type): Type where
+  | emptyset : Regex α
+  | emptystr : Regex α
+  | char : α → Regex α
+  | or : Regex α → Regex α → Regex α
+  | concat : Regex α → Regex α → Regex α
+  | star : Regex α → Regex α
   deriving Repr
 
-def regexFromList (chars: List Char): Regex :=
+def Regex.mkList (chars: List Char): Regex Char :=
   match chars with
   | [] => Regex.emptystr
   | [c] => Regex.char c
   | [a,b] => Regex.concat (Regex.char a) (Regex.char b)
   | _ => foldl (λ r c => Regex.concat r (Regex.char c)) Regex.emptystr chars
 
-def regexFromString (s: String): Regex :=
-  regexFromList (s.toList)
+def Regex.mkString (s: String): Regex Char :=
+  Regex.mkList (s.toList)
+
+namespace Regex
 
 declare_syntax_cat regex
 syntax "∅" : regex -- \ emptyset
@@ -36,9 +36,9 @@ syntax "(" regex ")" : regex -- parenthesis
 partial def elabRegex : Lean.Syntax → Lean.Meta.MetaM Lean.Expr
   | `(regex| ∅) => Lean.Meta.mkAppM ``Regex.emptyset #[]
   | `(regex| ε) => Lean.Meta.mkAppM ``Regex.emptystr #[]
-  | `(regex| $c:char) => Lean.Meta.mkAppM ``regexFromString #[Lean.mkStrLit c.getChar.toString]
-  | `(regex| $i:ident) => Lean.Meta.mkAppM ``regexFromString #[Lean.mkStrLit i.getId.toString]
-  | `(regex| $s:str) => Lean.Meta.mkAppM ``regexFromString #[Lean.mkStrLit s.getString]
+  | `(regex| $c:char) => Lean.Meta.mkAppM ``Regex.mkString #[Lean.mkStrLit c.getChar.toString]
+  | `(regex| $i:ident) => Lean.Meta.mkAppM ``Regex.mkString #[Lean.mkStrLit i.getId.toString]
+  | `(regex| $s:str) => Lean.Meta.mkAppM ``Regex.mkString #[Lean.mkStrLit s.getString]
   | `(regex| $x | $y) => do
     let x ← elabRegex x
     let y ← elabRegex y
@@ -53,60 +53,55 @@ partial def elabRegex : Lean.Syntax → Lean.Meta.MetaM Lean.Expr
   | `(regex| ($x)) => elabRegex x
   | _ => Lean.Elab.throwUnsupportedSyntax
 
-elab " {{ " e:regex " }} " : term => elabRegex e
+elab " ~ " e:regex " ~ " : term => elabRegex e
 
-example: Regex := {{ ∅ }}
+example: Regex Char := ~ 'a' ~
+example: Regex Char := ~ a ~
+example: Regex Char := ~ abc ~
+example: Regex Char := ~ 'a''b''c' ~
+example: Regex Char := ~ "" ~
+example: Regex Char := ~ a ~
+example: Regex Char := ~ "a" ~
+example: Regex Char := ~ ab ~
+example: Regex Char := ~ "ab" ~
+example: Regex Char := ~ abc ~
+example: Regex Char := ~ "abc" ~
+example: Regex Char := ~ abc ~
+example: Regex Char := ~ "abc" ~
+example: Regex Char := ~ 'a' ~
+example: Regex Char := ~ a ~
+example: Regex Char := ~ 'a' | 'b' ~
+example: Regex Char := ~ ab ~
+example: Regex Char := ~ a b ~
+example: Regex Char := ~ a b c ~
+example: Regex Char := ~ a* ~
+example: Regex Char := ~ (a)* ~
+example: Regex Char := ~ "a"* ~
+example: Regex Char := ~ ("a")* ~
+example: Regex Char := ~ (a)(b) ~
+example: Regex Char := ~ (a | b)* ~
 
-example: Regex := {{ 'a' }}
+def null (r: Regex α): Bool :=
+  match r with
+  | Regex.emptyset => false
+  | Regex.emptystr => true
+  | Regex.char _ => false
+  | Regex.or x y => null x || null y
+  | Regex.concat x y => null x && null y
+  | Regex.star _ => true
 
-example: Regex := {{ a }}
+def onlyif (cond: Prop) [dcond: Decidable cond] (r: Regex α): Regex α :=
+  if cond then r else Regex.emptyset
 
-example: Regex := {{ abc }}
-
-example: Regex := {{ 'a''b''c' }}
-
-example: Regex := {{ "" }}
-
-example: Regex := {{ a }}
-
-example: Regex := {{ "a" }}
-
-example: Regex := {{ ab }}
-
-example: Regex := {{ "ab" }}
-
-example: Regex := {{ abc }}
-
-example: Regex := {{ "abc" }}
-
-example: Regex := {{ abc }}
-
-example: Regex := {{ "abc" }}
-
-example: Regex := {{ ε }}
-
-example: Regex := {{ 'a' }}
-
-example: Regex := {{ a }}
-
-example: Regex := {{ 'a' | 'b' }}
-
-example: Regex := {{ ab }}
-
-example: Regex := {{ a b }}
-
-example: Regex := {{ a b c }}
-
-example: Regex := {{ a* }}
-
-example: Regex := {{ (a)* }}
-
-example: Regex := {{ "a"* }}
-
-example: Regex := {{ ("a")* }}
-
-example: Regex := {{ (a)(b) }}
-
-example: Regex := {{ (a | b)* }}
-
-end Regex
+def derive [DecidableEq α] (r: Regex α) (a: α): Regex α :=
+  match r with
+  | Regex.emptyset => Regex.emptyset
+  | Regex.emptystr => Regex.emptyset
+  | Regex.char c => Regex.onlyif (a == c) Regex.emptystr
+  | Regex.or x y => Regex.or (derive x a) (derive y a)
+  | Regex.concat x y =>
+      Regex.or
+        (Regex.concat (derive x a) y)
+        (Regex.onlyif (null x) (derive y a))
+  | Regex.star x =>
+      Regex.concat (derive x a) (Regex.star x)
