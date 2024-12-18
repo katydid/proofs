@@ -981,3 +981,12 @@ theorem list_split_cons {α: Type} (xs: List α):
     simp only [cons_append, cons.injEq, true_and]
     exists []
     exists ys
+
+theorem list_split_flatten {α: Type} (zs: List α):
+  ∃ (zss: List (List α)), zs = zss.flatten :=
+  match zs with
+  | nil => by
+    exists []
+  | cons x ys => by
+    exists [[x], ys]
+    simp
