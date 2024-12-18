@@ -30,16 +30,16 @@ def and {α: Type} (P : Lang α) (Q : Lang α) : Lang α :=
   fun w => P w /\ Q w
 
 def concat {α: Type} (P : Lang α) (Q : Lang α) : Lang α :=
-  fun (w : List α) =>
-    ∃ (x : List α) (y : List α), P x /\ Q y /\ w = (x ++ y)
+  fun (xs : List α) =>
+    ∃ (ys : List α) (zs : List α), P ys /\ Q zs /\ xs = (ys ++ zs)
 
 inductive All {α: Type} (P : α -> Prop) : (List α -> Prop) where
   | nil : All P []
   | cons : ∀ {x xs} (_px : P x) (_pxs : All P xs), All P (x :: xs)
 
 def star {α: Type} (R : Lang α) : Lang α :=
-  fun (w : List α) =>
-    ∃ (ws : List (List α)), All R ws /\ w = (List.flatten ws)
+  fun (xs : List α) =>
+    ∃ (xss : List (List α)), All R xss /\ xs = (List.flatten xss)
 
 -- attribute [simp] allows these definitions to be unfolded when using the simp tactic.
 attribute [simp] universal emptyset emptystr char onlyif or and concat star
@@ -116,6 +116,14 @@ def null_emptyset {α: Type}:
   @null α emptyset = False :=
   rfl
 
+def null_iff_emptyset {α: Type}:
+  @null α emptyset <-> False := by
+  rw [null_emptyset]
+
+def not_null_if_emptyset {α: Type}:
+  @null α emptyset -> False :=
+  null_iff_emptyset.mp
+
 def null_universal {α: Type}:
   @null α universal = True :=
   rfl
@@ -126,6 +134,10 @@ def null_iff_emptystr {α: Type}:
     (fun _ => True.intro)
     (fun _ => rfl)
 
+def null_if_emptystr {α: Type}:
+  @null α emptystr :=
+  rfl
+
 def null_emptystr {α: Type}:
   @null α emptystr = True := by
   rw [null_iff_emptystr]
@@ -134,6 +146,10 @@ def null_iff_char {α: Type} {c: α}:
   null (char c) <-> False :=
   Iff.intro nofun nofun
 
+def not_null_if_char {α: Type} {c: α}:
+  null (char c) -> False :=
+  nofun
+
 def null_char {α: Type} {c: α}:
   null (char c) = False := by
   rw [null_iff_char]
@@ -141,6 +157,10 @@ def null_char {α: Type} {c: α}:
 def null_or {α: Type} {P Q: Lang α}:
   null (or P Q) = ((null P) \/ (null Q)) :=
   rfl
+
+def null_iff_or {α: Type} {P Q: Lang α}:
+  null (or P Q) <-> ((null P) \/ (null Q)) := by
+  rw [null_or]
 
 def null_and {α: Type} {P Q: Lang α}:
   null (and P Q) = ((null P) /\ (null Q)) :=
@@ -169,6 +189,14 @@ def null_star {α: Type} {P: Lang α}:
   · exact All.nil
   · intro l hl
     cases hl
+
+def null_iff_star {α: Type} {P: Lang α}:
+  null (star P) <-> True := by
+  rw [null_star]
+
+def null_if_star {α: Type} {P: Lang α}:
+  null (star P) :=
+  null_iff_star.mpr True.intro
 
 def derive_emptyset {α: Type} {a: α}:
   (derive emptyset a) = emptyset :=
@@ -293,9 +321,9 @@ inductive starplus {α: Type} (R: Lang α): Lang α where
     -> starplus R qs
     -> starplus R w
 
-theorem star_is_starplus: ∀ {α: Type} (R: Lang α) (w: List α),
-  star R w -> starplus R w := by
-  intro α R w
+theorem star_is_starplus: ∀ {α: Type} (R: Lang α) (xs: List α),
+  star R xs -> starplus R xs := by
+  intro α R xs
   unfold star
   intro s
   match s with
@@ -303,7 +331,7 @@ theorem star_is_starplus: ∀ {α: Type} (R: Lang α) (w: List α),
     clear s
     rw [sr]
     clear sr
-    clear w
+    clear xs
     induction ws with
     | nil =>
       simp
@@ -318,6 +346,37 @@ theorem star_is_starplus: ∀ {α: Type} (R: Lang α) (w: List α),
         · simp
         · assumption
         · assumption
+
+theorem starplus_is_star: ∀ {α: Type} (R: Lang α) (xs: List α),
+  starplus R xs -> star R xs := by
+  intro α R xs
+  intro hs
+  induction xs with
+  | nil =>
+    simp
+    exists []
+    apply And.intro ?_ (by simp)
+    apply All.nil
+  | cons x' xs' ih =>
+    cases hs with
+    | more ps qs _ xxspsqs Rps sRqs =>
+      unfold star
+      have hxs := list_split_cons (x' :: xs')
+      cases hxs with
+      | inl h =>
+        contradiction
+      | inr h =>
+        cases h with
+        | intro x h =>
+        cases h with
+        | intro xs h =>
+        cases h with
+        | intro ys h =>
+        rw [h]
+        have hys := list_split_flatten ys
+        cases hys with
+        | intro yss hyss =>
+        sorry
 
 inductive starcons {α: Type} (R: Lang α): Lang α where
   | zero: starcons R []
@@ -395,8 +454,8 @@ theorem star_is_starcons: ∀ {α: Type} (R: Lang α) (xs: List α),
         | intro h2l h2r =>
         sorry
 
-def derive_iff_star {α: Type} {a: α} {P: Lang α} {w: List α}:
-  (derive (star P) a) w <-> (concat (derive P a) (star P)) w := by
+def derive_iff_star {α: Type} {x: α} {R: Lang α} {xs: List α}:
+  (derive (star R) x) xs <-> (concat (derive R x) (star R)) xs := by
   refine Iff.intro ?toFun ?invFun
   case toFun =>
     sorry

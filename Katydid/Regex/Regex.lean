@@ -97,11 +97,11 @@ def derive [DecidableEq α] (r: Regex α) (a: α): Regex α :=
   match r with
   | Regex.emptyset => Regex.emptyset
   | Regex.emptystr => Regex.emptyset
-  | Regex.char c => Regex.onlyif (a == c) Regex.emptystr
+  | Regex.char c => onlyif (a == c) Regex.emptystr
   | Regex.or x y => Regex.or (derive x a) (derive y a)
   | Regex.concat x y =>
       Regex.or
         (Regex.concat (derive x a) y)
-        (Regex.onlyif (null x) (derive y a))
+        (onlyif (null x) (derive y a))
   | Regex.star x =>
       Regex.concat (derive x a) (Regex.star x)
