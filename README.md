@@ -22,7 +22,7 @@ Prove theorems about Symbolic regular expressions as a foundation to build upon.
 - [ ] Prove correctness of simplification rules.
 - [ ] Prove correctness of smart constructors.
 
-Reuse as much as we can from [our previous work in Coq](https://github.com/katydid/regex-derivatives-coq) and out attempt at [Reproving Agda in Lean](https://github.com/katydid/symbolic-automatic-derivatives)
+Reuse as much as we can from [our previous work in Coq](https://github.com/katydid/regex-derivatives-coq) and our attempt at [Reproving Agda in Lean](https://github.com/katydid/symbolic-automatic-derivatives)
 
 ### Symbolic predicates
 
