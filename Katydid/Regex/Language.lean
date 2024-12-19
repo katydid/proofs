@@ -423,55 +423,56 @@ theorem derive_iff_not {α: Type} {x: α} {R: Lang α} {xs: List α}:
 
 -- Theorems: simplification rules
 
-theorem simp_concat_emptyset_l_is_emptyset:
+theorem simp_concat_emptyset_l_is_emptyset (r: Lang α):
   concat emptyset r = emptyset := by
   unfold concat
   simp only [emptyset, false_and, exists_const]
   rfl
 
-theorem simp_concat_emptyset_r_is_emptyset:
+theorem simp_concat_emptyset_r_is_emptyset (r: Lang α):
   concat r emptyset = emptyset := by
   unfold concat
   simp only [emptyset, false_and, and_false, exists_const]
   rfl
 
-theorem simp_concat_emptystr_l_is_l:
+theorem simp_concat_emptystr_l_is_r (r: Lang α):
   concat emptystr r = r := by
   unfold concat
   simp only [emptystr, exists_and_left, exists_eq_left, nil_append, exists_eq_right']
 
-theorem simp_concat_emptyst_r_is_r:
+theorem simp_concat_emptystr_r_is_l (r: Lang α):
   concat r emptystr = r := by
   unfold concat
   simp only [emptystr, exists_and_left, exists_eq_left, append_nil, exists_eq_right']
 
-theorem simp_concat_assoc:
+theorem simp_concat_assoc (r s t: Lang α):
   concat r (concat s t) = concat (concat r s) t := by
   sorry
 
-theorem simp_or_emptyset_l_is_l:
+theorem simp_or_emptyset_l_is_r (r: Lang α):
   or emptyset r = r := by
   unfold or
   simp only [emptyset, false_or]
 
-theorem simp_or_emptyset_r_is_r:
+theorem simp_or_emptyset_r_is_l (r: Lang α):
   or r emptyset = r := by
   unfold or
   simp only [emptyset, or_false]
 
-theorem simp_or_universal_l_is_universal:
+theorem simp_or_universal_l_is_universal (r: Lang α):
   or universal r = universal := by
   unfold or
   simp only [universal, true_or]
   rfl
 
-theorem simp_or_universal_r_is_universal:
+theorem simp_or_universal_r_is_universal (r: Lang α):
   or r universal = universal := by
   unfold or
   simp only [universal, or_true]
   rfl
 
 theorem simp_or_null_l_emptystr_is_l
+  (r: Lang α)
   (nullr: null r):
   or r emptystr = r := by
   unfold or
@@ -484,6 +485,7 @@ theorem simp_or_null_l_emptystr_is_l
   exact nullr
 
 theorem simp_or_emptystr_null_r_is_r
+  (r: Lang α)
   (nullr: null r):
   or emptystr r = r := by
   unfold or
@@ -495,108 +497,167 @@ theorem simp_or_emptystr_null_r_is_r
   rw [hxs]
   exact nullr
 
-theorem simp_or_idemp:
+theorem simp_or_idemp (r: Lang α):
   or r r = r := by
   unfold or
   simp
 
-theorem simp_or_comm:
+theorem simp_or_comm (r s: Lang α):
   or r s = or s r := by
   unfold or
   funext xs
   simp
-  -- TODO: Beginner
-  sorry
+  apply Iff.intro
+  case mp =>
+    intro h
+    match h with
+    | Or.inl h =>
+      exact Or.inr h
+    | Or.inr h =>
+      exact Or.inl h
+  case mpr =>
+    intro h
+    match h with
+    | Or.inl h =>
+      exact Or.inr h
+    | Or.inr h =>
+      exact Or.inl h
 
-theorem simp_or_assoc:
+theorem simp_or_assoc (r s t: Lang α):
   or r (or s t) = or (or r s) t := by
   sorry
 
-theorem simp_and_emptyset_l_is_emptyset:
+theorem simp_and_emptyset_l_is_emptyset (r: Lang α):
   and emptyset r = emptyset := by
   unfold and
   simp
   rfl
 
-theorem simp_and_emptyset_r_is_emptyset:
+theorem simp_and_emptyset_r_is_emptyset (r: Lang α):
   and r emptyset = emptyset := by
   unfold and
   simp
   rfl
 
-theorem simp_and_universal_l_is_r:
+theorem simp_and_universal_l_is_r (r: Lang α):
   and universal r = r := by
   unfold and
   simp
 
-theorem simp_and_universal_r_is_l:
+theorem simp_and_universal_r_is_l (r: Lang α):
   and r universal = r := by
   unfold and
   simp
 
 theorem simp_and_null_l_emptystr_is_l
+  (r: Lang α)
   (nullr: null r):
   and r emptystr = r := by
   sorry
 
 theorem simp_and_emptystr_null_r_is_r
+  (r: Lang α)
   (nullr: null r):
   and emptystr r = r := by
   sorry
 
 theorem simp_and_not_null_l_emptystr_is_emptyset
+  (r: Lang α)
   (notnullr: Not (null r)):
   and r emptystr = emptyset := by
   sorry
 
 theorem simp_and_emptystr_not_null_r_is_emptyset
+  (r: Lang α)
   (notnullr: Not (null r)):
   and emptystr r = emptyset := by
   sorry
 
-theorem simp_and_idemp:
+theorem simp_and_idemp (r: Lang α):
   and r r = r := by
-  sorry
+  unfold and
+  simp
 
-theorem simp_and_comm:
+theorem simp_and_comm (r s: Lang α):
   and r s = and s r := by
-  sorry
+  unfold and
+  funext xs
+  simp
+  apply Iff.intro
+  case mp =>
+    intro h
+    cases h with
+    | intro hr hs =>
+      exact And.intro hs hr
+  case mpr =>
+    intro h
+    cases h with
+    | intro hs hr =>
+      exact And.intro hr hs
 
-theorem simp_and_assoc:
+theorem simp_and_assoc (r s t: Lang α):
   and r (and s t) = and (and r s) t := by
   sorry
 
-theorem simp_not_not_is_double_negation:
+theorem simp_not_not_is_double_negation (r: Lang α):
   not (not r) = r := by
   unfold not
   simp
 
-theorem simp_not_and_demorgen:
+theorem simp_not_and_demorgen (r s: Lang α):
   not (and r s) = or (not r) (not s) := by
   sorry
 
-theorem simp_not_or_demorgen:
+theorem simp_not_or_demorgen (r s: Lang α):
   not (or r s) = and (not r) (not s) := by
   sorry
 
 theorem simp_and_not_emptystr_l_not_null_r_is_r
+  (r: Lang α)
   (notnullr: Not (null r)):
   and (not emptystr) r = r := by
   sorry
 
 theorem simp_and_not_null_l_not_emptystr_r_is_l
+  (r: Lang α)
   (notnullr: Not (null r)):
   and r (not emptystr) = r := by
   sorry
 
-theorem simp_star_star_is_star:
+theorem simp_star_star_is_star (r: Lang α):
   star (star r) = star r := by
   sorry
 
 theorem simp_star_emptystr_is_emptystr {α: Type}:
   star (@emptystr α) = (@emptystr α) := by
-  sorry
+  funext xs
+  simp
+  apply Iff.intro
+  case mp =>
+    intro h
+    cases h
+    case zero =>
+      rfl
+    case more x xs1 xs2 hemptystr hstar hsplit =>
+      cases hemptystr
+  case mpr =>
+    intro h
+    rw [h]
+    exact star.zero
 
-theorem simp_star_emptyset_is_emptystr:
+theorem simp_star_emptyset_is_emptystr {α: Type}:
   star (@emptyset α) = (@emptystr α) := by
-  sorry
+  funext xs
+  simp
+  apply Iff.intro
+  case mp =>
+    intro h
+    cases h
+    case zero =>
+      rfl
+    case more x xs1 xs2 hemptystr hstar hsplit =>
+      cases hemptystr
+  case mpr =>
+    intro h
+    rw [h]
+    exact star.zero
