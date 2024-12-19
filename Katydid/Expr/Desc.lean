@@ -6,8 +6,6 @@ We want to represent some nested function calls for a very restricted language, 
 We represent the description (including AST) of the expr, or as we call it the Descriptor here:
 -/
 
-namespace Desc
-
 inductive Desc where
   | intro
     (name: String)
@@ -16,11 +14,13 @@ inductive Desc where
     (reader: Bool)
   deriving Repr
 
-def Desc.name (desc: Desc): String :=
+namespace Desc
+
+def name (desc: Desc): String :=
   match desc with
   | ⟨ name, _, _, _ ⟩ => name
 
-def Desc.params (desc: Desc): List Desc :=
+def params (desc: Desc): List Desc :=
   match desc with
   | ⟨ _, params, _, _⟩ => params
 
@@ -30,13 +30,13 @@ The `hash` field is important, because it is used to efficiently compare functio
   * and(lt(3, 5), lt(3, 5)) => lt(3, 5)
   * or(and(lt(3, 5), contains("abcd", "bc")), and(contains("abcd", "bc"), lt(3, 5))) => and(contains("abcd", "bc"), lt(3, 5))
 -/
-def hash_list (innit: UInt64) (list: List UInt64): UInt64 :=
+private def hash_list (innit: UInt64) (list: List UInt64): UInt64 :=
   List.foldl (fun acc h => 31 * acc + h) innit list
 
-def hash_string (s: String): UInt64 :=
+private def hash_string (s: String): UInt64 :=
   hash_list 0 (List.map (Nat.toUInt64 ∘ Char.toNat) (String.toList s))
 
-def hash_desc (desc: Desc): UInt64 :=
+private def hash_desc (desc: Desc): UInt64 :=
   match desc with
   | ⟨ name, params, _, _⟩ => hash_list (31 * 17 + hash_string name) (hash_params params)
 where hash_params (params: List Desc): List UInt64 :=
@@ -44,10 +44,10 @@ where hash_params (params: List Desc): List UInt64 :=
   | [] => []
   | param::params => hash_desc param :: hash_params params
 
-def Desc.hash (desc: Desc): UInt64 :=
+def hash (desc: Desc): UInt64 :=
   hash_desc desc
 
-def any_reader (d: Desc): Bool :=
+private def any_reader (d: Desc): Bool :=
   match d with
   | ⟨ _, params, _, _⟩ => any_params params
 where any_params (params: List Desc): Bool :=
@@ -56,7 +56,7 @@ where any_params (params: List Desc): Bool :=
   | param::params => any_reader param || any_params params
 
 /- The reader field tells us whether the function has any variables or can be evaluated at compile time. -/
-def Desc.reader (desc: Desc): Bool :=
+def reader (desc: Desc): Bool :=
   any_reader desc
 
 inductive IsSmart : Desc → Prop

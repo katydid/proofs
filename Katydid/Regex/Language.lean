@@ -256,7 +256,7 @@ def derive_char {α: Type} [DecidableEq α] {a: α} {c: α}:
   funext
   rw [derive_iff_char]
 
-def derive_iff_pred {α: Type} {p: α -> Prop} [dp: DecidablePred p] {x: α} {xs: List α}:
+def derive_iff_pred {α: Type} {p: α -> Prop} {x: α} {xs: List α}:
   (derive (pred p) x) xs <-> (onlyif (p x) emptystr) xs := by
   simp only [derive, derives, singleton_append]
   simp only [onlyif, emptystr]
