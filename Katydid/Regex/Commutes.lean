@@ -1,6 +1,8 @@
 import Mathlib.Tactic.SplitIfs
 import Mathlib.Tactic.CongrM
 
+import Katydid.Std.Decidable
+
 import Katydid.Regex.Language
 import Katydid.Regex.Regex
 
@@ -15,25 +17,13 @@ def denote {α: Type} (r: Regex α): Language.Lang α :=
   | Regex.concat x y => Language.concat (denote x) (denote y)
   | Regex.star x => Language.star (denote x)
 
-private theorem decide_prop (P: Prop) [dP: Decidable P]:
-  (P <-> True) \/ (P <-> False) := by
-    match dP with
-    | isTrue hp =>
-      left
-      simp only [iff_true]
-      exact hp
-    | isFalse hp =>
-      right
-      simp only [iff_false]
-      exact hp
-
 def denote_onlyif {α: Type} (condition: Prop) [dcond: Decidable condition] (r: Regex α):
   denote (Regex.onlyif condition r) = Language.onlyif condition (denote r) := by
   unfold Language.onlyif
   unfold Regex.onlyif
   funext xs
   have hc : (condition <-> True) \/ (condition <-> False) :=
-    decide_prop condition
+    Decidable.true_or_false condition
   cases hc with
   | inl ctrue =>
     split_ifs

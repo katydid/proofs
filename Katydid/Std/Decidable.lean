@@ -31,3 +31,15 @@ def map' {α β: Prop} (ab: α -> β) (ba: β -> α) (a: Decidable α): Decidabl
 
 def map {α β: Prop} (ab: α <-> β) (a: Decidable α): Decidable β :=
   map' ab.mp ab.mpr a
+
+theorem true_or_false (P: Prop) [dP: Decidable P]:
+  (P <-> True) \/ (P <-> False) := by
+    match dP with
+    | isTrue hp =>
+      left
+      simp only [iff_true]
+      exact hp
+    | isFalse hp =>
+      right
+      simp only [iff_false]
+      exact hp
