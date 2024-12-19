@@ -16,7 +16,7 @@ This is just a quick overview of the steps towards our goal.
 
 Prove theorems about Symbolic regular expressions as a foundation to build upon.
 
-- [ ] Prove correctness of derivative algorithm via a commuting diagram.
+- [x] Prove correctness of derivative algorithm via a commuting diagram.
 - [ ] Prove correctness of derivative algorithm via a Regex type indexed with Language.
 - [ ] Prove decidability of derivative algorithm.
 - [ ] Prove correctness of simplification rules.
