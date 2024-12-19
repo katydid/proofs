@@ -12,7 +12,7 @@ The goal is to formalize the core [katydid](https://katydid.github.io/) validati
 
 This is just a quick overview of the steps towards our goal.
 
-## Symbolic regular expressions
+### Symbolic regular expressions
 
 Prove theorems about Symbolic regular expressions as a foundation to build upon.
 
@@ -24,14 +24,14 @@ Prove theorems about Symbolic regular expressions as a foundation to build upon.
 
 Reuse as much as we can from [our previous work in Coq](https://github.com/katydid/regex-derivatives-coq) and out attempt at [Reproving Agda in Lean](https://github.com/katydid/symbolic-automatic-derivatives)
 
-## Symbolic predicates
+### Symbolic predicates
 
 - [ ] Create expression language as described in the post: [Derivatives of Symbolic Automata explained](https://medium.com/@awalterschulze/derivatives-of-symbolic-automata-explained-4673dee6af82)
 - [ ] Prove correctness of simplification rules for `or`, `and`, `false`, etc.
 - [ ] Prove that non-reader functions can be pre-computed before evaluating time
 - [ ] Prove that the optimized comparison method using a hash is comparable (transitive, associative, etc.)
 
-## Create the symbolic regular expressions for trees
+### Katydid Algorithm
 
 - [ ] Create Language definition for the symbolic tree expressions.
 - [ ] Code Pull-based Parser class in Lean and implement JSON as an example.
@@ -42,7 +42,7 @@ Reuse as much as we can from [our previous work in Coq](https://github.com/katyd
 - [ ] Prove correctness of new simplification rules
 - [ ] Prove all optimizations of the katydid algorithm
 
-### Contributing
+## Contributing
 
 Please check the [prerequisites](https://github.com/katydid/proofs#prerequisites) and read the [contributing guidelines](https://github.com/katydid/proofs/blob/master/CONTRIBUTING.md).  The contributing guidelines are short and shouldn't be surprising.
 
