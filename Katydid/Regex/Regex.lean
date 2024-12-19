@@ -4,18 +4,20 @@ open List
 inductive Regex (α: Type): Type where
   | emptyset : Regex α
   | emptystr : Regex α
-  | char : α → Regex α
+  | pred : (p: α -> Prop) → [DecidablePred p] → Regex α
   | or : Regex α → Regex α → Regex α
   | concat : Regex α → Regex α → Regex α
   | star : Regex α → Regex α
-  deriving Repr
+
+def Regex.mkChar (c: Char): Regex Char :=
+  Regex.pred (· = c)
 
 def Regex.mkList (chars: List Char): Regex Char :=
   match chars with
   | [] => Regex.emptystr
-  | [c] => Regex.char c
-  | [a,b] => Regex.concat (Regex.char a) (Regex.char b)
-  | _ => foldl (λ r c => Regex.concat r (Regex.char c)) Regex.emptystr chars
+  | [c] => Regex.mkChar c
+  | [a,b] => Regex.concat (Regex.mkChar a) (Regex.mkChar b)
+  | _ => foldl (λ r c => Regex.concat r (Regex.mkChar c)) Regex.emptystr chars
 
 def Regex.mkString (s: String): Regex Char :=
   Regex.mkList (s.toList)
@@ -85,7 +87,7 @@ def null (r: Regex α): Bool :=
   match r with
   | Regex.emptyset => false
   | Regex.emptystr => true
-  | Regex.char _ => false
+  | Regex.pred _ => false
   | Regex.or x y => null x || null y
   | Regex.concat x y => null x && null y
   | Regex.star _ => true
@@ -93,11 +95,11 @@ def null (r: Regex α): Bool :=
 def onlyif (cond: Prop) [dcond: Decidable cond] (r: Regex α): Regex α :=
   if cond then r else Regex.emptyset
 
-def derive [DecidableEq α] (r: Regex α) (a: α): Regex α :=
+def derive (r: Regex α) (a: α): Regex α :=
   match r with
   | Regex.emptyset => Regex.emptyset
   | Regex.emptystr => Regex.emptyset
-  | Regex.char c => onlyif (a == c) Regex.emptystr
+  | Regex.pred p => onlyif (p a) Regex.emptystr
   | Regex.or x y => Regex.or (derive x a) (derive y a)
   | Regex.concat x y =>
       Regex.or
