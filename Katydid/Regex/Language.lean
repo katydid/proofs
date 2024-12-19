@@ -4,6 +4,8 @@ namespace Language
 
 open List
 
+-- Definitions
+
 def Lang (α: Type): Type := List α -> Prop
 
 def emptyset : Lang α :=
@@ -82,7 +84,7 @@ theorem derive_is_derive' {α: Type} (R: Lang α) (x: α):
   derive R x = derive' R x :=
   rfl
 
-def derives_empty_list {α: Type} (R: Lang α):
+theorem derives_empty_list {α: Type} (R: Lang α):
   derives R [] = R :=
   rfl
 
@@ -104,7 +106,7 @@ theorem null_derives {α: Type} (R: Lang α) (xs: List α):
   unfold null
   simp
 
-def derives_foldl (R: Lang α) (xs: List α):
+theorem derives_foldl (R: Lang α) (xs: List α):
   (derives R) xs = (List.foldl derive R) xs := by
   revert R
   induction xs with
@@ -118,73 +120,75 @@ def derives_foldl (R: Lang α) (xs: List α):
     rw [ih (derive R x)]
     simp
 
-def null_emptyset {α: Type}:
+-- Theorems: null
+
+theorem null_emptyset {α: Type}:
   @null α emptyset = False :=
   rfl
 
-def null_iff_emptyset {α: Type}:
+theorem null_iff_emptyset {α: Type}:
   @null α emptyset <-> False := by
   rw [null_emptyset]
 
-def not_null_if_emptyset {α: Type}:
+theorem not_null_if_emptyset {α: Type}:
   @null α emptyset -> False :=
   null_iff_emptyset.mp
 
-def null_universal {α: Type}:
+theorem null_universal {α: Type}:
   @null α universal = True :=
   rfl
 
-def null_iff_emptystr {α: Type}:
+theorem null_iff_emptystr {α: Type}:
   @null α emptystr <-> True :=
   Iff.intro
     (fun _ => True.intro)
     (fun _ => rfl)
 
-def null_if_emptystr {α: Type}:
+theorem null_if_emptystr {α: Type}:
   @null α emptystr :=
   rfl
 
-def null_emptystr {α: Type}:
+theorem null_emptystr {α: Type}:
   @null α emptystr = True := by
   rw [null_iff_emptystr]
 
-def null_iff_char {α: Type} {c: α}:
+theorem null_iff_char {α: Type} {c: α}:
   null (char c) <-> False :=
   Iff.intro nofun nofun
 
-def not_null_if_char {α: Type} {c: α}:
+theorem not_null_if_char {α: Type} {c: α}:
   null (char c) -> False :=
   nofun
 
-def null_char {α: Type} {c: α}:
+theorem null_char {α: Type} {c: α}:
   null (char c) = False := by
   rw [null_iff_char]
 
-def null_iff_pred {α: Type} {p: α -> Prop}:
+theorem null_iff_pred {α: Type} {p: α -> Prop}:
   null (pred p) <-> False :=
   Iff.intro nofun nofun
 
-def not_null_if_pred {α: Type} {p: α -> Prop}:
+theorem not_null_if_pred {α: Type} {p: α -> Prop}:
   null (pred p) -> False :=
   nofun
 
-def null_pred {α: Type} {p: α -> Prop}:
+theorem null_pred {α: Type} {p: α -> Prop}:
   null (pred p) = False := by
   rw [null_iff_pred]
 
-def null_or {α: Type} {P Q: Lang α}:
+theorem null_or {α: Type} {P Q: Lang α}:
   null (or P Q) = ((null P) \/ (null Q)) :=
   rfl
 
-def null_iff_or {α: Type} {P Q: Lang α}:
+theorem null_iff_or {α: Type} {P Q: Lang α}:
   null (or P Q) <-> ((null P) \/ (null Q)) := by
   rw [null_or]
 
-def null_and {α: Type} {P Q: Lang α}:
+theorem null_and {α: Type} {P Q: Lang α}:
   null (and P Q) = ((null P) /\ (null Q)) :=
   rfl
 
-def null_iff_concat {α: Type} {P Q: Lang α}:
+theorem null_iff_concat {α: Type} {P Q: Lang α}:
   null (concat P Q) <-> ((null P) /\ (null Q)) := by
   refine Iff.intro ?toFun ?invFun
   case toFun =>
@@ -195,50 +199,52 @@ def null_iff_concat {α: Type} {P Q: Lang α}:
   case invFun =>
     exact fun ⟨x, y⟩ => ⟨[], [], x, y, rfl⟩
 
-def null_concat {α: Type} {P Q: Lang α}:
+theorem null_concat {α: Type} {P Q: Lang α}:
   null (concat P Q) = ((null P) /\ (null Q)) := by
   rw [null_iff_concat]
 
-def null_if_star {α: Type} {R: Lang α}:
+theorem null_if_star {α: Type} {R: Lang α}:
   null (star R) :=
   star.zero
 
-def null_iff_star {α: Type} {R: Lang α}:
+theorem null_iff_star {α: Type} {R: Lang α}:
   null (star R) <-> True :=
   Iff.intro
     (fun _ => True.intro)
     (fun _ => star.zero)
 
-def null_star {α: Type} {R: Lang α}:
+theorem null_star {α: Type} {R: Lang α}:
   null (star R) = True := by
   rw [null_iff_star]
 
-def null_not {α: Type} {R: Lang α}:
+theorem null_not {α: Type} {R: Lang α}:
   null (not R) = null (Not ∘ R) :=
   rfl
 
-def null_iff_not {α: Type} {R: Lang α}:
+theorem null_iff_not {α: Type} {R: Lang α}:
   null (not R) <-> null (Not ∘ R) := by
   rw [null_not]
 
-def derive_emptyset {α: Type} {a: α}:
+-- Theorems: derive
+
+theorem derive_emptyset {α: Type} {a: α}:
   (derive emptyset a) = emptyset :=
   rfl
 
-def derive_universal {α: Type} {a: α}:
+theorem derive_universal {α: Type} {a: α}:
   (derive universal a) = universal :=
   rfl
 
-def derive_iff_emptystr {α: Type} {a: α} {w: List α}:
+theorem derive_iff_emptystr {α: Type} {a: α} {w: List α}:
   (derive emptystr a) w <-> emptyset w :=
   Iff.intro nofun nofun
 
-def derive_emptystr {α: Type} {a: α}:
+theorem derive_emptystr {α: Type} {a: α}:
   (derive emptystr a) = emptyset := by
   funext
   rw [derive_iff_emptystr]
 
-def derive_iff_char {α: Type} [DecidableEq α] {a: α} {c: α} {w: List α}:
+theorem derive_iff_char {α: Type} [DecidableEq α] {a: α} {c: α} {w: List α}:
   (derive (char c) a) w <-> (onlyif (a = c) emptystr) w := by
   refine Iff.intro ?toFun ?invFun
   case toFun =>
@@ -251,12 +257,12 @@ def derive_iff_char {α: Type} [DecidableEq α] {a: α} {c: α} {w: List α}:
     cases H2 with | refl =>
     exact rfl
 
-def derive_char {α: Type} [DecidableEq α] {a: α} {c: α}:
+theorem derive_char {α: Type} [DecidableEq α] {a: α} {c: α}:
   (derive (char c) a) = (onlyif (a = c) emptystr) := by
   funext
   rw [derive_iff_char]
 
-def derive_iff_pred {α: Type} {p: α -> Prop} {x: α} {xs: List α}:
+theorem derive_iff_pred {α: Type} {p: α -> Prop} {x: α} {xs: List α}:
   (derive (pred p) x) xs <-> (onlyif (p x) emptystr) xs := by
   simp only [derive, derives, singleton_append]
   simp only [onlyif, emptystr]
@@ -277,24 +283,24 @@ def derive_iff_pred {α: Type} {p: α -> Prop} {x: α} {xs: List α}:
     simp only [cons.injEq, true_and]
     exact And.intro hxs hpx
 
-def derive_pred {α: Type} {p: α -> Prop} [DecidablePred p] {x: α}:
+theorem derive_pred {α: Type} {p: α -> Prop} [DecidablePred p] {x: α}:
   (derive (pred p) x) = (onlyif (p x) emptystr) := by
   funext
   rw [derive_iff_pred]
 
-def derive_or {α: Type} {a: α} {P Q: Lang α}:
+theorem derive_or {α: Type} {a: α} {P Q: Lang α}:
   (derive (or P Q) a) = (or (derive P a) (derive Q a)) :=
   rfl
 
-def derive_and {α: Type} {a: α} {P Q: Lang α}:
+theorem derive_and {α: Type} {a: α} {P Q: Lang α}:
   (derive (and P Q) a) = (and (derive P a) (derive Q a)) :=
   rfl
 
-def derive_onlyif {α: Type} {a: α} {s: Prop} {P: Lang α}:
+theorem derive_onlyif {α: Type} {a: α} {s: Prop} {P: Lang α}:
   (derive (onlyif s P) a) = (onlyif s (derive P a)) :=
   rfl
 
-def derive_iff_concat {α: Type} {x: α} {P Q: Lang α} {xs: List α}:
+theorem derive_iff_concat {α: Type} {x: α} {P Q: Lang α} {xs: List α}:
   (derive (concat P Q) x) xs <->
     (or (concat (derive P x) Q) (onlyif (null P) (derive Q x))) xs := by
   refine Iff.intro ?toFun ?invFun
@@ -356,13 +362,13 @@ def derive_iff_concat {α: Type} {x: α} {P Q: Lang α} {xs: List α}:
       | And.intro hp hq =>
         exact Exists.intro [] (Exists.intro (x :: xs) (And.intro hp (And.intro hq rfl)))
 
-def derive_concat {α: Type} {x: α} {P Q: Lang α}:
+theorem derive_concat {α: Type} {x: α} {P Q: Lang α}:
   (derive (concat P Q) x) =
     (or (concat (derive P x) Q) (onlyif (null P) (derive Q x))) := by
   funext
   rw [derive_iff_concat]
 
-def derive_iff_star {α: Type} {x: α} {R: Lang α} {xs: List α}:
+theorem derive_iff_star {α: Type} {x: α} {R: Lang α} {xs: List α}:
   (derive (star R) x) xs <-> (concat (derive R x) (star R)) xs := by
   refine Iff.intro ?toFun ?invFun
   case toFun =>
@@ -401,16 +407,196 @@ def derive_iff_star {α: Type} {x: α} {R: Lang α} {xs: List α}:
     · apply deriveRxxs1
     · exact starRxs2
 
-def derive_star {α: Type} {x: α} {R: Lang α}:
+theorem derive_star {α: Type} {x: α} {R: Lang α}:
   (derive (star R) x) = (concat (derive R x) (star R)) := by
   funext
   rw [derive_iff_star]
 
-def derive_not {α: Type} {x: α} {R: Lang α}:
+theorem derive_not {α: Type} {x: α} {R: Lang α}:
   (derive (not R) x) = Not ∘ (derive R x) :=
   rfl
 
-def derive_iff_not {α: Type} {x: α} {R: Lang α} {xs: List α}:
+theorem derive_iff_not {α: Type} {x: α} {R: Lang α} {xs: List α}:
   (derive (not R) x) xs <-> Not ((derive R x) xs) := by
   rw [derive_not]
   rfl
+
+-- Theorems: simplification rules
+
+theorem simp_concat_emptyset_l_is_emptyset:
+  concat emptyset r = emptyset := by
+  unfold concat
+  simp only [emptyset, false_and, exists_const]
+  rfl
+
+theorem simp_concat_emptyset_r_is_emptyset:
+  concat r emptyset = emptyset := by
+  unfold concat
+  simp only [emptyset, false_and, and_false, exists_const]
+  rfl
+
+theorem simp_concat_emptystr_l_is_l:
+  concat emptystr r = r := by
+  unfold concat
+  simp only [emptystr, exists_and_left, exists_eq_left, nil_append, exists_eq_right']
+
+theorem simp_concat_emptyst_r_is_r:
+  concat r emptystr = r := by
+  unfold concat
+  simp only [emptystr, exists_and_left, exists_eq_left, append_nil, exists_eq_right']
+
+theorem simp_concat_assoc:
+  concat r (concat s t) = concat (concat r s) t := by
+  sorry
+
+theorem simp_or_emptyset_l_is_l:
+  or emptyset r = r := by
+  unfold or
+  simp only [emptyset, false_or]
+
+theorem simp_or_emptyset_r_is_r:
+  or r emptyset = r := by
+  unfold or
+  simp only [emptyset, or_false]
+
+theorem simp_or_universal_l_is_universal:
+  or universal r = universal := by
+  unfold or
+  simp only [universal, true_or]
+  rfl
+
+theorem simp_or_universal_r_is_universal:
+  or r universal = universal := by
+  unfold or
+  simp only [universal, or_true]
+  rfl
+
+theorem simp_or_null_l_emptystr_is_l
+  (nullr: null r):
+  or r emptystr = r := by
+  unfold or
+  simp
+  unfold null at nullr
+  funext xs
+  simp
+  intro hxs
+  rw [hxs]
+  exact nullr
+
+theorem simp_or_emptystr_null_r_is_r
+  (nullr: null r):
+  or emptystr r = r := by
+  unfold or
+  simp
+  unfold null at nullr
+  funext xs
+  simp
+  intro hxs
+  rw [hxs]
+  exact nullr
+
+theorem simp_or_idemp:
+  or r r = r := by
+  unfold or
+  simp
+
+theorem simp_or_comm:
+  or r s = or s r := by
+  unfold or
+  funext xs
+  simp
+  -- TODO: Beginner
+  sorry
+
+theorem simp_or_assoc:
+  or r (or s t) = or (or r s) t := by
+  sorry
+
+theorem simp_and_emptyset_l_is_emptyset:
+  and emptyset r = emptyset := by
+  unfold and
+  simp
+  rfl
+
+theorem simp_and_emptyset_r_is_emptyset:
+  and r emptyset = emptyset := by
+  unfold and
+  simp
+  rfl
+
+theorem simp_and_universal_l_is_r:
+  and universal r = r := by
+  unfold and
+  simp
+
+theorem simp_and_universal_r_is_l:
+  and r universal = r := by
+  unfold and
+  simp
+
+theorem simp_and_null_l_emptystr_is_l
+  (nullr: null r):
+  and r emptystr = r := by
+  sorry
+
+theorem simp_and_emptystr_null_r_is_r
+  (nullr: null r):
+  and emptystr r = r := by
+  sorry
+
+theorem simp_and_not_null_l_emptystr_is_emptyset
+  (notnullr: Not (null r)):
+  and r emptystr = emptyset := by
+  sorry
+
+theorem simp_and_emptystr_not_null_r_is_emptyset
+  (notnullr: Not (null r)):
+  and emptystr r = emptyset := by
+  sorry
+
+theorem simp_and_idemp:
+  and r r = r := by
+  sorry
+
+theorem simp_and_comm:
+  and r s = and s r := by
+  sorry
+
+theorem simp_and_assoc:
+  and r (and s t) = and (and r s) t := by
+  sorry
+
+theorem simp_not_not_is_double_negation:
+  not (not r) = r := by
+  unfold not
+  simp
+
+theorem simp_not_and_demorgen:
+  not (and r s) = or (not r) (not s) := by
+  sorry
+
+theorem simp_not_or_demorgen:
+  not (or r s) = and (not r) (not s) := by
+  sorry
+
+theorem simp_and_not_emptystr_l_not_null_r_is_r
+  (notnullr: Not (null r)):
+  and (not emptystr) r = r := by
+  sorry
+
+theorem simp_and_not_null_l_not_emptystr_r_is_l
+  (notnullr: Not (null r)):
+  and r (not emptystr) = r := by
+  sorry
+
+theorem simp_star_star_is_star:
+  star (star r) = star r := by
+  sorry
+
+theorem simp_star_emptystr_is_emptystr {α: Type}:
+  star (@emptystr α) = (@emptystr α) := by
+  sorry
+
+theorem simp_star_emptyset_is_emptystr:
+  star (@emptyset α) = (@emptystr α) := by
+  sorry
