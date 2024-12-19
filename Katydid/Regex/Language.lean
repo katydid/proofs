@@ -366,9 +366,40 @@ def derive_iff_star {α: Type} {x: α} {R: Lang α} {xs: List α}:
   (derive (star R) x) xs <-> (concat (derive R x) (star R)) xs := by
   refine Iff.intro ?toFun ?invFun
   case toFun =>
-    sorry
+    intro deriveStar
+    unfold derive at deriveStar
+    unfold derives at deriveStar
+    cases deriveStar with
+    | more x' xs1 xs2 _ hxs Rxxs1 starRxs2 =>
+      unfold concat
+      exists xs1
+      exists xs2
+      simp at hxs
+      cases hxs with
+      | intro hxs1 hxs2 =>
+      rw [hxs1]
+      split_ands
+      · exact Rxxs1
+      · exact starRxs2
+      · exact hxs2
   case invFun =>
-    sorry
+    intro concatDerive
+    unfold concat at concatDerive
+    cases concatDerive with
+    | intro xs1 concatDerive =>
+    cases concatDerive with
+    | intro xs2 concatDerive =>
+    cases concatDerive with
+    | intro deriveRxxs1 concatDerive =>
+    cases concatDerive with
+    | intro starRxs2 hxs =>
+    unfold derive
+    unfold derives
+    refine star.more x xs1 xs2 ?hxs ?e ?f ?g
+    · rw [hxs]
+      simp
+    · apply deriveRxxs1
+    · exact starRxs2
 
 def derive_star {α: Type} {x: α} {R: Lang α}:
   (derive (star R) x) = (concat (derive R x) (star R)) := by
