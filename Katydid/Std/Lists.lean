@@ -929,3 +929,16 @@ theorem list_splitAt_length {α: Type} (n: Nat) (xs: List α) (hn: n ≤ length 
   · exact (symm (list_splitAt_eq n xs))
   · exact (list_take_length_le n xs hn)
   · exact (list_drop_length n xs)
+
+theorem list_splitAt_length_exists {α: Type} (xs: List α):
+  ∃ (n: Nat) (xs1 xs2: List α),
+    (xs1, xs2) = splitAt n xs
+    /\ n ≤ length xs
+    /\ xs1 = take n xs
+    /\ xs1.length = n
+    /\ xs2 = drop n xs
+    /\ xs2.length = xs.length - n := by
+  exists 0
+  exists []
+  exists xs
+  simp
