@@ -11,5 +11,6 @@ import Katydid.Example.SimpLibrary
 import Katydid.Regex.Language
 import Katydid.Regex.SimpleRegex
 import Katydid.Regex.IndexedRegex
+import Katydid.Regex.SmartRegex
 
 import Katydid.Expr.Desc

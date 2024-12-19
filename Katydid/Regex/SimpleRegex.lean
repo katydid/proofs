@@ -226,3 +226,6 @@ theorem derive_commutes {α: Type} (r: Regex α) (x: α):
     congrm ((Language.concat ?_ (Language.star (denote r))))
     guard_target = denote (derive r x) = Language.derive (denote r) x
     exact ih
+
+def decidableDenote (r: Regex α): DecidablePred (denote r) := by
+  sorry
