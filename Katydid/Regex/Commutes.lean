@@ -10,7 +10,7 @@ def denote {α: Type} (r: Regex α): Language.Lang α :=
   match r with
   | Regex.emptyset => Language.emptyset
   | Regex.emptystr => Language.emptystr
-  | Regex.char a => Language.char a
+  | Regex.pred p => Language.pred p
   | Regex.or x y => Language.or (denote x) (denote y)
   | Regex.concat x y => Language.concat (denote x) (denote y)
   | Regex.star x => Language.star (denote x)
@@ -27,11 +27,7 @@ private theorem decide_prop (P: Prop) [dP: Decidable P]:
       simp only [iff_false]
       exact hp
 
-private theorem decide_eq (x y: α) [dα: DecidableEq α]:
-  (x == y) = true <-> (x = y) := by
-  apply beq_iff_eq
-
-def denote_onlyif {α: Type} [DecidableEq α] (condition: Prop) [dcond: Decidable condition] (r: Regex α):
+def denote_onlyif {α: Type} (condition: Prop) [dcond: Decidable condition] (r: Regex α):
   denote (Regex.onlyif condition r) = Language.onlyif condition (denote r) := by
   unfold Language.onlyif
   unfold Regex.onlyif
@@ -69,9 +65,9 @@ theorem null_commutes {α: Type} (r: Regex α):
     rw [Language.null_emptystr]
     unfold Regex.null
     simp only
-  | char a =>
+  | pred p =>
     unfold denote
-    rw [Language.null_char]
+    rw [Language.null_pred]
     unfold Regex.null
     apply Bool.false_eq_true
   | or p q ihp ihq =>
@@ -94,7 +90,7 @@ theorem null_commutes {α: Type} (r: Regex α):
     unfold Regex.null
     simp only
 
-theorem derive_commutes {α: Type} [dα: DecidableEq α] (r: Regex α) (x: α):
+theorem derive_commutes {α: Type} (r: Regex α) (x: α):
   denote (Regex.derive r x) = Language.derive (denote r) x := by
   induction r with
   | emptyset =>
@@ -103,13 +99,12 @@ theorem derive_commutes {α: Type} [dα: DecidableEq α] (r: Regex α) (x: α):
   | emptystr =>
     simp only [denote]
     rw [Language.derive_emptystr]
-  | char a =>
+  | pred p =>
     simp only [denote]
-    rw [Language.derive_char]
+    rw [Language.derive_pred]
     unfold Regex.derive
     rw [denote_onlyif]
     simp only [denote]
-    rw [beq_iff_eq]
   | or p q ihp ihq =>
     simp only [denote]
     rw [Language.derive_or]

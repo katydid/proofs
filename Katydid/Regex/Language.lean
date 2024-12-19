@@ -13,36 +13,42 @@ def universal {α: Type} : Lang α :=
   fun _ => True
 
 def emptystr {α: Type} : Lang α :=
-  fun w => w = []
+  fun xs => xs = []
 
-def char {α: Type} (a : α): Lang α :=
-  fun w => w = [a]
+def char {α: Type} (x : α): Lang α :=
+  fun xs => xs = [x]
+
+def pred {α: Type} (p : α -> Prop): Lang α :=
+  fun xs => ∃ x, xs = [x] /\ p x
 
 -- onlyif is used as an and to make derive char not require an if statement
 -- (derive (char c) a) w <-> (onlyif (a = c) emptystr)
-def onlyif {α: Type} (cond : Prop) (P : Lang α) : Lang α :=
-  fun w => cond /\ P w
+def onlyif {α: Type} (cond : Prop) (R : Lang α) : Lang α :=
+  fun xs => cond /\ R xs
 
 def or {α: Type} (P : Lang α) (Q : Lang α) : Lang α :=
-  fun w => P w \/ Q w
+  fun xs => P xs \/ Q xs
 
 def and {α: Type} (P : Lang α) (Q : Lang α) : Lang α :=
-  fun w => P w /\ Q w
+  fun xs => P xs /\ Q xs
 
 def concat {α: Type} (P : Lang α) (Q : Lang α) : Lang α :=
   fun (xs : List α) =>
-    ∃ (ys : List α) (zs : List α), P ys /\ Q zs /\ xs = (ys ++ zs)
+    ∃ (xs1 : List α) (xs2 : List α), P xs1 /\ Q xs2 /\ xs = (xs1 ++ xs2)
 
-inductive All {α: Type} (P : α -> Prop) : (List α -> Prop) where
-  | nil : All P []
-  | cons : ∀ {x xs} (_px : P x) (_pxs : All P xs), All P (x :: xs)
+inductive star {α: Type} (R: Lang α): Lang α where
+  | zero: star R []
+  | more: ∀ (x: α) (xs1 xs2 xs: List α),
+    xs = (x::xs1) ++ xs2
+    -> R (x::xs1)
+    -> star R xs2
+    -> star R xs
 
-def star {α: Type} (R : Lang α) : Lang α :=
-  fun (xs : List α) =>
-    ∃ (xss : List (List α)), All R xss /\ xs = (List.flatten xss)
+def not {α: Type} (R: Lang α): Lang α :=
+  fun xs => (Not (R xs))
 
 -- attribute [simp] allows these definitions to be unfolded when using the simp tactic.
-attribute [simp] universal emptyset emptystr char onlyif or and concat star
+attribute [simp] universal emptyset emptystr char onlyif or and concat
 
 example: Lang α := universal
 example: Lang α := emptystr
@@ -154,6 +160,18 @@ def null_char {α: Type} {c: α}:
   null (char c) = False := by
   rw [null_iff_char]
 
+def null_iff_pred {α: Type} {p: α -> Prop}:
+  null (pred p) <-> False :=
+  Iff.intro nofun nofun
+
+def not_null_if_pred {α: Type} {p: α -> Prop}:
+  null (pred p) -> False :=
+  nofun
+
+def null_pred {α: Type} {p: α -> Prop}:
+  null (pred p) = False := by
+  rw [null_iff_pred]
+
 def null_or {α: Type} {P Q: Lang α}:
   null (or P Q) = ((null P) \/ (null Q)) :=
   rfl
@@ -181,22 +199,27 @@ def null_concat {α: Type} {P Q: Lang α}:
   null (concat P Q) = ((null P) /\ (null Q)) := by
   rw [null_iff_concat]
 
-def null_star {α: Type} {P: Lang α}:
-  null (star P) = True := by
-  simp
-  exists []
-  apply And.intro
-  · exact All.nil
-  · intro l hl
-    cases hl
+def null_if_star {α: Type} {R: Lang α}:
+  null (star R) :=
+  star.zero
 
-def null_iff_star {α: Type} {P: Lang α}:
-  null (star P) <-> True := by
-  rw [null_star]
+def null_iff_star {α: Type} {R: Lang α}:
+  null (star R) <-> True :=
+  Iff.intro
+    (fun _ => True.intro)
+    (fun _ => star.zero)
 
-def null_if_star {α: Type} {P: Lang α}:
-  null (star P) :=
-  null_iff_star.mpr True.intro
+def null_star {α: Type} {R: Lang α}:
+  null (star R) = True := by
+  rw [null_iff_star]
+
+def null_not {α: Type} {R: Lang α}:
+  null (not R) = null (Not ∘ R) :=
+  rfl
+
+def null_iff_not {α: Type} {R: Lang α}:
+  null (not R) <-> null (Not ∘ R) := by
+  rw [null_not]
 
 def derive_emptyset {α: Type} {a: α}:
   (derive emptyset a) = emptyset :=
@@ -232,6 +255,32 @@ def derive_char {α: Type} [DecidableEq α] {a: α} {c: α}:
   (derive (char c) a) = (onlyif (a = c) emptystr) := by
   funext
   rw [derive_iff_char]
+
+def derive_iff_pred {α: Type} {p: α -> Prop} [dp: DecidablePred p] {x: α} {xs: List α}:
+  (derive (pred p) x) xs <-> (onlyif (p x) emptystr) xs := by
+  simp only [derive, derives, singleton_append]
+  simp only [onlyif, emptystr]
+  refine Iff.intro ?toFun ?invFun
+  case toFun =>
+    intro D
+    match D with
+    | Exists.intro x' D =>
+    simp only [cons.injEq] at D
+    match D with
+    | And.intro (And.intro hxx' hxs) hpx =>
+    rw [<- hxx'] at hpx
+    exact And.intro hpx hxs
+  case invFun =>
+    intro ⟨ hpx , hxs  ⟩
+    unfold pred
+    exists x
+    simp only [cons.injEq, true_and]
+    exact And.intro hxs hpx
+
+def derive_pred {α: Type} {p: α -> Prop} [DecidablePred p] {x: α}:
+  (derive (pred p) x) = (onlyif (p x) emptystr) := by
+  funext
+  rw [derive_iff_pred]
 
 def derive_or {α: Type} {a: α} {P Q: Lang α}:
   (derive (or P Q) a) = (or (derive P a) (derive Q a)) :=
@@ -313,147 +362,6 @@ def derive_concat {α: Type} {x: α} {P Q: Lang α}:
   funext
   rw [derive_iff_concat]
 
-inductive starplus {α: Type} (R: Lang α): Lang α where
-  | zero: starplus R []
-  | more: ∀ (ps qs w: List α),
-    w = ps ++ qs
-    -> R ps
-    -> starplus R qs
-    -> starplus R w
-
-theorem star_is_starplus: ∀ {α: Type} (R: Lang α) (xs: List α),
-  star R xs -> starplus R xs := by
-  intro α R xs
-  unfold star
-  intro s
-  match s with
-  | Exists.intro ws (And.intro sl sr) =>
-    clear s
-    rw [sr]
-    clear sr
-    clear xs
-    induction ws with
-    | nil =>
-      simp
-      exact starplus.zero
-    | cons w' ws' ih =>
-      cases sl with
-      | cons rw allrw =>
-        have hr := ih allrw
-        refine starplus.more ?ps ?qs ?w ?psqs ?rps ?rqs
-        · exact w'
-        · exact ws'.flatten
-        · simp
-        · assumption
-        · assumption
-
-theorem starplus_is_star: ∀ {α: Type} (R: Lang α) (xs: List α),
-  starplus R xs -> star R xs := by
-  intro α R xs
-  intro hs
-  induction xs with
-  | nil =>
-    simp
-    exists []
-    apply And.intro ?_ (by simp)
-    apply All.nil
-  | cons x' xs' ih =>
-    cases hs with
-    | more ps qs _ xxspsqs Rps sRqs =>
-      unfold star
-      have hxs := list_split_cons (x' :: xs')
-      cases hxs with
-      | inl h =>
-        contradiction
-      | inr h =>
-        cases h with
-        | intro x h =>
-        cases h with
-        | intro xs h =>
-        cases h with
-        | intro ys h =>
-        rw [h]
-        have hys := list_split_flatten ys
-        cases hys with
-        | intro yss hyss =>
-        sorry
-
-inductive starcons {α: Type} (R: Lang α): Lang α where
-  | zero: starcons R []
-  | more: ∀ (p: α) (ps qs w: List α),
-    w = (p::ps) ++ qs
-    -> R (p::ps)
-    -> starcons R qs
-    -> starcons R w
-
-def stara {α: Type} (R : Lang α) (ws : List (List α)) (allr: All R ws): star R ws.flatten := by
-  unfold star
-  exists ws
-
-theorem star_is_starcons: ∀ {α: Type} (R: Lang α) (xs: List α),
-  star R xs <-> starcons R xs := by
-  intro α R xs
-  refine Iff.intro ?toFun ?invFun
-  case toFun =>
-    intro s
-    match s with
-    | Exists.intro ws (And.intro sl sr) =>
-      cases sl with
-      | nil =>
-        rw [sr]
-        exact starcons.zero
-      | cons rx1 rx2 =>
-        rename_i xs1 xs2
-        cases xs with
-        | nil =>
-          exact starcons.zero
-        | cons x' xs' =>
-          cases xs1 with
-          | nil =>
-            sorry
-          | cons xs1' xss1' =>
-            refine starcons.more x' ?ps ?qs ?ws' ?hw ?hr ?hsr
-            · exact xss1'
-            · exact xs2.flatten
-            · sorry
-            · sorry
-            · sorry
-  case invFun =>
-    intro hs
-    induction hs with
-    | zero =>
-      unfold star
-      exists []
-      simp
-      exact All.nil
-    | more x' ys' zs' xs hsplit hr hrs ih =>
-      have hxs := list_split_cons xs
-      cases hxs with
-      | inl h =>
-        rw [h]
-        simp
-        exists []
-        simp
-        apply All.nil
-      | inr h =>
-        cases h with
-        | intro x h =>
-        cases h with
-        | intro ys h =>
-        cases h with
-        | intro zs h =>
-        rw [hsplit] at h
-        rw [hsplit]
-        unfold star
-        exists [x' :: ys', zs']
-        refine And.intro ?_ (by simp)
-        refine All.cons hr ?_
-        cases ih with
-        | intro ws h2 =>
-        cases h2 with
-        | intro h2l h2r =>
-        sorry
-
 def derive_iff_star {α: Type} {x: α} {R: Lang α} {xs: List α}:
   (derive (star R) x) xs <-> (concat (derive R x) (star R)) xs := by
   refine Iff.intro ?toFun ?invFun
@@ -462,7 +370,16 @@ def derive_iff_star {α: Type} {x: α} {R: Lang α} {xs: List α}:
   case invFun =>
     sorry
 
-def derive_star {α: Type} {a: α} {P: Lang α}:
-  (derive (star P) a) = (concat (derive P a) (star P)) := by
+def derive_star {α: Type} {x: α} {R: Lang α}:
+  (derive (star R) x) = (concat (derive R x) (star R)) := by
   funext
   rw [derive_iff_star]
+
+def derive_not {α: Type} {x: α} {R: Lang α}:
+  (derive (not R) x) = Not ∘ (derive R x) :=
+  rfl
+
+def derive_iff_not {α: Type} {x: α} {R: Lang α} {xs: List α}:
+  (derive (not R) x) xs <-> Not ((derive R x) xs) := by
+  rw [derive_not]
+  rfl
