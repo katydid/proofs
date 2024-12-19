@@ -6,6 +6,9 @@ We want to represent some nested function calls for a very restricted language, 
 We represent the description (including AST) of the expr, or as we call it the Descriptor here:
 -/
 
+namespace Desc
+
+set_option linter.dupNamespace false
 inductive Desc where
   | intro
     (name: String)
@@ -14,13 +17,11 @@ inductive Desc where
     (reader: Bool)
   deriving Repr
 
-namespace Desc
-
-def name (desc: Desc): String :=
+def Desc.name (desc: Desc): String :=
   match desc with
   | ⟨ name, _, _, _ ⟩ => name
 
-def params (desc: Desc): List Desc :=
+def Desc.params (desc: Desc): List Desc :=
   match desc with
   | ⟨ _, params, _, _⟩ => params
 
@@ -44,7 +45,7 @@ where hash_params (params: List Desc): List UInt64 :=
   | [] => []
   | param::params => hash_desc param :: hash_params params
 
-def hash (desc: Desc): UInt64 :=
+def Desc.hash (desc: Desc): UInt64 :=
   hash_desc desc
 
 private def any_reader (d: Desc): Bool :=
@@ -56,7 +57,7 @@ where any_params (params: List Desc): Bool :=
   | param::params => any_reader param || any_params params
 
 /- The reader field tells us whether the function has any variables or can be evaluated at compile time. -/
-def reader (desc: Desc): Bool :=
+def Desc.reader (desc: Desc): Bool :=
   any_reader desc
 
 inductive IsSmart : Desc → Prop

@@ -8,9 +8,8 @@ import Katydid.Std.Balistic
 
 import Katydid.Example.SimpLibrary
 
-import Katydid.Regex.Regex
 import Katydid.Regex.Language
-import Katydid.Regex.Commutes
+import Katydid.Regex.SimpleRegex
 import Katydid.Regex.IndexedRegex
 
 import Katydid.Expr.Desc
