@@ -37,7 +37,7 @@ elab "print_hypotheses" : tactic => do
     Lean.logInfo m!"{name}: {ty}"
 
 example (_H1: 1 = 1) (_H2: 2 = 2): True := by
-  print_hypotheses
+  -- uncomment to print: print_hypotheses
   simp
 
 -- a tactic that prints the hypotheses, but only if they match a pattern
@@ -49,7 +49,7 @@ local elab "example_print_rfl_hypotheses_prop" : tactic => do
         Lean.logInfo m!"{name} is rfl"
 
 example (_H1 : x = 5) (_H2 : 2 = 2) (_H3: y = y) (H4: 5 = 4): False := by
-  example_print_rfl_hypotheses_prop
+  -- uncomment to print: example_print_rfl_hypotheses_prop
   contradiction
 
 def getHypotheses : Lean.Elab.Tactic.TacticM (Array (Lean.Syntax.Ident × Lean.Expr)) := do
@@ -72,7 +72,7 @@ local elab "example_print_rfl_hypotheses" : tactic => do
       continue
 
 example (_G1 : x > 5) (_G2 : 2 = 2) (_G3: y = y) (G4: 5 = 4): False := by
-  example_print_rfl_hypotheses
+  -- uncomment to print: example_print_rfl_hypotheses
   contradiction
 
 -- run is shorthand for evalTactic (← t).
