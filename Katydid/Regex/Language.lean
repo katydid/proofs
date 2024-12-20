@@ -106,6 +106,12 @@ theorem null_derives {α: Type} (R: Lang α) (xs: List α):
   unfold null
   simp
 
+theorem validate {α: Type} (R: Lang α) (xs: List α):
+  null (derives R xs) = R xs := by
+  unfold derives
+  unfold null
+  simp
+
 theorem derives_foldl (R: Lang α) (xs: List α):
   (derives R) xs = (List.foldl derive R) xs := by
   revert R
