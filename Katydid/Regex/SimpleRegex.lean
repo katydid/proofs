@@ -227,5 +227,46 @@ theorem derive_commutes {α: Type} (r: Regex α) (x: α):
     guard_target = denote (derive r x) = Language.derive (denote r) x
     exact ih
 
+def derives (r: Regex α) (xs: List α): Regex α :=
+  (List.foldl derive r) xs
+
+theorem derives_commutes {α: Type} (r: Regex α) (xs: List α):
+  denote (derives r xs) = Language.derives (denote r) xs := by
+  unfold derives
+  rw [Language.derives_foldl]
+  revert r
+  induction xs with
+  | nil =>
+    simp only [foldl_nil]
+    intro h
+    exact True.intro
+  | cons x xs ih =>
+    simp only [foldl_cons]
+    intro r
+    have h := derive_commutes r x
+    have ih' := ih (derive r x)
+    rw [h] at ih'
+    exact ih'
+
+def validate (r: Regex α) (xs: List α): Bool :=
+  null (derives r xs)
+
+theorem validate_commutes {α: Type} (r: Regex α) (xs: List α):
+  (validate r xs = true) = (denote r) xs := by
+  rw [<- Language.validate (denote r) xs]
+  unfold validate
+  rw [<- derives_commutes]
+  rw [<- null_commutes]
+
+-- decidableDenote shows that the derivative algorithm is decidable
 def decidableDenote (r: Regex α): DecidablePred (denote r) := by
-  sorry
+  unfold DecidablePred
+  intro xs
+  rw [<- validate_commutes]
+  cases (validate r xs)
+  · simp only [Bool.false_eq_true]
+    apply Decidable.isFalse
+    simp only [not_false_eq_true]
+  · simp only
+    apply Decidable.isTrue
+    exact True.intro
