@@ -553,7 +553,8 @@ theorem simp_or_emptystr_null_r_is_r
 theorem simp_or_idemp (r: Lang α):
   or r r = r := by
   unfold or
-  simp
+  funext xs
+  apply or_self
 
 theorem simp_or_comm (r s: Lang α):
   or r s = or s r := by
