@@ -1,3 +1,5 @@
+import Katydid.Std.NonEmptyList
+
 import Katydid.Regex.Language
 
 open List
@@ -176,6 +178,28 @@ theorem smartConcat_is_concat {α: Type} (x y: Regex α):
       apply Language.simp_concat_emptyset_r_is_emptyset
     · case emptystr =>
       apply Language.simp_concat_emptystr_r_is_l
+
+def orToList (x: Regex α): NonEmptyList (Regex α) :=
+  match x with
+  | Regex.or x1 x2 =>
+    -- smartOr guarantees that left hand side will not be an Regex.or so a recursive call is only required on the right hand side.
+    NonEmptyList.cons x1 (orToList x2)
+  | _ =>
+    NonEmptyList.mk x []
+
+def orFromList (xs: NonEmptyList (Regex α)): Regex α :=
+  match xs with
+  | NonEmptyList.mk x1 [] =>
+    x1
+  | NonEmptyList.mk x1 (x2::xs) =>
+    Regex.or x1 (orFromList (NonEmptyList.mk x2 xs))
+
+theorem orToList_is_orFromList (x: Regex α):
+  orFromList (orToList x) = x := by
+  induction x <;> (try simp [orToList, orFromList])
+  · case or x1 x2 ih1 ih2 =>
+    sorry
+
 
 -- TODO: incorporate more simplification rules into the smart constructor
 -- 1. Get the list of ors (Language.simp_or_assoc)

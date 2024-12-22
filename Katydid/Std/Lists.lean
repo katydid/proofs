@@ -8,7 +8,9 @@
 -- https://github.com/leanprover/lean4/blob/master/src/Init/Tactics.lean
 
 import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.SplitIfs
 
+import Katydid.Std.BEq
 import Katydid.Std.Nat
 
 open Nat
@@ -942,3 +944,69 @@ theorem list_splitAt_length_exists {α: Type} (xs: List α):
   exists []
   exists xs
   simp
+
+theorem list_eraseDup_does_not_erase_singleton (α: Type) [BEq α] (x: α):
+  List.eraseDup [x] = [x] := by
+  simp [eraseDup]
+
+theorem list_notin_cons (y: α) (x: α) (xs: List α):
+  y ∉ x :: xs -> y ≠ x /\ y ∉ xs := by
+  intro h
+  apply And.intro
+  · intro xy
+    apply h
+    rw [xy]
+    apply Mem.head
+  · intro yinxs
+    apply h
+    apply Mem.tail
+    exact yinxs
+
+theorem list_eraseReps_finishes {α: Type} [BEq α] (x: α) (xs: List α):
+  List.eraseReps (List.eraseReps xs) = List.eraseReps xs := by
+  sorry
+
+theorem list_eraseReps_xx {α: Type} [BEq α] (x: α) (xs: List α):
+  List.eraseReps (x::(x::xs)) = List.eraseReps (x::xs) := by
+  sorry
+
+-- theorem list_eraseReps_does_not_erase_head (α: Type) [BEq α] (x: α) (xs: List α) (h: x ∉ xs):
+--   ∃ exs, List.eraseReps (x::xs) = x::exs := by
+--   induction xs with
+--   | nil =>
+--     exists []
+--   | cons ix ixs ih =>
+--     have h' := list_notin_cons x ix ixs h
+--     clear h
+--     cases h' with
+--     | intro xix xixs =>
+--     have ih' := ih xixs
+--     clear ih
+--     cases ih' with
+--     | intro exs ih' =>
+--     simp [List.eraseReps]
+--     exists List.eraseReps (ix :: ixs)
+--     simp [eraseReps.loop]
+
+theorem list_eraseReps_has_same_head (α: Type) [BEq α] [LawfulBEq α] (x: α) (xs: List α):
+  ∃ (xs': List α), (x::xs') = List.eraseReps (x::xs) := by
+  induction xs with
+  | nil =>
+    exists []
+  | cons ix ixs ih =>
+    cases ih with
+    | intro xs ih =>
+    have xix := beq_eq_or_neq_prop x ix
+    cases xix
+    · case inl xix =>
+      rw [xix]
+      rw [list_eraseReps_xx]
+      rw [<- xix]
+      exists xs
+    · case inr xix =>
+      exists (List.eraseReps (ix::ixs))
+      simp only [List.eraseReps]
+      simp only [List.eraseReps.loop]
+      split
+      · sorry
+      · sorry
