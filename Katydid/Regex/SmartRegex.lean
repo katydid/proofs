@@ -323,6 +323,7 @@ theorem orToList_is_orFromList (x: Regex α):
   orFromList (orToList x) = x := by
   induction x <;> (try simp [orToList, orFromList])
   · case or x1 x2 ih1 ih2 =>
+    -- TODO
     sorry
 
 -- 1. If x or y is emptyset then return the other (Language.simp_or_emptyset_r_is_l and Language.simp_or_emptyset_l_is_r)
@@ -352,6 +353,7 @@ def smartOr (x y: Regex α): Regex α :=
 
 theorem smartOr_is_or (x y: Regex α):
   denote (Regex.or x y) = denote (smartOr x y) := by
+  -- TODO
   sorry
 
 def derive (r: Regex α) (a: α): Regex α :=
@@ -370,6 +372,7 @@ def derive (r: Regex α) (a: α): Regex α :=
 
 theorem derive_commutes {α: Type} (r: Regex α) (x: α):
   denote (derive r x) = Language.derive (denote r) x := by
+  -- TODO
   sorry
 
 def derives (r: Regex α) (xs: List α): Regex α :=

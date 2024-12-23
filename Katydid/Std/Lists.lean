@@ -1,11 +1,7 @@
--- Lean Tactics
--- https://leanprover.github.io/theorem_proving_in_lean4/tactics.html
--- Lean List Proofs
--- https://github.com/leanprover/std4/blob/main/Std/Data/List/Lemmas.lean
--- Coq List Proofs
+-- This file is based on List Proofs originally done in Coq:
 -- https://github.com/katydid/proofs/blob/old-coq/src/CoqStock/List.v
--- List of Lean Tactics
--- https://github.com/leanprover/lean4/blob/master/src/Init/Tactics.lean
+-- Other Lean List Proofs can be found in:
+-- https://github.com/leanprover/std4/blob/main/Std/Data/List/Lemmas.lean
 
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.SplitIfs
@@ -1005,15 +1001,3 @@ theorem list_notin_cons (y: α) (x: α) (xs: List α):
     apply h
     apply Mem.tail
     exact yinxs
-
-theorem list_eraseReps_idemp {α: Type} [BEq α] (x: α) (xs: List α):
-  List.eraseReps (List.eraseReps xs) = List.eraseReps xs := by
-  sorry
-
-theorem list_eraseReps_erases_first_rep {α: Type} [BEq α] (x: α) (xs: List α):
-  List.eraseReps (x::(x::xs)) = List.eraseReps (x::xs) := by
-  sorry
-
-theorem list_eraseReps_does_not_erase_head (α: Type) [BEq α] [LawfulBEq α] (x: α) (xs: List α):
-  ∃ (xs': List α), (x::xs') = List.eraseReps (x::xs) := by
-  sorry
