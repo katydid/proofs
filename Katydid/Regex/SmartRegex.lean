@@ -139,37 +139,11 @@ instance : BEq (Regex α) where
 def Regex.le (x y: Regex α): Bool :=
   x <= y
 
-def null (r: Regex α): Bool :=
-  match r with
-  | Regex.emptyset => false
-  | Regex.emptystr => true
-  | Regex.pred _ => false
-  | Regex.or x y => null x || null y
-  | Regex.concat x y => null x && null y
-  | Regex.star _ => true
-
 def onlyif (cond: Prop) [dcond: Decidable cond] (r: Regex α): Regex α :=
   if cond then r else Regex.emptyset
 
 def onlyif' {cond: Prop} (dcond: Decidable cond) (r: Regex α): Regex α :=
   if cond then r else Regex.emptyset
-
-def derive (r: Regex α) (a: α): Regex α :=
-  match r with
-  | Regex.emptyset => Regex.emptyset
-  | Regex.emptystr => Regex.emptyset
-  | Regex.pred p => onlyif' (p.decfunc a) Regex.emptystr
-  | Regex.or x y =>
-      -- TODO: use smartOr
-      Regex.or (derive x a) (derive y a)
-  | Regex.concat x y =>
-      -- TODO: use smartOr and smartConcat
-      Regex.or
-        (Regex.concat (derive x a) y)
-        (onlyif (null x) (derive y a))
-  | Regex.star x =>
-      -- TODO: use smartStar
-      Regex.concat (derive x a) (Regex.star x)
 
 def denote {α: Type} (r: Regex α): Language.Lang α :=
   match r with
@@ -179,6 +153,54 @@ def denote {α: Type} (r: Regex α): Language.Lang α :=
   | Regex.or x y => Language.or (denote x) (denote y)
   | Regex.concat x y => Language.concat (denote x) (denote y)
   | Regex.star x => Language.star (denote x)
+
+def null (r: Regex α): Bool :=
+  match r with
+  | Regex.emptyset => false
+  | Regex.emptystr => true
+  | Regex.pred _ => false
+  | Regex.or x y => null x || null y
+  | Regex.concat x y => null x && null y
+  | Regex.star _ => true
+
+-- copy of SimpleRegex.null_commutes
+theorem null_commutes {α: Type} (r: Regex α):
+  ((null r) = true) = Language.null (denote r) := by
+  induction r with
+  | emptyset =>
+    unfold denote
+    rw [Language.null_emptyset]
+    unfold null
+    apply Bool.false_eq_true
+  | emptystr =>
+    unfold denote
+    rw [Language.null_emptystr]
+    unfold null
+    simp only
+  | pred p =>
+    unfold denote
+    rw [Language.null_pred]
+    unfold null
+    apply Bool.false_eq_true
+  | or p q ihp ihq =>
+    unfold denote
+    rw [Language.null_or]
+    unfold null
+    rw [<- ihp]
+    rw [<- ihq]
+    rw [Bool.or_eq_true]
+  | concat p q ihp ihq =>
+    unfold denote
+    rw [Language.null_concat]
+    unfold null
+    rw [<- ihp]
+    rw [<- ihq]
+    rw [Bool.and_eq_true]
+  | star r ih =>
+    unfold denote
+    rw [Language.null_star]
+    unfold null
+    simp only
 
 -- smartStar is a smart constructor for Regex.star which incorporates the following simplification rules:
 -- 1. star (star x) = star x (Language.simp_star_star_is_star)
@@ -317,3 +339,68 @@ def smartOr (x y: Regex α): Regex α :=
 theorem smartOr_is_or (x y: Regex α):
   denote (Regex.or x y) = denote (smartOr x y) := by
   sorry
+
+def derive (r: Regex α) (a: α): Regex α :=
+  match r with
+  | Regex.emptyset => Regex.emptyset
+  | Regex.emptystr => Regex.emptyset
+  | Regex.pred p => onlyif' (p.decfunc a) Regex.emptystr
+  | Regex.or x y =>
+      SmartRegex.smartOr (derive x a) (derive y a)
+  | Regex.concat x y =>
+      SmartRegex.smartOr
+        (SmartRegex.smartConcat (derive x a) y)
+        (onlyif (null x) (derive y a))
+  | Regex.star x =>
+      SmartRegex.smartConcat (derive x a) (Regex.star x)
+
+theorem derive_commutes {α: Type} (r: Regex α) (x: α):
+  denote (derive r x) = Language.derive (denote r) x := by
+  sorry
+
+def derives (r: Regex α) (xs: List α): Regex α :=
+  (List.foldl derive r) xs
+
+-- copy of SimpleRegex.derives_commutes
+theorem derives_commutes {α: Type} (r: Regex α) (xs: List α):
+  denote (derives r xs) = Language.derives (denote r) xs := by
+  unfold derives
+  rw [Language.derives_foldl]
+  revert r
+  induction xs with
+  | nil =>
+    simp only [foldl_nil]
+    intro h
+    exact True.intro
+  | cons x xs ih =>
+    simp only [foldl_cons]
+    intro r
+    have h := derive_commutes r x
+    have ih' := ih (derive r x)
+    rw [h] at ih'
+    exact ih'
+
+def validate (r: Regex α) (xs: List α): Bool :=
+  null (derives r xs)
+
+-- copy of SimpleRegex.validate_commutes
+theorem validate_commutes {α: Type} (r: Regex α) (xs: List α):
+  (validate r xs = true) = (denote r) xs := by
+  rw [<- Language.validate (denote r) xs]
+  unfold validate
+  rw [<- derives_commutes]
+  rw [<- null_commutes]
+
+-- decidableDenote shows that the derivative algorithm is decidable
+-- copy of SimpleRegex.decidableDenote
+def decidableDenote (r: Regex α): DecidablePred (denote r) := by
+  unfold DecidablePred
+  intro xs
+  rw [<- validate_commutes]
+  cases (validate r xs)
+  · simp only [Bool.false_eq_true]
+    apply Decidable.isFalse
+    simp only [not_false_eq_true]
+  · simp only
+    apply Decidable.isTrue
+    exact True.intro
