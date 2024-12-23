@@ -6,17 +6,35 @@ open List
 
 namespace SmartRegex
 
+def mkCharPredFunc (c: Char): Char -> Prop :=
+  (· = c)
+
+instance : DecidablePred (mkCharPredFunc c) := by
+  intro c'
+  unfold mkCharPredFunc
+  by_cases (c' = c)
+  · case pos h =>
+    exact Decidable.isTrue h
+  · case neg h =>
+    exact Decidable.isFalse h
+
+def mkAnyPredFunc: α -> Prop :=
+  fun _ => True
+
+instance : @DecidablePred α mkAnyPredFunc := by
+  intro a
+  unfold mkAnyPredFunc
+  exact Decidable.isTrue True.intro
+
 inductive Predicate (α: Type) where
   | mk
-    (o: Ord α)
     (desc: String)
     (func: α -> Prop)
-    (d: DecidablePred func)
-  : Predicate α
+  : [DecidablePred func] -> [Ord α] -> Predicate α
 
 def Predicate.desc {α: Type} (p: Predicate α): String :=
   match p with
-  | ⟨ _, desc, _, _ ⟩ => desc
+  | Predicate.mk desc _ => desc
 
 def Predicate.compare (x: Predicate α) (y: Predicate α): Ordering :=
   let xd: String := x.desc
@@ -26,23 +44,20 @@ def Predicate.compare (x: Predicate α) (y: Predicate α): Ordering :=
 instance : Ord (Predicate α) where
   compare: Predicate α → Predicate α → Ordering := Predicate.compare
 
-def Predicate.mkAny [o: Ord α]: Predicate α := by
-  apply @Predicate.mk α o "any"
-  · sorry
-  · exact fun _ => True
+def Predicate.mkChar (c: Char): Predicate Char :=
+  Predicate.mk (String.mk [c]) (mkCharPredFunc c)
 
-def Predicate.mkChar (c: Char): Predicate Char := by
-  apply @Predicate.mk Char inferInstance (String.mk [c])
-  · sorry
-  · exact fun a: Char => a = c
+def Predicate.mkAny [o: Ord α]: Predicate α :=
+  Predicate.mk "any" mkAnyPredFunc
 
 def Predicate.func (p: Predicate α): α -> Prop :=
   match p with
-  | ⟨ _, _, f, _ ⟩ => f
+  | Predicate.mk _ func => func
 
 def Predicate.decfunc (p: Predicate α): DecidablePred p.func := by
   cases p with
-  | mk _ _ f dec =>
+  | mk desc f =>
+    rename_i dec _
     intro a
     unfold DecidablePred at dec
     unfold Predicate.func
@@ -321,11 +336,11 @@ theorem orToList_is_orFromList (x: Regex α):
 def smartOr (x y: Regex α): Regex α :=
   match x with
   | Regex.emptyset => y
-  | Regex.star (Regex.pred (Predicate.mk _ "any" _ _)) => x
+  | Regex.star (Regex.pred (Predicate.mk "any" _)) => x
   | _ =>
   match y with
   | Regex.emptyset => x
-  | Regex.star (Regex.pred (Predicate.mk _ "any" _ _)) => y
+  | Regex.star (Regex.pred (Predicate.mk "any" _)) => y
   | _ =>
     -- it is implied that xs is sorted, given it was created using smartOr
     let xs := orToList x
