@@ -345,11 +345,10 @@ def smartOr (x y: Regex α): Regex α :=
     -- it is implied that xs is sorted, given it was created using smartOr
     let xs := orToList x
     let ys := orToList y
-    -- merge the sorted lists, resulting in a sorted list
-    let ors := NonEmptyList.merge xs ys
-    -- remove duplicates from sorted list using erase repititions
-    let uniqueOrs := NonEmptyList.eraseReps ors
-    orFromList uniqueOrs
+    -- merge the sorted lists and remove duplicates,
+    -- resulting in a sorted list of unique items.
+    let ors := NonEmptyList.mergeReps xs ys
+    orFromList ors
 
 theorem smartOr_is_or (x y: Regex α):
   denote (Regex.or x y) = denote (smartOr x y) := by

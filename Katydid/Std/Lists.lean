@@ -41,6 +41,25 @@ instance [Ord α]: LE (List α) where
 def Lists.merge [Ord α] (xs: List α) (ys: List α): List α :=
   List.merge xs ys (fun x y => (Ord.compare x y).isLE)
 
+def Lists.eraseReps [BEq α] (xs: List α): List α :=
+  match xs with
+  | [] => []
+  | [x] => [x]
+  | (x1::x2::xs) =>
+    if x1 == x2
+    then Lists.eraseReps (x2::xs)
+    else x1 :: List.eraseReps (x2::xs)
+
+def Lists.mergeReps [BEq α] [Ord α] (xs ys: List α): List α :=
+  match xs, ys with
+  | [], ys => ys
+  | xs, [] => xs
+  | x :: xs, y :: ys =>
+    match Ord.compare x y with
+    | Ordering.eq => Lists.mergeReps xs (y::ys)
+    | Ordering.lt => x :: Lists.mergeReps xs (y::ys)
+    | Ordering.gt => y :: Lists.mergeReps (x::xs) ys
+
 theorem list_cons_ne_nil (x : α) (xs : List α):
   x :: xs ≠ [] := by
   intro h'
