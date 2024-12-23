@@ -70,6 +70,7 @@ Optionally the following will also be helpful, but this is not required:
     + [Coq Lean Tactic Cheat Sheet](https://github.com/katydid/coq-lean-cheatsheet/)
     + [Lean Standard Libary Documentation](https://leanprover-community.github.io/mathlib4_docs/Std/Data/HashMap/Basic.html#Std.HashMap)
     + [Lean4 Meta Programming Book](https://github.com/arthurpaulino/lean4-metaprogramming-book)
+    + [Tactic List](https://github.com/haruhisa-enomoto/mathlib4-all-tactics/blob/main/all-tactics.md)
 
 Questions about Lean4 can be asked on [proofassistants.stackexchange](https://proofassistants.stackexchange.com/) by tagging questions with `lean` and `lean4` or in the [Zulip Chat](https://leanprover.zulipchat.com/).
 

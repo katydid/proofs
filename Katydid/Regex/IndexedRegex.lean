@@ -43,6 +43,7 @@ def iso'' {P Q: Language.Lang α} (ifflang: ∀ {xs: List α}, P xs <-> Q xs) (r
 
 -- | scalar {s: Type u}: (Decidability.Dec s) -> Lang P -> Lang (Language.scalar s P)
 def onlyif {cond: Prop} (dcond: Decidable cond) (r: Regex α l): Regex α (Language.onlyif cond l) :=
+-- TODO
   sorry
 
 def derive (r: Regex α l) (a: α): Regex α (Language.derive l a) :=
@@ -51,11 +52,13 @@ def derive (r: Regex α l) (a: α): Regex α (Language.derive l a) :=
   | Regex.emptystr =>
     iso Language.derive_emptystr Regex.emptyset
   | Regex.pred p =>
+    -- TODO
     -- iso Language.derive_pred (onlyif p Regex.emptystr)
     sorry
   | Regex.or x y =>
     iso Language.derive_or (Regex.or (derive x a) (derive y a))
   | Regex.concat x y =>
+    -- TODO
     -- iso Language.derive_concat
     --   (Regex.or
     --     (onlyif (null x) (derive y a))

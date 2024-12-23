@@ -651,24 +651,28 @@ theorem simp_and_null_l_emptystr_is_l
     | And.intro hr hxs =>
     exact hr
   case mpr =>
+    -- TODO
     sorry
 
 theorem simp_and_emptystr_null_r_is_r
   (r: Lang α)
   (nullr: null r):
   and emptystr r = r := by
+  -- TODO
   sorry
 
 theorem simp_and_not_null_l_emptystr_is_emptyset
   (r: Lang α)
   (notnullr: Not (null r)):
   and r emptystr = emptyset := by
+  -- TODO
   sorry
 
 theorem simp_and_emptystr_not_null_r_is_emptyset
   (r: Lang α)
   (notnullr: Not (null r)):
   and emptystr r = emptyset := by
+  -- TODO
   sorry
 
 theorem simp_and_idemp (r: Lang α):
@@ -755,12 +759,14 @@ theorem simp_and_not_emptystr_l_not_null_r_is_r
   (r: Lang α)
   (notnullr: Not (null r)):
   and (not emptystr) r = r := by
+  -- TODO
   sorry
 
 theorem simp_and_not_null_l_not_emptystr_r_is_l
   (r: Lang α)
   (notnullr: Not (null r)):
   and r (not emptystr) = r := by
+  -- TODO
   sorry
 
 theorem simp_one_r_implies_star_r (r: Lang α) (xs: List α):
