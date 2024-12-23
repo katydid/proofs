@@ -21,10 +21,6 @@
  - Do we like comments? Yes we do.
  - Are they required? No.
 
-### When to use a separate file
-
-Now. When you are starting to ask this question, it is time to start using a separate file.
-
 ### Tactics
 
 Tactics unlike proofs, definitions, etc. don't have any types.

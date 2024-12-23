@@ -11,10 +11,35 @@ import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.SplitIfs
 
 import Katydid.Std.BEq
+import Katydid.Std.Ordering
 import Katydid.Std.Nat
 
 open Nat
 open List
+
+def Lists.compare [o: Ord α] (xs ys: List α): Ordering :=
+  Ordering.lex
+    (Ord.compare (length xs) (length ys))
+    (match xs with
+      | [] =>
+        match ys with
+        | [] => Ordering.eq
+        | _ => Ordering.lt -- impossible
+      | (x'::xs') =>
+        match ys with
+        | [] => Ordering.gt -- impossible
+        | (y'::ys') =>
+            Ordering.lex (Ord.compare x' y') (Lists.compare xs' ys')
+    )
+
+instance [Ord α]: Ord (List α) where
+  compare := Lists.compare
+
+instance [Ord α]: LE (List α) where
+  le xs ys := (Lists.compare xs ys).isLE
+
+def Lists.merge [Ord α] (xs: List α) (ys: List α): List α :=
+  List.merge xs ys (fun x y => (Ord.compare x y).isLE)
 
 theorem list_cons_ne_nil (x : α) (xs : List α):
   x :: xs ≠ [] := by
@@ -962,51 +987,14 @@ theorem list_notin_cons (y: α) (x: α) (xs: List α):
     apply Mem.tail
     exact yinxs
 
-theorem list_eraseReps_finishes {α: Type} [BEq α] (x: α) (xs: List α):
+theorem list_eraseReps_idemp {α: Type} [BEq α] (x: α) (xs: List α):
   List.eraseReps (List.eraseReps xs) = List.eraseReps xs := by
   sorry
 
-theorem list_eraseReps_xx {α: Type} [BEq α] (x: α) (xs: List α):
+theorem list_eraseReps_erases_first_rep {α: Type} [BEq α] (x: α) (xs: List α):
   List.eraseReps (x::(x::xs)) = List.eraseReps (x::xs) := by
   sorry
 
--- theorem list_eraseReps_does_not_erase_head (α: Type) [BEq α] (x: α) (xs: List α) (h: x ∉ xs):
---   ∃ exs, List.eraseReps (x::xs) = x::exs := by
---   induction xs with
---   | nil =>
---     exists []
---   | cons ix ixs ih =>
---     have h' := list_notin_cons x ix ixs h
---     clear h
---     cases h' with
---     | intro xix xixs =>
---     have ih' := ih xixs
---     clear ih
---     cases ih' with
---     | intro exs ih' =>
---     simp [List.eraseReps]
---     exists List.eraseReps (ix :: ixs)
---     simp [eraseReps.loop]
-
-theorem list_eraseReps_has_same_head (α: Type) [BEq α] [LawfulBEq α] (x: α) (xs: List α):
+theorem list_eraseReps_does_not_erase_head (α: Type) [BEq α] [LawfulBEq α] (x: α) (xs: List α):
   ∃ (xs': List α), (x::xs') = List.eraseReps (x::xs) := by
-  induction xs with
-  | nil =>
-    exists []
-  | cons ix ixs ih =>
-    cases ih with
-    | intro xs ih =>
-    have xix := beq_eq_or_neq_prop x ix
-    cases xix
-    · case inl xix =>
-      rw [xix]
-      rw [list_eraseReps_xx]
-      rw [<- xix]
-      exists xs
-    · case inr xix =>
-      exists (List.eraseReps (ix::ixs))
-      simp only [List.eraseReps]
-      simp only [List.eraseReps.loop]
-      split
-      · sorry
-      · sorry
+  sorry
