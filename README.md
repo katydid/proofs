@@ -19,7 +19,7 @@ Prove theorems about Symbolic regular expressions as a foundation to build upon.
 - [x] Prove correctness of derivative algorithm via a commuting diagram.
 - [ ] Prove correctness of derivative algorithm via a Regex type indexed with Language.
 - [x] Prove decidability of derivative algorithm.
-- [ ] Prove correctness of simplification rules.
+- [x] Prove correctness of simplification rules.
 - [ ] Prove correctness of smart constructors.
 
 Reuse as much as we can from [our previous work in Coq](https://github.com/katydid/regex-derivatives-coq) and our attempt at [Reproving Agda in Lean](https://github.com/katydid/symbolic-automatic-derivatives)

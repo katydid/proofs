@@ -763,15 +763,106 @@ theorem simp_and_not_null_l_not_emptystr_r_is_l
   and r (not emptystr) = r := by
   sorry
 
+theorem simp_one_r_implies_star_r (r: Lang α) (xs: List α):
+  r xs -> star r xs := by
+  intro h
+  cases xs
+  · exact star.zero
+  · case cons x xs =>
+    apply star.more x xs []
+    · simp
+    · exact h
+    · exact star.zero
+
+theorem simp_star_concat_star_implies_star (r: Lang α) (xs: List α):
+  concat (star r) (star r) xs -> star r xs := by
+  intro h
+  cases h with
+  | intro xs1 h =>
+  cases h with
+  | intro xs2 h =>
+  cases h with
+  | intro starrxs1 h =>
+  cases h with
+  | intro starrxs2 xssplit =>
+  rw [xssplit]
+  clear xssplit
+  induction starrxs1 with
+  | zero =>
+    simp
+    exact starrxs2
+  | more x xs11 xs12 _ xs1split rxxs11 starrxs12 ih =>
+    rename_i xs1
+    rw [xs1split]
+    apply star.more x xs11 (xs12 ++ xs2)
+    simp
+    exact rxxs11
+    exact ih
+
+theorem simp_star_implies_star_concat_star (r: Lang α) (xs: List α):
+  star r xs -> concat (star r) (star r) xs  := by
+  intro h
+  cases h with
+  | zero =>
+    unfold concat
+    exists []
+    exists []
+    split_ands
+    · exact star.zero
+    · exact star.zero
+    · simp
+  | more x xs1 xs2 _ xssplit rxxs1 starrxs2 =>
+    unfold concat
+    exists (x::xs1)
+    exists xs2
+    split_ands
+    · refine star.more x xs1 [] _ ?_ ?_ ?_
+      · simp
+      · exact rxxs1
+      · exact star.zero
+    · exact starrxs2
+    · rw [xssplit]
+
+theorem simp_star_concat_star_is_star (r: Lang α):
+  concat (star r) (star r) = star r := by
+  unfold concat
+  funext xs
+  simp only [eq_iff_iff]
+  apply Iff.intro
+  case mp =>
+    apply simp_star_concat_star_implies_star
+  case mpr =>
+    apply simp_star_implies_star_concat_star
+
 theorem simp_star_star_is_star (r: Lang α):
   star (star r) = star r := by
   funext xs
   simp only [eq_iff_iff]
   apply Iff.intro
   case mp =>
-    sorry
+    intro h
+    induction h with
+    | zero =>
+      exact star.zero
+    | more x xs1 xs2 _ xssplit starrxxs1 starstarrxs2 ih =>
+      rename_i xss
+      rw [xssplit]
+      rw [<- simp_star_concat_star_is_star]
+      unfold concat
+      exists (x::xs1)
+      exists xs2
   case mpr =>
-    sorry
+    intro h
+    induction h with
+    | zero =>
+      exact star.zero
+    | more x xs1 xs2 _ xssplit rxxs1 starrxs2 ih =>
+      rename_i xss
+      apply star.more x xs1 xs2
+      · exact xssplit
+      · apply simp_one_r_implies_star_r
+        exact rxxs1
+      · exact ih
 
 theorem simp_star_emptystr_is_emptystr {α: Type}:
   star (@emptystr α) = (@emptystr α) := by
