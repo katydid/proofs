@@ -665,15 +665,21 @@ theorem simp_and_not_null_l_emptystr_is_emptyset
   (r: Lang α)
   (notnullr: Not (null r)):
   and r emptystr = emptyset := by
-  -- TODO
-  sorry
+  funext xs
+  simp at *
+  intro hr hxs
+  rw [hxs] at hr
+  contradiction
 
 theorem simp_and_emptystr_not_null_r_is_emptyset
   (r: Lang α)
   (notnullr: Not (null r)):
   and emptystr r = emptyset := by
-  -- TODO
-  sorry
+  funext xs
+  simp at *
+  intro hxs
+  rw [hxs]
+  exact notnullr
 
 theorem simp_and_idemp (r: Lang α):
   and r r = r := by
@@ -759,15 +765,21 @@ theorem simp_and_not_emptystr_l_not_null_r_is_r
   (r: Lang α)
   (notnullr: Not (null r)):
   and (not emptystr) r = r := by
-  -- TODO
-  sorry
+  funext xs
+  simp [not, emptystr] at *
+  intro hr hxs
+  rw [hxs] at hr
+  contradiction
 
 theorem simp_and_not_null_l_not_emptystr_r_is_l
   (r: Lang α)
   (notnullr: Not (null r)):
   and r (not emptystr) = r := by
-  -- TODO
-  sorry
+  funext xs
+  simp [not, emptystr] at *
+  intro hr hxs
+  rw [hxs] at hr
+  contradiction
 
 theorem simp_one_r_implies_star_r (r: Lang α) (xs: List α):
   r xs -> star r xs := by
