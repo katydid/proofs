@@ -638,28 +638,25 @@ theorem simp_and_universal_r_is_l (r: Lang α):
   unfold and
   simp
 
-theorem simp_and_null_l_emptystr_is_l
+theorem simp_and_null_l_emptystr_is_emptystr
   (r: Lang α)
   (nullr: null r):
-  and r emptystr = r := by
+  and r emptystr = emptystr := by
   funext xs
-  simp only [and, emptystr, eq_iff_iff]
-  apply Iff.intro
-  case mp =>
-    intro h
-    match h with
-    | And.intro hr hxs =>
-    exact hr
-  case mpr =>
-    -- TODO
-    sorry
+  simp at *
+  intro hxs
+  rw [hxs]
+  exact nullr
 
-theorem simp_and_emptystr_null_r_is_r
+theorem simp_and_emptystr_null_r_is_emptystr
   (r: Lang α)
   (nullr: null r):
-  and emptystr r = r := by
-  -- TODO
-  sorry
+  and emptystr r = emptystr := by
+  funext xs
+  simp at *
+  intro hxs
+  rw [hxs]
+  exact nullr
 
 theorem simp_and_not_null_l_emptystr_is_emptyset
   (r: Lang α)
