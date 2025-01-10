@@ -137,7 +137,7 @@ def denote_onlyif {α: Type} (condition: Prop) [dcond: Decidable condition] (r: 
     split_ifs
     case pos hc' =>
       rw [ctrue]
-      simp
+      simp only [true_and]
     case neg hc' =>
       rw [ctrue] at hc'
       contradiction
@@ -145,7 +145,7 @@ def denote_onlyif {α: Type} (condition: Prop) [dcond: Decidable condition] (r: 
     split_ifs
     case neg hc' =>
       rw [cfalse]
-      simp [denote]
+      simp only [denote, Language.emptyset, false_and]
     case pos hc' =>
       rw [cfalse] at hc'
       contradiction
@@ -270,3 +270,5 @@ def decidableDenote (r: Regex α): DecidablePred (denote r) := by
   · simp only
     apply Decidable.isTrue
     exact True.intro
+
+#print axioms decidableDenote
