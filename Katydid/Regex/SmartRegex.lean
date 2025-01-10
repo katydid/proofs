@@ -332,11 +332,11 @@ private theorem orFromList_cons_NonEmptyList_is_or (x1: Regex α) (xs2: NonEmpty
   | mk head tail =>
   cases tail with
   | nil =>
-    simp
+    simp only
     unfold orFromList
     rfl
   | cons t1 t2 =>
-    simp
+    simp only
     rw [orFromList_is_or_nonEmptyList]
 
 theorem orToList_is_orFromList (x: Regex α):
