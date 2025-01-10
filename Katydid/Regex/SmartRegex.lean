@@ -319,12 +319,32 @@ def orFromList (xs: NonEmptyList (Regex α)): Regex α :=
   | NonEmptyList.mk x1 (x2::xs) =>
     Regex.or x1 (orFromList (NonEmptyList.mk x2 xs))
 
+private theorem orFromList_is_or_nonEmptyList (x1 x2: Regex α) (xs: List (Regex α)):
+  orFromList (NonEmptyList.mk x1 (x2 :: xs)) = Regex.or x1 (orFromList (NonEmptyList.mk x2 xs )) := by
+  simp only [orFromList]
+
+private theorem orFromList_cons_NonEmptyList_is_or (x1: Regex α) (xs2: NonEmptyList (Regex α)):
+  orFromList (NonEmptyList.cons x1 xs2) = Regex.or x1 (orFromList xs2) := by
+  unfold orFromList
+  unfold NonEmptyList.cons
+  simp only [Regex.or.injEq, true_and]
+  cases xs2 with
+  | mk head tail =>
+  cases tail with
+  | nil =>
+    simp
+    unfold orFromList
+    rfl
+  | cons t1 t2 =>
+    simp
+    rw [orFromList_is_or_nonEmptyList]
+
 theorem orToList_is_orFromList (x: Regex α):
   orFromList (orToList x) = x := by
   induction x <;> (try simp only [orToList, orFromList])
   · case or x1 x2 ih1 ih2 =>
-    -- TODO
-    sorry
+    rw [orFromList_cons_NonEmptyList_is_or]
+    rw [ih2]
 
 -- 1. If x or y is emptyset then return the other (Language.simp_or_emptyset_r_is_l and Language.simp_or_emptyset_l_is_r)
 -- 2. If x or y is star (any) then return star (any) (Language.simp_or_universal_r_is_universal and Language.simp_or_universal_l_is_universal)
