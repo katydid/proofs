@@ -232,22 +232,22 @@ theorem smartStar_is_star (x: Regex α):
   denote (Regex.star x) = denote (smartStar x) := by
   cases x with
   | emptyset =>
-    simp [smartStar]
-    simp [denote]
+    simp only [smartStar]
+    simp only [denote]
     rw [Language.simp_star_emptyset_is_emptystr]
   | emptystr =>
-    simp [smartStar]
-    simp [denote]
+    simp only [smartStar]
+    simp only [denote]
     rw [Language.simp_star_emptystr_is_emptystr]
   | pred p =>
-    simp [smartStar]
+    simp only [smartStar]
   | concat x1 x2 =>
-    simp [smartStar]
+    simp only [smartStar]
   | or x1 x2 =>
-    simp [smartStar]
+    simp only [smartStar]
   | star x' =>
-    simp [smartStar]
-    simp [denote]
+    simp only [smartStar]
+    simp only [denote]
     rw [Language.simp_star_star_is_star]
 
 -- smartConcat is a smart constructor for Regex.concat that includes the following simplification rules:
@@ -273,32 +273,32 @@ theorem smartConcat_is_concat {α: Type} (x y: Regex α):
   cases x with
   | emptyset =>
     unfold smartConcat
-    simp [denote]
+    simp only [denote]
     exact Language.simp_concat_emptyset_l_is_emptyset (denote y)
   | emptystr =>
     unfold smartConcat
-    simp [denote]
+    simp only [denote]
     exact Language.simp_concat_emptystr_l_is_r (denote y)
   | pred p =>
-    cases y <;> simp [denote]
+    cases y <;> simp only [denote]
     · case emptyset =>
       apply Language.simp_concat_emptyset_r_is_emptyset
     · case emptystr =>
       apply Language.simp_concat_emptystr_r_is_l
   | or x1 x2 =>
-    cases y <;> simp [denote]
+    cases y <;> simp only [denote]
     · case emptyset =>
       apply Language.simp_concat_emptyset_r_is_emptyset
     · case emptystr =>
       apply Language.simp_concat_emptystr_r_is_l
   | concat x1 x2 =>
     unfold smartConcat
-    simp [denote]
+    simp only [denote]
     rw [<- smartConcat_is_concat x2 y]
-    simp [denote]
+    simp only [denote]
     rw [Language.simp_concat_assoc]
   | star x1 =>
-    cases y <;> simp [denote]
+    cases y <;> simp only [denote]
     · case emptyset =>
       apply Language.simp_concat_emptyset_r_is_emptyset
     · case emptystr =>
@@ -321,7 +321,7 @@ def orFromList (xs: NonEmptyList (Regex α)): Regex α :=
 
 theorem orToList_is_orFromList (x: Regex α):
   orFromList (orToList x) = x := by
-  induction x <;> (try simp [orToList, orFromList])
+  induction x <;> (try simp only [orToList, orFromList])
   · case or x1 x2 ih1 ih2 =>
     -- TODO
     sorry

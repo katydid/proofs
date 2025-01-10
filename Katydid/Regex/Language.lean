@@ -96,7 +96,7 @@ theorem derives_strings {α: Type} (R: Lang α) (xs ys: List α):
 
 theorem derives_step {α: Type} (R: Lang α) (x: α) (xs: List α):
   derives R (x :: xs) = derives (derive R x) xs := by
-  simp
+  simp only [derive]
   rw [<- derives_strings]
   congr
 
@@ -104,13 +104,14 @@ theorem null_derives {α: Type} (R: Lang α) (xs: List α):
   (null ∘ derives R) xs = R xs := by
   unfold derives
   unfold null
-  simp
+  simp only [Function.comp_apply]
+  simp only [append_nil]
 
 theorem validate {α: Type} (R: Lang α) (xs: List α):
   null (derives R xs) = R xs := by
   unfold derives
   unfold null
-  simp
+  simp only [append_nil]
 
 theorem derives_foldl (R: Lang α) (xs: List α):
   (derives R) xs = (List.foldl derive R) xs := by
@@ -118,13 +119,13 @@ theorem derives_foldl (R: Lang α) (xs: List α):
   induction xs with
   | nil =>
     unfold derives
-    simp
+    simp only [nil_append, foldl_nil, implies_true]
   | cons x xs ih =>
     simp
     intro R
     rw [derives_step]
     rw [ih (derive R x)]
-    simp
+    simp only [derive]
 
 -- Theorems: null
 
@@ -199,8 +200,8 @@ theorem null_iff_concat {α: Type} {P Q: Lang α}:
   refine Iff.intro ?toFun ?invFun
   case toFun =>
     intro ⟨x, y, hx, hy, hxy⟩
-    simp at hxy
-    simp [hxy] at hx hy
+    simp only [nil_eq, append_eq_nil] at hxy
+    simp only [hxy] at hx hy
     exact ⟨hx, hy⟩
   case invFun =>
     exact fun ⟨x, y⟩ => ⟨[], [], x, y, rfl⟩
@@ -386,7 +387,7 @@ theorem derive_iff_star {α: Type} {x: α} {R: Lang α} {xs: List α}:
       unfold concat
       exists xs1
       exists xs2
-      simp at hxs
+      simp only [singleton_append, cons_append, cons.injEq] at hxs
       cases hxs with
       | intro hxs1 hxs2 =>
       rw [hxs1]
@@ -409,7 +410,7 @@ theorem derive_iff_star {α: Type} {x: α} {R: Lang α} {xs: List α}:
     unfold derives
     refine star.more x xs1 xs2 ?hxs ?e ?f ?g
     · rw [hxs]
-      simp
+      simp only [singleton_append, cons_append, nil_append]
     · apply deriveRxxs1
     · exact starRxs2
 
@@ -529,10 +530,10 @@ theorem simp_or_null_l_emptystr_is_l
   (nullr: null r):
   or r emptystr = r := by
   unfold or
-  simp
+  simp only [emptystr]
   unfold null at nullr
   funext xs
-  simp
+  simp only [eq_iff_iff, or_iff_left_iff_imp]
   intro hxs
   rw [hxs]
   exact nullr
@@ -542,10 +543,10 @@ theorem simp_or_emptystr_null_r_is_r
   (nullr: null r):
   or emptystr r = r := by
   unfold or
-  simp
+  simp only [emptystr]
   unfold null at nullr
   funext xs
-  simp
+  simp only [eq_iff_iff, or_iff_right_iff_imp]
   intro hxs
   rw [hxs]
   exact nullr
@@ -560,7 +561,7 @@ theorem simp_or_comm (r s: Lang α):
   or r s = or s r := by
   unfold or
   funext xs
-  simp
+  simp only [eq_iff_iff]
   apply Iff.intro
   case mp =>
     intro h
@@ -619,31 +620,31 @@ theorem simp_or_assoc (r s t: Lang α):
 theorem simp_and_emptyset_l_is_emptyset (r: Lang α):
   and emptyset r = emptyset := by
   unfold and
-  simp
+  simp only [emptyset, false_and]
   rfl
 
 theorem simp_and_emptyset_r_is_emptyset (r: Lang α):
   and r emptyset = emptyset := by
   unfold and
-  simp
+  simp only [emptyset, and_false]
   rfl
 
 theorem simp_and_universal_l_is_r (r: Lang α):
   and universal r = r := by
   unfold and
-  simp
+  simp only [universal, true_and]
 
 theorem simp_and_universal_r_is_l (r: Lang α):
   and r universal = r := by
   unfold and
-  simp
+  simp only [universal, and_true]
 
 theorem simp_and_null_l_emptystr_is_emptystr
   (r: Lang α)
   (nullr: null r):
   and r emptystr = emptystr := by
   funext xs
-  simp at *
+  simp only [null, and, emptystr, eq_iff_iff, and_iff_right_iff_imp]
   intro hxs
   rw [hxs]
   exact nullr
@@ -653,7 +654,8 @@ theorem simp_and_emptystr_null_r_is_emptystr
   (nullr: null r):
   and emptystr r = emptystr := by
   funext xs
-  simp at *
+  simp only [null] at nullr
+  simp only [and, emptystr, eq_iff_iff, and_iff_left_iff_imp]
   intro hxs
   rw [hxs]
   exact nullr
@@ -663,7 +665,7 @@ theorem simp_and_not_null_l_emptystr_is_emptyset
   (notnullr: Not (null r)):
   and r emptystr = emptyset := by
   funext xs
-  simp at *
+  simp only [null, and, emptystr, emptyset, eq_iff_iff, iff_false, not_and]
   intro hr hxs
   rw [hxs] at hr
   contradiction
@@ -673,7 +675,7 @@ theorem simp_and_emptystr_not_null_r_is_emptyset
   (notnullr: Not (null r)):
   and emptystr r = emptyset := by
   funext xs
-  simp at *
+  simp only [null, and, emptystr, emptyset, eq_iff_iff, iff_false, not_and]
   intro hxs
   rw [hxs]
   exact notnullr
@@ -681,13 +683,22 @@ theorem simp_and_emptystr_not_null_r_is_emptyset
 theorem simp_and_idemp (r: Lang α):
   and r r = r := by
   unfold and
-  simp
+  funext xs
+  simp only [eq_iff_iff]
+  apply Iff.intro
+  case mp =>
+    intro h
+    cases h
+    assumption
+  case mpr =>
+    intro h
+    exact And.intro h h
 
 theorem simp_and_comm (r s: Lang α):
   and r s = and s r := by
   unfold and
   funext xs
-  simp
+  simp only [eq_iff_iff]
   apply Iff.intro
   case mp =>
     intro h
@@ -720,7 +731,7 @@ theorem simp_and_assoc (r s t: Lang α):
 theorem simp_not_not_is_double_negation (r: Lang α):
   not (not r) = r := by
   unfold not
-  simp
+  simp only [not_not]
 
 theorem simp_not_and_demorgen (r s: Lang α):
   not (and r s) = or (not r) (not s) := by
@@ -744,7 +755,7 @@ theorem simp_not_and_demorgen (r s: Lang α):
     intro hrs
     cases hrs with
     | intro hr hs =>
-    simp at h
+    simp only [imp_false] at h
     cases h with
     | inl h =>
       contradiction
@@ -763,7 +774,7 @@ theorem simp_and_not_emptystr_l_not_null_r_is_r
   (notnullr: Not (null r)):
   and (not emptystr) r = r := by
   funext xs
-  simp [not, emptystr] at *
+  simp only [null, and, not, emptystr, eq_iff_iff, and_iff_right_iff_imp]
   intro hr hxs
   rw [hxs] at hr
   contradiction
@@ -773,7 +784,8 @@ theorem simp_and_not_null_l_not_emptystr_r_is_l
   (notnullr: Not (null r)):
   and r (not emptystr) = r := by
   funext xs
-  simp [not, emptystr] at *
+  simp only [null] at notnullr
+  simp only [and, not, emptystr, eq_iff_iff, and_iff_left_iff_imp]
   intro hr hxs
   rw [hxs] at hr
   contradiction
@@ -785,7 +797,7 @@ theorem simp_one_r_implies_star_r (r: Lang α) (xs: List α):
   · exact star.zero
   · case cons x xs =>
     apply star.more x xs []
-    · simp
+    · simp only [append_nil]
     · exact h
     · exact star.zero
 
@@ -804,13 +816,13 @@ theorem simp_star_concat_star_implies_star (r: Lang α) (xs: List α):
   clear xssplit
   induction starrxs1 with
   | zero =>
-    simp
+    simp only [nil_append]
     exact starrxs2
   | more x xs11 xs12 _ xs1split rxxs11 starrxs12 ih =>
     rename_i xs1
     rw [xs1split]
     apply star.more x xs11 (xs12 ++ xs2)
-    simp
+    simp only [cons_append, append_assoc]
     exact rxxs11
     exact ih
 
@@ -825,14 +837,14 @@ theorem simp_star_implies_star_concat_star (r: Lang α) (xs: List α):
     split_ands
     · exact star.zero
     · exact star.zero
-    · simp
+    · simp only [append_nil]
   | more x xs1 xs2 _ xssplit rxxs1 starrxs2 =>
     unfold concat
     exists (x::xs1)
     exists xs2
     split_ands
     · refine star.more x xs1 [] _ ?_ ?_ ?_
-      · simp
+      · simp only [append_nil]
       · exact rxxs1
       · exact star.zero
     · exact starrxs2
@@ -882,7 +894,7 @@ theorem simp_star_star_is_star (r: Lang α):
 theorem simp_star_emptystr_is_emptystr {α: Type}:
   star (@emptystr α) = (@emptystr α) := by
   funext xs
-  simp
+  simp only [emptystr, eq_iff_iff]
   apply Iff.intro
   case mp =>
     intro h
@@ -899,7 +911,7 @@ theorem simp_star_emptystr_is_emptystr {α: Type}:
 theorem simp_star_emptyset_is_emptystr {α: Type}:
   star (@emptyset α) = (@emptystr α) := by
   funext xs
-  simp
+  simp only [emptystr, eq_iff_iff]
   apply Iff.intro
   case mp =>
     intro h
