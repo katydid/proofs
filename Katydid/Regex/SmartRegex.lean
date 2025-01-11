@@ -346,6 +346,36 @@ theorem orToList_is_orFromList (x: Regex α):
     rw [orFromList_cons_NonEmptyList_is_or]
     rw [ih2]
 
+theorem simp_pred_any_is_any:
+  denote (Regex.pred (@Predicate.mkAny α o)) = Language.any := by
+  unfold denote
+  unfold Predicate.mkAny
+  unfold Predicate.func
+  simp only
+  unfold mkAnyPredFunc
+  unfold Language.pred
+  unfold Language.any
+  funext xs
+  simp only [and_true]
+
+theorem simp_star_pred_any_is_universal [o: Ord α]:
+  denote (Regex.star (Regex.pred (@Predicate.mkAny α o))) = Language.universal := by
+  unfold denote
+  rw [simp_pred_any_is_any]
+  exact Language.simp_star_any_is_universal
+
+theorem simp_or_universal_r_is_universal [Ord α] (x: Regex α):
+  denote (Regex.or x (Regex.star (Regex.pred Predicate.mkAny))) = Language.universal := by
+  nth_rewrite 1 [denote]
+  rw [simp_star_pred_any_is_universal]
+  rw [Language.simp_or_universal_r_is_universal]
+
+theorem simp_or_universal_l_is_universal [Ord α] (x: Regex α):
+  denote (Regex.or (Regex.star (Regex.pred Predicate.mkAny)) x) = Language.universal := by
+  nth_rewrite 1 [denote]
+  rw [simp_star_pred_any_is_universal]
+  rw [Language.simp_or_universal_l_is_universal]
+
 -- 1. If x or y is emptyset then return the other (Language.simp_or_emptyset_r_is_l and Language.simp_or_emptyset_l_is_r)
 -- 2. If x or y is star (any) then return star (any) (Language.simp_or_universal_r_is_universal and Language.simp_or_universal_l_is_universal)
 -- 3. Get the lists of ors using orToList (Language.simp_or_assoc)

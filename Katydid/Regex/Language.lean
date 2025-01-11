@@ -23,6 +23,9 @@ def char {α: Type} (x : α): Lang α :=
 def pred {α: Type} (p : α -> Prop): Lang α :=
   fun xs => ∃ x, xs = [x] /\ p x
 
+def any {α: Type}: Lang α :=
+  fun xs => ∃ x, xs = [x]
+
 -- onlyif is used as an and to make derive char not require an if statement
 -- (derive (char c) a) w <-> (onlyif (a = c) emptystr)
 def onlyif {α: Type} (cond : Prop) (R : Lang α) : Lang α :=
@@ -924,3 +927,23 @@ theorem simp_star_emptyset_is_emptystr {α: Type}:
     intro h
     rw [h]
     exact star.zero
+
+theorem simp_star_any_is_universal {α: Type}:
+  star (@any α) = @universal α := by
+  funext xs
+  simp only [universal, eq_iff_iff]
+  apply Iff.intro
+  case mp =>
+    intro h
+    exact True.intro
+  case mpr =>
+    intro h
+    induction xs with
+    | nil =>
+      exact star.zero
+    | cons x xs ih =>
+      apply star.more x [] xs
+      · simp only [singleton_append]
+      · unfold any
+        exists x
+      · exact ih
