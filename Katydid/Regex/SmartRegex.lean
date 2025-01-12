@@ -436,7 +436,7 @@ theorem derive_commutes {α: Type} (r: Regex α) (x: α):
     split_ifs with h
     · rw [denote]
       simp only [Language.emptystr, cons.injEq]
-      constructor
+      apply Iff.intro
       · intro hxs
         use x
       · intro ⟨w, hxs, hp⟩
