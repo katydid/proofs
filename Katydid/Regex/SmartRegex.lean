@@ -445,81 +445,71 @@ theorem derive_commutes {α: Type} (r: Regex α) (x: α):
       simp
       intro _ h'
       contradiction
-  | or a b =>
+  | or r₁ r₂ =>
     funext xs
     simp [derive, denote]
-    rw [←smartOr_is_or]
-    simp only [denote, Language.or]
+    rw [←smartOr_is_or, denote, Language.or]
     rw [derive_commutes, derive_commutes]
     rfl
-  | concat a b =>
+  | concat r₁ r₂ =>
     funext xs
     simp [derive, denote]
-    rw [←smartOr_is_or]
-    simp only [denote, Language.or]
+    rw [←smartOr_is_or, denote, Language.or]
     rw [←smartConcat_is_concat]
-    simp [denote]
-    constructor
+    simp only [denote, Language.concat, exists_and_left]
+    apply Iff.intro
     · intro h
-      cases h with
-      | inl h =>
-        let ⟨ys, h, zs, h', hxs⟩ := h
+      match h with
+      | Or.inl ⟨ys, h, zs, h', hxs⟩ =>
         rw [derive_commutes] at h
-        simp at h
+        rw [Language.derive, Language.derives, singleton_append] at h
         refine ⟨x::ys, h, zs, h', ?_⟩
-        rw [hxs]
-        simp only [cons_append]
-      | inr h =>
+        rw [hxs, cons_append]
+      | Or.inr h =>
         rw [onlyif] at h
         split_ifs at h with hn
         · rw [null_commutes, Language.null] at hn
           rw [derive_commutes] at h
-          simp only [Language.derive, Language.derives, singleton_append] at h
+          rw [Language.derive, Language.derives, singleton_append] at h
           refine ⟨[], hn, x::xs, h, ?_⟩
-          simp only [nil_append]
-        · simp [denote] at h
+          rw [nil_append]
+        · simp only [denote, Language.emptyset] at h
     · intro ⟨ys, h, zs, h', hxs⟩
       rw [derive_commutes]
-      simp
+      simp only [Language.derive, Language.derives, singleton_append]
       cases ys with
       | nil =>
-        simp at hxs
-        right
+        rw [nil_append] at hxs
         rw [onlyif]
         split_ifs with hn
         · rw [derive_commutes]
-          simp
-          rw [hxs]
-          exact h'
-        · rw [null_commutes] at hn
-          simp at hn
+          rw [Language.derive, Language.derives, singleton_append, hxs]
+          exact Or.inr h'
+        · rw [null_commutes, Language.null] at hn
           contradiction
       | cons w ws =>
-        simp at hxs
+        rw [cons_append, cons.injEq] at hxs
         rw [hxs.left]
         exact Or.inl ⟨ws, h, zs, h', hxs.right⟩
   | star r =>
     funext xs
     simp [derive, denote]
     rw [←smartConcat_is_concat]
-    simp [denote]
-    constructor
+    simp only [denote, Language.concat, exists_and_left]
+    apply Iff.intro
     · intro ⟨ys, h, zs, h', hxs⟩
       rw [derive_commutes] at h
-      simp only [Language.derive, Language.derives, singleton_append] at h
+      rw [Language.derive, Language.derives, singleton_append] at h
       apply Language.star.more x ys zs
-      rw [hxs]
-      simp only [cons_append]
+      rw [hxs, cons_append]
       exact h
       exact h'
     · intro h
       cases h with
       | more y ys zs _ hxs h h'  =>
-        simp at hxs
-        rw [derive_commutes]
-        simp only [Language.derive, Language.derives, singleton_append] at h
-        rw [hxs.left]
-        refine ⟨ys, h, zs, h', hxs.right⟩
+        rw [cons_append, cons.injEq] at hxs
+        rw [derive_commutes, hxs.left]
+        exact ⟨ys, h, zs, h', hxs.right⟩
 
 def derives (r: Regex α) (xs: List α): Regex α :=
   (List.foldl derive r) xs
